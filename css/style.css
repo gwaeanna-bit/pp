@@ -1,0 +1,172 @@
+
+.section {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.section > img {
+  display: block;
+  width: 100%;
+  height: 1080px;
+  object-fit: cover;
+}
+
+.intro_reveal {
+  height: 2160px;
+  overflow: visible;
+}
+
+.intro_stage {
+  position: sticky;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: #000;
+}
+
+.intro_stage img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1600px;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.intro_aurora_bg {
+  transform: translateY(var(--intro-bg-y, 0px)) scale(var(--intro-bg-scale, 1.04));
+  transform-origin: center center;
+  transition: transform 0.1s linear;
+}
+
+.intro_stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--intro-overlay-alpha, 0));
+  pointer-events: none;
+}
+
+.intro_content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: 900px;
+  text-align: center;
+  color: #fff;
+  opacity: var(--intro-progress, 0);
+  transform: translateX(-50%) translateY(calc(-50% + var(--intro-content-offset, 48px)));
+  transition: opacity 0.1s linear, transform 0.1s linear;
+}
+
+.intro_title {
+  font-size: 96px;
+  font-weight: 300;
+  line-height: 1.18;
+  letter-spacing: 0.08em;
+  text-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+}
+
+.intro_copy {
+  margin-top: 42px;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+}
+
+.intro_start_btn {
+  margin-top: 58px;
+  padding: 24px 56px;
+  border: 0;
+  border-radius: 999px;
+  background: #dcff8f;
+  color: #102412;
+  font-size: 30px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+body.content-locked .intro_reveal ~ .section {
+  display: none;
+}
+
+/* 클릭 영역 */
+.modal_btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* 좌표는 화면 보고 맞추기 */
+.modal_btn_1 {
+  left: 500px;
+  top: 260px;
+  width: 180px;
+  height: 260px;
+}
+
+.modal_btn_2 {
+  left: 860px;
+  top: 220px;
+  width: 200px;
+  height: 300px;
+}
+
+.modal_btn_3 {
+  left: 1250px;
+  top: 200px;
+  width: 180px;
+  height: 320px;
+}
+
+/* 모달 */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal_content {
+  position: absolute;
+  top: 50%;
+  right: 120px;
+  transform: translateY(-50%);
+  width: 420px;
+  max-width: 90%;
+  background: #fff;
+  border-radius: 24px;
+  padding: 20px;
+}
+
+.modal_content img {
+  display: block;
+  width: 100%;
+  border-radius: 16px;
+}
+
+.close_btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: none;
+  background: none;
+  font-size: 30px;
+  cursor: pointer;
+  line-height: 1;
+}

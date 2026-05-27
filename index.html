@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, initial-scale=1.0" />
+  <title>Penguin Portfolio</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/script.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #2b2b2b;
+      font-family: Arial, sans-serif;
+      overflow-x: auto;
+    }
+
+    .page {
+      width: 1920px;
+      margin: 0 auto;
+      background: #000;
+      color: #fff;
+    }
+
+    .header {
+      width: 1920px;
+      height: 80px;
+      background: transparent;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .nav {
+      display: flex;
+      gap: 40px;
+    }
+
+    .nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+
+    .section {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    .section img {
+      display: block;
+      width: 1920px;
+      height: 1080px;
+      object-fit: cover;
+    }
+
+    .intro_reveal {
+      height: 3240px; /* 3× 뷰포트 → 스크롤 여유가 길어져 걸어오는 느낌이 극적 */
+      overflow: visible;
+    }
+
+    .intro_stage {
+      position: sticky;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* 오로라 배경 이미지 전용 스타일 */
+    .intro_stage .intro_aurora_bg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1600px;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .intro_aurora_bg {
+      transform: translateY(var(--intro-bg-y, 0px)) scale(var(--intro-bg-scale, 1.04));
+      transform-origin: center center;
+      transition: transform 0.1s linear;
+    }
+
+    .intro_stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, var(--intro-overlay-alpha, 0));
+      pointer-events: none;
+      z-index: 1; /* 배경 위, 펭귄 아래 */
+    }
+
+    /* ── 스크롤로 앞으로 걸어오는 section13 펭귄 ── */
+    /*
+      progress 0 : scale 0.05 → 화면 중앙에 아주 작은 점 (먼 거리의 펭귄)
+      progress 1 : scale 1.10 → 화면을 가득 채움 (펭귄이 카메라 앞까지 걸어옴)
+    */
+    .intro_penguin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1920px;
+      height: 1080px;
+      object-fit: cover;
+      object-position: center center;
+      transform-origin: center center;
+
+      transform: translate(-50%, -50%)
+                 scale(calc(0.05 + var(--intro-progress, 0) * 1.05));
+      opacity: var(--intro-progress, 0);
+
+      z-index: 2;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .intro_content {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 3; /* 펭귄 위 */
+      width: 900px;
+      text-align: center;
+      color: #fff;
+      opacity: var(--intro-progress, 0);
+      transform: translateX(-50%) translateY(calc(-50% + var(--intro-content-offset, 48px)));
+      transition: opacity 0.1s linear, transform 0.1s linear;
+    }
+
+    .intro_title {
+      font-size: 96px;
+      font-weight: 300;
+      line-height: 1.18;
+      letter-spacing: 0.08em;
+      text-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    .intro_copy {
+      margin-top: 42px;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.5;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    }
+
+    .intro_start_btn {
+      margin-top: 58px;
+      padding: 24px 56px;
+      border: 0;
+      border-radius: 999px;
+      background: #dcff8f;
+      color: #102412;
+      font-size: 30px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+    }
+
+    body.content-locked .intro_reveal ~ .section {
+      display: none;
+    }
+
+    .text_center {
+      position: absolute;
+      left: 50%;
+      bottom: 80px;
+      transform: translateX(-50%);
+      width: 70%;
+      text-align: center;
+      font-size: 28px;
+      line-height: 1.7;
+      color: #fff;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+    }
+
+    .text_small {
+      font-size: 22px;
+    }
+
+    .portfolio_itle {
+      position: absolute;
+      left: 120px;
+      bottom: 140px;
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .portfolio_btn {
+      display: inline-block;
+      margin-top: 32px;
+      padding: 18px 48px;
+      border-radius: 999px;
+      background: #fff;
+      color: #d60000;
+      font-size: 24px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* ══════════════════════════════════════
+       스플래시 화면  (마우스 패럴랙스 + 텍스트 등장)
+       ══════════════════════════════════════ */
+    body.splash-active {
+      overflow: hidden;
+    }
+
+    /* 루트 컨테이너 */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      cursor: pointer;
+      background: #000;
+      overflow: hidden;
+      transition: opacity 0.9s ease;
+    }
+
+    /* 배경 이미지 레이어 – 마우스에 반응 */
+    #splash-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120%;   /* 여유 공간 확보 → 좌우 이동 시 빈틈 없음 */
+      height: 120%;
+      transform: translate(-50%, -50%);
+      will-change: transform;
+    }
+
+    #splash-bg img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 어두운 그라디언트 오버레이 (텍스트 가독성) */
+    #splash-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center,
+        rgba(0,0,0,0.10) 0%,
+        rgba(0,0,0,0.45) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* 텍스트 레이어 – 마우스에 반대 방향으로 미세하게 반응 */
+    #splash-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      text-align: center;
+      color: #fff;
+      pointer-events: none;
+      will-change: transform;
+      white-space: nowrap;
+    }
+
+    .splash-sub {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.65);
+      opacity: 0;
+      animation: splash-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+    }
+
+    .splash-title {
+      font-size: 100px;
+      font-weight: 200;
+      line-height: 1.12;
+      letter-spacing: 0.06em;
+      margin-top: 20px;
+      opacity: 0;
+      animation: splash-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+      text-shadow: 0 8px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    .splash-desc {
+      margin-top: 28px;
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1.8;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.80);
+      opacity: 0;
+      animation: splash-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 1.1s forwards;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    /* 클릭 힌트 */
+    #splash-hint {
+      position: absolute;
+      bottom: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      animation:
+        splash-hint-in  0.8s ease 2s   forwards,
+        splash-hint-blink 2.8s ease 2.8s infinite;
+    }
+
+    /* 등장 애니메이션 (아래에서 위로) */
+    @keyframes splash-rise {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes splash-hint-in {
+      to { opacity: 0.55; }
+    }
+
+    @keyframes splash-hint-blink {
+      0%, 100% { opacity: 0.25; }
+      50%       { opacity: 0.80; }
+    }
+
+    /* 클릭 후 페이드 아웃 */
+    #splash.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════
+       스크롤 펭귄 캐릭터  (section12.png 실제 이미지)
+       ══════════════════════════════════════ */
+    #penguin {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 500;
+      pointer-events: none;
+      will-change: transform;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    #penguin.visible {
+      opacity: 1;
+    }
+
+    /* 바닥 그림자 — 발이 땅에 닿는 느낌 */
+    #penguin::before {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 16px;
+      background: radial-gradient(ellipse at center,
+        rgba(0,0,0,0.40) 0%, transparent 70%);
+      filter: blur(5px);
+    }
+
+    /* 뒤뚱 래퍼 — transform-origin 을 발바닥 기준으로 */
+    .p-inner {
+      display: block;
+      transform-origin: bottom center;
+    }
+
+    /* 펭귄 이미지 크기 & 그림자 */
+    .penguin-img {
+      display: block;
+      width: 280px;
+      height: auto;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.40));
+    }
+
+    /* ── 걷기 애니메이션 (스크롤 중만 재생) ── */
+    #penguin.walking .p-inner {
+      animation: p-walk 0.48s ease-in-out infinite;
+    }
+
+    /*
+      좌우 뒤뚱 (rotate) + 위아래 통통 (translateY) + 스쿼시-스트레치 (scaleY)
+      → 3가지 조합으로 실제 뒤뚱거리며 걷는 느낌
+    */
+    @keyframes p-walk {
+      0%   { transform: rotate(-4deg) translateY(0px)   scaleY(0.97); }
+      25%  { transform: rotate(-1deg) translateY(-10px) scaleY(1.03); }
+      50%  { transform: rotate( 4deg) translateY(0px)   scaleY(0.97); }
+      75%  { transform: rotate(-1deg) translateY(-10px) scaleY(1.03); }
+      100% { transform: rotate(-4deg) translateY(0px)   scaleY(0.97); }
+    }
+  </style>
+</head>
+<body class="content-locked splash-active">
+
+  <!-- 스플래시 화면: 마우스 패럴랙스 + 텍스트 순차 등장 -->
+  <div id="splash">
+    <!-- 배경 레이어: 마우스에 반응해 좌우로 이동 -->
+    <div id="splash-bg">
+      <img src="images/orora_2.png" alt="오로라 배경" />
+    </div>
+
+    <!-- 오버레이: 텍스트 가독성 향상 -->
+    <div id="splash-overlay"></div>
+
+    <!-- 텍스트 레이어: 순차 페이드-업 등장 -->
+    <div id="splash-text">
+      <p class="splash-sub">First Penguin Portfolio</p>
+      <h1 class="splash-title">The Journey of<br>the Little Penguin</h1>
+      <p class="splash-desc">처음 마주한 세상 속에서<br>스스로 방향을 찾아가는 이야기</p>
+    </div>
+
+    <!-- 클릭 힌트 -->
+    <p id="splash-hint">Click to Enter</p>
+  </div>
+
+  <div class="page">
+
+    <header class="header">
+      <div class="logo">FIRST PENGUIN</div>
+      <nav class="nav">
+        <a href="#chapter-start" class="story_unlock_link">STORY</a>
+        <a href="#about">ABOUT</a>
+        <a href="#portfolio">PORTFOLIO</a>
+      </nav>
+    </header>
+
+    <!-- 0 -->
+    <section class="section intro_reveal" id="story">
+      <div class="intro_stage">
+        <img class="intro_aurora_bg" src="images/orora_2.png" alt="오로라 이미지" />
+        <!-- 스크롤에 따라 먼 곳에서 앞으로 걸어오는 펭귄 -->
+        <img class="intro_penguin" src="images/section13.png" alt="오로라 위 펭귄" />
+      </div>
+    </section>
+
+    <!-- 1 -->
+    <section class="section" id="chapter-start">
+      <img src="images/section01.png" alt="아기펭귄이미지" />
+       <div class="text_center text-small">
+       보호의 바깥에서, 스스로 선택해야 하는 순간이 온다.<br />
+        처음 마주한 환경 속에서 나는 관찰하고, 방향을 고민하기 시작한다.
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="section">
+      <img src="images/section02.png" alt="아기 펭귄 이미지" />
+      <div class="text_center text_small">
+       나는 기다리기보다 먼저 움직이며 답을 찾는 사람이다.<br/>
+         완벽한 확신보다 실행을 통해 배우는 태도가 나를 앞으로 이끈다.
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="section">
+      <img src="images/section03.png" alt="날아오르는 펭귄 이미지" />
+      <div class="text_center">
+        선택은 머무르는 순간보다, 움직이는 과정 속에서 더 선명해진다.<br> 
+        나는 정답을 기다리기보다 직접 부딪히며 방향을 구체화해가는 사람이다.
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="section">
+      <img src="images/section04.png" alt="회전하는 펭귄 이미지" />
+      <div class="text_center">
+        같은 바다를 향해 뛰어들지만, 이전과는 다른 깊이로 나아간다.
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="section">
+      <img src="images/section05.png" alt="바다로 향하는 펭귄 이미지" />
+    </section>
+
+    <!-- 6 -->
+    <section class="section" id="about">
+      <img src="images/section06.png" alt="물속 펭귄 이미지" />
+      <div class="text_center">
+        부딪히는 순간부터, 진짜 배움은 시작된다.
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="section">
+      <img src="images/section07.png" alt="타이포 이미지" />
+    </section>
+
+    <!-- 8 -->
+    <section class="section">
+      <img src="images/section08.png" alt="알과 펭귄 이미지" />
+           <div class="text_center">
+        경험은 결국 나를 더 유연하고 단단하게 만든다.
+      </div>
+    </section>
+
+    <!--11 -->
+    <section class="section" id="portfolio">
+      <img src="images/section11.png" alt="포트폴리오 섹션 이미지" />
+      <div class="portfolio_title">
+        PORTFOLIO<br />
+        <a href="#" class="portfolio_btn">VIEW</a>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="section hero-video">
+      <video autoplay muted loop playsinline>
+        <source src="vidieos/main.mp4" type="video/mp4" />
+      </video>
+    </section>
+
+  </div>
+
+  <!-- ── 스크롤 펭귄 캐릭터 (section12.png) ── -->
+  <div id="penguin">
+    <div class="p-inner">
+      <img class="penguin-img" src="images/section12.png" alt="걷는 펭귄" />
+    </div>
+  </div>
+
+</body>
+</html>
