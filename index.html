@@ -36,8 +36,7 @@
     <div class="logo">FIRST PENGUIN</div>
     <nav class="nav">
       <a href="#" onclick="scrollToSection(0); return false;">HOME</a>
-      <a href="#" onclick="scrollToSection(6); return false;">ABOUT</a>
-      <a href="#" onclick="scrollToSection(9); return false;">PORTFOLIO</a>
+      <a href="#" onclick="scrollToSection(5); return false;">ABOUT</a>
     </nav>
   </header>
 
@@ -49,111 +48,9 @@
     <div id="h-stage">
       <div id="h-rail">
 
-        <!-- 패널 0: 인트로 (오로라 + 아기펭귄 + 스크랩북 데코) -->
-        <section class="h-section" id="story">
-          <img class="intro-aurora" src="images/orora_2.png" alt="오로라" />
-
-          <!-- ① Welcome to my portfolio! 타이틀 -->
-          <div id="intro-title" class="deco-appear" style="animation-delay:0.5s">
-            <span class="title-sub">Welcome to</span>
-            <span class="title-main">my portfolio!</span>
-            <div class="title-underline"></div>
-            <span class="sparkle" style="top:-28px; right:36px;">✦</span>
-            <span class="sparkle" style="top:8px; right:-28px; font-size:14px; animation-delay:0.7s;">✧</span>
-            <span class="sparkle" style="bottom:28px; left:200px; font-size:14px; animation-delay:1.2s;">✧</span>
-            <span class="sparkle" style="top:-14px; left:130px; animation-delay:0.3s;">✦</span>
-          </div>
-
-          <!-- ② About Me 스티커 노트 (좌측) -->
-          <div id="note-about" class="deco-appear" style="animation-delay:0.8s">
-            <div class="note-title">About Me ✦</div>
-            <div class="note-body">
-              안녕하세요!<br>
-              펭귄을 좋아하는<br>
-              UIUX 디자이너입니다.<br>
-              성장하고, 도전하고,<br>
-              배우는 것을 좋아해요!
-            </div>
-            <div class="note-heart">♡</div>
-          </div>
-
-          <!-- ③ ABOUT ME 카드 (우상단) -->
-          <div id="card-about-me" class="deco-appear" style="animation-delay:1.0s">
-            <span class="heart">♥</span>
-            <div class="card-text">ABOUT<br>ME</div>
-            <div class="card-dash">— ☆ —</div>
-          </div>
-
-          <!-- ④ 설명 텍스트 (중앙 우측) -->
-          <div id="intro-desc-text" class="deco-appear" style="animation-delay:1.2s">
-            <p>I'm a UIUX designer<br>
-            who loves creating<br>
-            meaningful experiences.<br>
-            Like a little penguin,<br>
-            I'm always learning,<br>
-            exploring, and growing<br>
-            one step at a time.</p>
-          </div>
-
-          <!-- ⑤ 나무 이정표 (우측) -->
-          <div id="signpost" class="deco-appear" style="animation-delay:1.4s">
-            <div class="sign-pole">
-              <div class="sign-arrow" style="top:55px;" onclick="scrollToSection(6)">About</div>
-              <div class="sign-arrow" style="top:140px;" onclick="scrollToSection(9)">Project</div>
-              <div class="sign-arrow" style="top:225px;" onclick="scrollToSection(7)">Archive</div>
-              <div class="sign-arrow" style="top:310px;" onclick="scrollToSection(9)">Contact</div>
-            </div>
-          </div>
-
-          <!-- ⑥ 하단 메뉴 카드 -->
-          <div id="bottom-cards" class="deco-appear" style="animation-delay:1.6s">
-            <div class="bottom-card" onclick="scrollToSection(6)">
-              <div class="bc-icon">🏠</div>
-              <div class="bc-num">01.&nbsp; About</div>
-              <div class="bc-line"></div>
-              <div class="bc-sub">저에 대해 더 알아보기</div>
-            </div>
-            <div class="bottom-card" onclick="scrollToSection(9)">
-              <div class="bc-icon">💼</div>
-              <div class="bc-num">02.&nbsp; Project</div>
-              <div class="bc-line"></div>
-              <div class="bc-sub">다양한 프로젝트 보기</div>
-            </div>
-            <div class="bottom-card" onclick="scrollToSection(7)">
-              <div class="bc-icon">📷</div>
-              <div class="bc-num">03.&nbsp; Archive</div>
-              <div class="bc-line"></div>
-              <div class="bc-sub">기록하고, 성장한 순간들</div>
-            </div>
-            <div class="bottom-card" onclick="scrollToSection(9)">
-              <div class="bc-icon">✉️</div>
-              <div class="bc-num">04.&nbsp; Contact</div>
-              <div class="bc-line"></div>
-              <div class="bc-sub">함께 일하고 싶다면?</div>
-            </div>
-          </div>
-
-          <!-- ⑦ Let's begin 노트 (하단 우측) -->
-          <div id="note-journey" class="deco-appear" style="animation-delay:1.8s">
-            <div class="journey-text">Let's begin<br>the journey!</div>
-            <div class="journey-arrow">→</div>
-          </div>
-
-        </section>
-
-        <!-- 패널 1: Chapter 01 -->
-        <section class="h-section" id="chapter-start">
-          <img class="bg-img" src="images/section01.png" alt="아기펭귄이미지" />
-          <div class="text_center text_small">
-            보호의 바깥에서, 스스로 선택해야 하는 순간이 온다.<br />
-            처음 마주한 환경 속에서 나는 관찰하고, 방향을 고민하기 시작한다.
-          </div>
-          <div class="info-card sr-elem" data-from="left" style="left:80px; top:180px;">
-            <div class="ic-num">Chapter 01</div>
-            <div class="ic-title">첫 발걸음</div>
-            <div class="ic-body">보호받던 울타리를 벗어나<br>처음으로 마주한 낯선 세상.<br>그 앞에서 나는 관찰하기 시작했다.</div>
-            <span class="ic-tag"># 첫 번째 도전</span>
-          </div>
+        <!-- 패널 0: 홈 – 오로라 -->
+        <section class="h-section" id="home">
+          <img class="bg-img" src="images/orora_2.png" alt="오로라 홈 배경" />
         </section>
 
         <!-- 패널 2: Chapter 02 -->
@@ -217,7 +114,7 @@
 
         <!-- 패널 6: About -->
         <section class="h-section" id="about">
-          <img class="bg-img" src="images/section14.png" alt="남극 오르막길 아기펭귄 이미지" />
+          <img class="bg-img" src="images/section06.png" alt="물속 펭귄 이미지" />
           <div class="text_center">
             부딪히는 순간부터, 진짜 배움은 시작된다.
           </div>
@@ -248,25 +145,22 @@
           </div>
         </section>
 
-        <!-- 패널 9: Portfolio -->
-        <section class="h-section" id="portfolio">
-          <img class="bg-img" src="images/section11.png" alt="포트폴리오 섹션 이미지" />
-          <div class="portfolio_title">
-            PORTFOLIO<br />
-            <a href="#" class="portfolio_btn">VIEW</a>
-          </div>
+
+        <!-- 패널 10: 엔딩 – 남극 오르막길 -->
+        <section class="h-section" id="ending">
+          <img class="bg-img" src="images/section14.png" alt="남극 오르막길 아기펭귄" />
         </section>
 
-        <!-- 패널 10: 비디오 -->
+        <!-- 패널 11: 정상 -->
+        <section class="h-section" id="summit">
+          <img class="bg-img" src="images/section16.png" alt="정상에 오른 아기펭귄" />
+        </section>
+
+        <!-- 패널 12: 비디오 (마지막) -->
         <section class="h-section">
           <video class="bg-img" autoplay muted loop playsinline>
             <source src="vidieos/main.mp4" type="video/mp4" />
           </video>
-        </section>
-
-        <!-- 패널 11: 엔딩 – 남극 오르막길 -->
-        <section class="h-section" id="ending">
-          <img class="bg-img" src="images/section14.png" alt="남극 오르막길 아기펭귄" />
         </section>
 
       </div><!-- /#h-rail -->
@@ -279,7 +173,8 @@
   <!-- 걷는 펭귄 캐릭터 -->
   <div id="penguin">
     <div class="p-inner">
-      <img class="penguin-img" src="images/section12.png" alt="걷는 펭귄" />
+      <img class="penguin-img penguin-young" src="images/section12.png" alt="어린 펭귄" />
+      <img class="penguin-img penguin-adult" src="images/section17.png" alt="황제펭귄" />
     </div>
   </div>
 

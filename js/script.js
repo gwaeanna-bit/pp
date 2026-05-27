@@ -109,44 +109,63 @@ document.addEventListener("DOMContentLoaded", () => {
   const h_sections = h_rail ? Array.from(h_rail.querySelectorAll(".h-section")) : [];
 
   let h_scroll_progress = 0; // 0~1, 전역 공유
+  let scroll_base_x = 0;    // 스크롤 기반 translateX
+
+  /* ── 마우스 패럴랙스 ── */
+  let mp_target = 0;   // 마우스 목표 오프셋
+  let mp_cur    = 0;   // 보간된 현재 오프셋
+  const MP_RANGE = 100; // 좌우 최대 이동 px
+  const MP_LERP  = 0.06;
+
+  document.addEventListener("mousemove", (e) => {
+    const cx = window.innerWidth / 2;
+    mp_target = ((e.clientX - cx) / cx) * MP_RANGE;
+  });
+  document.addEventListener("mouseleave", () => { mp_target = 0; });
+
+  /* ── 렌더 루프: 스크롤 + 마우스 패럴랙스 합산 ── */
+  const render_rail = () => {
+    mp_cur += (mp_target - mp_cur) * MP_LERP;
+    if (h_rail) {
+      const max_x  = h_rail.scrollWidth - window.innerWidth;
+      const final_x = Math.max(0, Math.min(max_x, scroll_base_x - mp_cur));
+      h_rail.style.transform = `translateX(-${final_x.toFixed(2)}px)`;
+
+      // sr-elem 가시성 업데이트
+      h_sections.forEach((sec, i) => {
+        const sec_left = i * 1920;
+        const sec_right = (i + 1) * 1920;
+        const view_l   = final_x - 200;
+        const view_r   = final_x + window.innerWidth;
+        if (view_r > sec_left && view_l < sec_right) {
+          sec.querySelectorAll(".sr-elem:not(.revealed)").forEach(el => {
+            el.classList.add("revealed");
+          });
+        }
+      });
+    }
+    requestAnimationFrame(render_rail);
+  };
+  requestAnimationFrame(render_rail);
 
   const setup_h_track = () => {
     if (!h_track || !h_rail) return;
     const rail_w  = h_rail.scrollWidth;
     const view_w  = window.innerWidth;
     const view_h  = window.innerHeight;
-    // 트랙 높이 = 가로 이동 거리 + 뷰포트 높이 한 페이지
     h_track.style.height = `${rail_w - view_w + view_h}px`;
   };
 
   const update_h_scroll = () => {
     if (!h_track || !h_rail) return;
-
     const scroll_max = h_track.offsetHeight - window.innerHeight;
     if (scroll_max <= 0) return;
 
     h_scroll_progress = Math.max(0, Math.min(1, window.scrollY / scroll_max));
-    const max_x = h_rail.scrollWidth - window.innerWidth;
-    const cur_x = h_scroll_progress * max_x;
-
-    h_rail.style.transform = `translateX(-${cur_x.toFixed(2)}px)`;
+    scroll_base_x = h_scroll_progress * (h_rail.scrollWidth - window.innerWidth);
 
     // 진행 표시바
     if (prog_bar) prog_bar.style.width = `${(h_scroll_progress * 100).toFixed(2)}%`;
-
-    // 섹션 가시성 기반으로 sr-elem 활성화
-    h_sections.forEach((sec, i) => {
-      const sec_left  = i * 1920;
-      const sec_right = (i + 1) * 1920;
-      const view_l    = cur_x - 200;   // 약간의 여유
-      const view_r    = cur_x + window.innerWidth;
-
-      if (view_r > sec_left && view_l < sec_right) {
-        sec.querySelectorAll(".sr-elem:not(.revealed)").forEach(el => {
-          el.classList.add("revealed");
-        });
-      }
-    });
   };
 
   setup_h_track();
@@ -174,11 +193,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let p_scroll_timer = null;
   let p_shown        = false;
-  const P_W          = 260;   // CSS .penguin-img width 와 일치
+  const P_W          = 260;
   const P_MARGIN     = 40;
+
+  /* 드래그 상태 */
+  let p_drag_active  = false;
+  let p_drag_start_x = 0;
+  let p_drag_origin  = 0;
+  let p_manual_x     = null; // null이면 스크롤 기반, 숫자면 수동 위치
 
   const update_penguin = () => {
     if (!penguin_ready || !penguin_el) return;
+    if (p_drag_active || p_manual_x !== null) return; // 드래그 중엔 스킵
 
     const scroll_max = document.documentElement.scrollHeight - window.innerHeight;
     if (scroll_max <= 0) return;
@@ -194,10 +220,87 @@ document.addEventListener("DOMContentLoaded", () => {
       penguin_el.classList.add("visible");
     }
 
+    // 스크롤 50% 이상이면 어른 황제펭귄으로 전환
+    if (progress >= 0.5) {
+      penguin_el.classList.add("grown");
+    } else {
+      penguin_el.classList.remove("grown");
+    }
+
     penguin_el.classList.add("walking");
     clearTimeout(p_scroll_timer);
     p_scroll_timer = setTimeout(() => penguin_el.classList.remove("walking"), 160);
   };
+
+  /* ── 드래그로 자유 이동 ── */
+  if (penguin_el) {
+    penguin_el.addEventListener("mousedown", (e) => {
+      p_drag_active  = true;
+      p_drag_start_x = e.clientX;
+      // 현재 translateX 값 추출
+      const mat = new DOMMatrix(getComputedStyle(penguin_el).transform);
+      p_drag_origin = mat.m41 || 0;
+      penguin_el.classList.add("dragging");
+      document.body.style.userSelect = "none";
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!p_drag_active) return;
+      const delta  = e.clientX - p_drag_start_x;
+      const max_x  = window.innerWidth - P_W - P_MARGIN;
+      const new_x  = Math.max(P_MARGIN, Math.min(max_x, p_drag_origin + delta));
+      p_manual_x   = new_x;
+      penguin_el.style.transform = `translateX(${new_x.toFixed(1)}px)`;
+      penguin_el.classList.add("walking");
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!p_drag_active) return;
+      p_drag_active = false;
+      penguin_el.classList.remove("dragging");
+      document.body.style.userSelect = "";
+      // 잠시 후 스크롤 기반으로 복귀
+      clearTimeout(p_scroll_timer);
+      p_scroll_timer = setTimeout(() => {
+        penguin_el.classList.remove("walking");
+        p_manual_x = null;
+        update_penguin();
+      }, 800);
+    });
+
+    /* 터치 드래그 */
+    penguin_el.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      p_drag_active  = true;
+      p_drag_start_x = t.clientX;
+      const mat = new DOMMatrix(getComputedStyle(penguin_el).transform);
+      p_drag_origin = mat.m41 || 0;
+      penguin_el.classList.add("dragging");
+    }, { passive: true });
+
+    document.addEventListener("touchmove", (e) => {
+      if (!p_drag_active) return;
+      const delta = e.touches[0].clientX - p_drag_start_x;
+      const max_x = window.innerWidth - P_W - P_MARGIN;
+      const new_x = Math.max(P_MARGIN, Math.min(max_x, p_drag_origin + delta));
+      p_manual_x  = new_x;
+      penguin_el.style.transform = `translateX(${new_x.toFixed(1)}px)`;
+      penguin_el.classList.add("walking");
+    }, { passive: true });
+
+    document.addEventListener("touchend", () => {
+      if (!p_drag_active) return;
+      p_drag_active = false;
+      penguin_el.classList.remove("dragging");
+      clearTimeout(p_scroll_timer);
+      p_scroll_timer = setTimeout(() => {
+        penguin_el.classList.remove("walking");
+        p_manual_x = null;
+        update_penguin();
+      }, 800);
+    });
+  }
 
   window.addEventListener("scroll", update_penguin, { passive: true });
   window.addEventListener("resize", update_penguin);
