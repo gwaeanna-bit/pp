@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Penguin Portfolio</title>
+  <title>First Penguin Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Nanum+Brush+Script&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <script src="js/script.js"></script>
 </head>
@@ -11,35 +14,61 @@
 
   <!-- ══ 스플래시 화면 ══ -->
   <div id="splash">
+    <!-- 오로라 배경 (패럴랙스) -->
     <div id="splash-bg">
-      <img src="images/orora_2.png" alt="오로라 배경" />
+      <img src="img/img7.png" alt="남극 배경" />
     </div>
     <div id="splash-overlay"></div>
 
-    <!-- 좌→우 스크롤 펭귄 -->
-    <div id="splash-penguin-lr">
-      <div class="sp-inner">
-        <img src="images/section12.png" alt="걷는 펭귄" />
-      </div>
+    <!-- 눈보라 캔버스 -->
+    <canvas id="snow-canvas"></canvas>
+
+
+
+    <!-- 좌상단 타이틀 -->
+    <div id="splash-text">
+      <p class="splash-sub">FIRST PENGUIN PORTFOLIO</p>
+      <h1 class="splash-title">
+        <span class="title-small">남극의 귀염둥이</span><br>
+        <span class="title-big">황제펭귄 이야기</span>
+      </h1>
     </div>
 
-    <div id="splash-text">
-      <p class="splash-sub">First Penguin Portfolio</p>
-      <h1 class="splash-title">The Journey of<br>the Little Penguin</h1>
+    <!-- 중앙 펭귄 + START 버튼 -->
+    <div id="splash-center">
+      <div id="splash-penguin-wrap">
+        <img id="splash-penguin-spin" src="img/img5.png" alt="얼음 위 아기펭귄" draggable="false" />
+      </div>
+      <p id="splash-hint">✦ swipe right</p>
+      <div id="splash-swipe-arrow">→</div>
     </div>
-    <p id="splash-hint">Scroll to Enter →</p>
+  </div>
+
+  <!-- ══ 수면 전환 화면 (img11) ══ -->
+  <div id="surface-reveal">
+    <img src="img/img11.png" alt="수면 위" />
+  </div>
+
+  <!-- ══ 수중 전환 화면 ══ -->
+  <div id="underwater">
+    <img src="img/img9.png" alt="수중 배경" />
+    <div id="underwater-overlay"></div>
+    <img id="uw-penguin" src="img/img10.png" alt="헤엄치는 펭귄" draggable="false" />
+    <p id="uw-instruction">🐧 펭귄을 잡아서 물 위로 올려주세요!</p>
+    <p id="underwater-hint">✦ scroll to explore</p>
   </div>
 
   <!-- ══ 고정 헤더 ══ -->
   <header class="header">
-    <div class="logo">FIRST PENGUIN</div>
+    <div class="logo">🐧 FIRST PENGUIN</div>
     <nav class="nav">
-      <a href="#" onclick="scrollToSection(0); return false;">HOME</a>
-      <a href="#" onclick="scrollToSection(5); return false;">ABOUT</a>
+      <a href="#" onclick="scrollToSection(0); return false;">Home</a>
+      <a href="#" onclick="scrollToSection(1); return false;">About</a>
+      <a href="#" onclick="scrollToSection(2); return false;">Story</a>
     </nav>
   </header>
 
-  <!-- 가로 진행 표시바 -->
+  <!-- 가로 진행 표시바 (washi tape) -->
   <div id="h-progress-bar"></div>
 
   <!-- ══ 가로 스크롤 트랙 ══ -->
@@ -49,26 +78,96 @@
 
         <!-- 패널 0: 홈 – 오로라 -->
         <section class="h-section" id="home">
-          <img class="bg-img" src="images/orora_2.png" alt="오로라 홈 배경" />
+          <img class="bg-img" src="img/img1.png" alt="남극 홈 배경" />
+          <div class="home-title-wrap">
+            <h2 class="home-brush-title">
+              <span class="home-title-small">남극의 귀염둥이</span>
+              <span class="home-title-big">황제펭귄 이야기</span>
+            </h2>
+          </div>
         </section>
 
-        <!-- 패널 1: pp 이미지 -->
+        <!-- 패널 1: section01 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section01.png" alt="아기펭귄들" />
+          <div class="story-text">
+            <p class="story-body">세상에 나온 첫날, 나는 아직 아무것도 모른다.<br>하지만 함께라면, 두렵지 않다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 2: section02 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section02.png" alt="도약" />
+          <div class="story-text">
+            <p class="story-body">두려움보다 설렘이 더 크다.<br>완벽한 확신보다 실패를 통해 배우는 태도가 나를 앞으로 이끈다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 3: section03 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section03.png" alt="비행" />
+          <div class="story-text">
+            <p class="story-body">전략은 머무르는 순간 낡아간다.<br>몸으로는 해결 속에서 더 선명해진다.<br>나는 통통거리며 나아가면서 직접 부딪히며 방향을 쪼개해나가는 사람이다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 4: section04 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section04.png" alt="낙하" />
+          <div class="story-text">
+            <p class="story-body">같은 바다를 함께 헤엄치다 보면,<br>어느새 다름 별이고 이야기다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 5: section05 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section05.png" alt="잠수" />
+          <div class="story-text">
+            <p class="story-body">깊이 뛰어들 때 비로소<br>진짜 세계가 보인다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 6: section06 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section06.png" alt="도약2" />
+          <div class="story-text">
+            <p class="story-body">방향은 손끝에서부터 전체를 시작한다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 7: section07 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section07.png" alt="수중" />
+          <div class="story-text">
+            <p class="story-body">두려움은 결국 나를 더 유연하고 단단하게 한다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 8: section08 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section08.png" alt="심해" />
+          <div class="story-text">
+            <p class="story-body">결국, 나는 내 바다를 찾아낸다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 9: 프로필 -->
         <section class="h-section" id="pp-section">
           <img class="bg-img" src="images/pp.png" alt="프로필 배경" />
         </section>
 
-        <!-- 패널 10: 엔딩 – 남극 오르막길 -->
-        <section class="h-section" id="ending">
-          <img class="bg-img" src="images/section14.png" alt="남극 오르막길 아기펭귄" />
+        <!-- 패널 10: section11 – 폰 줌인 -->
+        <section class="h-section" id="portfolio-section">
+          <img class="bg-img" src="images/section11.png" alt="포트폴리오" />
+          <!-- 폰 화면 클릭 영역 -->
+          <div id="phone-tap-zone">
+            <div class="tap-ripple"></div>
+            <span class="tap-label">TAP</span>
+          </div>
         </section>
 
-        <!-- 패널 11: 정상 -->
-        <section class="h-section" id="summit">
-          <img class="bg-img" src="images/section16.png" alt="정상에 오른 아기펭귄" />
-        </section>
-
-        <!-- 패널 12: 비디오 (마지막) -->
-        <section class="h-section">
+        <!-- 패널 11: 비디오 (마지막) -->
+        <section class="h-section" id="video-section">
           <video class="bg-img" autoplay muted loop playsinline>
             <source src="vidieos/main.mp4" type="video/mp4" />
           </video>
@@ -78,14 +177,16 @@
     </div><!-- /#h-stage -->
   </div><!-- /#h-track -->
 
-  <!-- 눈 바닥선 -->
+
+
+  <!-- 종이 바닥선 -->
   <div id="ground"></div>
 
   <!-- 걷는 펭귄 캐릭터 -->
   <div id="penguin">
     <div class="p-inner">
       <img class="penguin-img penguin-young" src="images/section12.png" alt="어린 펭귄" />
-      <img class="penguin-img penguin-adult" src="images/section17.png" alt="황제펭귄" />
+      <img class="penguin-img penguin-adult" src="images/section19.png" alt="황제펭귄" />
     </div>
   </div>
 
