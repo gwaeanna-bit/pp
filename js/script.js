@@ -52,12 +52,38 @@ document.addEventListener("DOMContentLoaded", () => {
       splash.classList.add("fade-out");
       document.body.classList.remove("splash-active");
 
+      // 스플래시 페이드 시작과 동시에 펭귄 미리 준비 (좌측 시작 보장)
+      window.scrollTo({ top: 0, behavior: "instant" });
+      penguin_ready = true;
+      update_penguin();
+
       setTimeout(() => {
-        splash.remove();
-        penguin_ready = true;
-        update_penguin(); // 펭귄 즉시 등장
+        splash.style.visibility = "hidden";
+        splash.style.pointerEvents = "none";
       }, 950);
     };
+
+    /* ── 스플래시 복원 (맨 위로 스크롤 시) ── */
+    const restore_splash = () => {
+      if (!splash_dismissed) return;
+      splash_dismissed = false;
+      sp_accum = SP_TOTAL; // 펭귄 오른쪽 끝에서 시작
+      penguin_ready = false;
+
+      splash.style.visibility = "";
+      splash.style.pointerEvents = "";
+      splash.classList.remove("fade-out");
+      document.body.classList.add("splash-active");
+
+      // 패럴랙스 재시작
+      raf_id = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY === 0 && splash_dismissed) {
+        restore_splash();
+      }
+    }, { passive: true });
 
     /* ── 스플래시 좌→우 펭귄 ── */
     const sp_lr       = document.getElementById("splash-penguin-lr");
@@ -82,16 +108,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (progress >= 1) dismiss_splash();
     };
 
+    // 앞뒤 양방향 스크롤 허용
     splash.addEventListener("wheel", (e) => {
       e.preventDefault();
-      if (e.deltaY > 0) move_splash_penguin(e.deltaY);
+      move_splash_penguin(e.deltaY);
     }, { passive: false });
 
     let touch_y = 0;
     splash.addEventListener("touchstart", (e) => { touch_y = e.touches[0].clientY; }, { passive: true });
     splash.addEventListener("touchmove",  (e) => {
       const dy = touch_y - e.touches[0].clientY;
-      if (dy > 0) move_splash_penguin(dy * 3);
+      move_splash_penguin(dy * 3);
       touch_y = e.touches[0].clientY;
     }, { passive: true });
 
@@ -99,92 +126,83 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ══════════════════════════════════════
-     가로 스크롤
-     세로 scrollY → h-rail translateX 변환
+     배경 crossfade + 펭귄 수평 이동
      ══════════════════════════════════════ */
   const h_track    = document.getElementById("h-track");
-  const h_stage    = document.getElementById("h-stage");
   const h_rail     = document.getElementById("h-rail");
   const prog_bar   = document.getElementById("h-progress-bar");
   const h_sections = h_rail ? Array.from(h_rail.querySelectorAll(".h-section")) : [];
 
-  let h_scroll_progress = 0; // 0~1, 전역 공유
-  let scroll_base_x = 0;    // 스크롤 기반 translateX
+  let h_scroll_progress = 0;
+  let current_section_idx = 0;
 
-  /* ── 마우스 패럴랙스 ── */
-  let mp_target = 0;   // 마우스 목표 오프셋
-  let mp_cur    = 0;   // 보간된 현재 오프셋
-  const MP_RANGE = 100; // 좌우 최대 이동 px
-  const MP_LERP  = 0.06;
+  const section_count = h_sections.length;
 
-  document.addEventListener("mousemove", (e) => {
-    const cx = window.innerWidth / 2;
-    mp_target = ((e.clientX - cx) / cx) * MP_RANGE;
-  });
-  document.addEventListener("mouseleave", () => { mp_target = 0; });
-
-  /* ── 렌더 루프: 스크롤 + 마우스 패럴랙스 합산 ── */
-  const render_rail = () => {
-    mp_cur += (mp_target - mp_cur) * MP_LERP;
-    if (h_rail) {
-      const max_x  = h_rail.scrollWidth - window.innerWidth;
-      const final_x = Math.max(0, Math.min(max_x, scroll_base_x - mp_cur));
-      h_rail.style.transform = `translateX(-${final_x.toFixed(2)}px)`;
-
-      // sr-elem 가시성 업데이트
-      h_sections.forEach((sec, i) => {
-        const sec_left = i * 1920;
-        const sec_right = (i + 1) * 1920;
-        const view_l   = final_x - 200;
-        const view_r   = final_x + window.innerWidth;
-        if (view_r > sec_left && view_l < sec_right) {
-          sec.querySelectorAll(".sr-elem:not(.revealed)").forEach(el => {
-            el.classList.add("revealed");
-          });
-        }
-      });
-    }
-    requestAnimationFrame(render_rail);
-  };
-  requestAnimationFrame(render_rail);
-
+  // 트랙 높이 = 섹션 수 × 뷰포트 높이 × 1.8 (스크롤 여유)
   const setup_h_track = () => {
-    if (!h_track || !h_rail) return;
-    const rail_w  = h_rail.scrollWidth;
-    const view_w  = window.innerWidth;
-    const view_h  = window.innerHeight;
-    h_track.style.height = `${rail_w - view_w + view_h}px`;
+    if (!h_track) return;
+    h_track.style.height = `${section_count * window.innerHeight * 1.8}px`;
   };
+
+  // 섹션 전환
+  const show_section = (idx) => {
+    h_sections.forEach((sec, i) => {
+      sec.classList.toggle("active", i === idx);
+    });
+    current_section_idx = idx;
+  };
+
+  const last_video = document.querySelector(".h-section:last-child video");
 
   const update_h_scroll = () => {
-    if (!h_track || !h_rail) return;
+    if (!h_track) return;
     const scroll_max = h_track.offsetHeight - window.innerHeight;
     if (scroll_max <= 0) return;
 
     h_scroll_progress = Math.max(0, Math.min(1, window.scrollY / scroll_max));
-    scroll_base_x = h_scroll_progress * (h_rail.scrollWidth - window.innerWidth);
 
     // 진행 표시바
     if (prog_bar) prog_bar.style.width = `${(h_scroll_progress * 100).toFixed(2)}%`;
+
+    // 섹션 전환: 펭귄 X 위치 기반 (같은 progress 사용)
+    const idx = Math.min(section_count - 1,
+      Math.floor(h_scroll_progress * section_count));
+    if (idx !== current_section_idx) show_section(idx);
+
+    // 펭귄도 같은 progress로 즉시 업데이트
+    update_penguin();
+
+    // 마지막 동영상: 진입 후 지연 줌아웃+페이드
+    if (last_video) {
+      const last_threshold = (section_count - 1) / section_count;
+      if (h_scroll_progress >= last_threshold) {
+        if (!last_video._ending_armed) {
+          last_video._ending_armed = true;
+          last_video.classList.remove("video-ending");
+          void last_video.offsetWidth;
+          last_video.classList.add("video-ending");
+        }
+      } else {
+        last_video._ending_armed = false;
+        last_video.classList.remove("video-ending");
+      }
+    }
   };
 
-  setup_h_track();
-  window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); });
-  window.addEventListener("scroll", update_h_scroll, { passive: true });
-  update_h_scroll();
-
-  /* ── 섹션 번호로 직접 이동하는 함수 (헤더 nav용) ── */
+  /* ── 섹션 번호로 직접 이동 (헤더 nav용) ── */
   window.scrollToSection = (index) => {
-    if (!h_track || !h_rail) return;
-    const section_w  = 1920;
-    const rail_w     = h_rail.scrollWidth;
-    const view_w     = window.innerWidth;
+    if (!h_track) return;
     const scroll_max = h_track.offsetHeight - window.innerHeight;
-
-    const target_x   = Math.min(index * section_w, rail_w - view_w);
-    const target_sy  = (target_x / (rail_w - view_w)) * scroll_max;
+    const target_sy  = (index / section_count) * scroll_max;
     window.scrollTo({ top: target_sy, behavior: "smooth" });
   };
+
+  // 초기 실행
+  show_section(0);
+  setup_h_track();
+  window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); });
+  window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); });
+  window.addEventListener("scroll", update_h_scroll, { passive: true });
 
   /* ══════════════════════════════════════
      바닥 걷는 펭귄 캐릭터
@@ -193,8 +211,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let p_scroll_timer = null;
   let p_shown        = false;
-  const P_W          = 260;
   const P_MARGIN     = 40;
+  const get_P_W = () => penguin_el ? penguin_el.offsetWidth : Math.round(window.innerHeight / 3 * 0.6);
 
   /* 드래그 상태 */
   let p_drag_active  = false;
@@ -204,15 +222,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const update_penguin = () => {
     if (!penguin_ready || !penguin_el) return;
-    if (p_drag_active || p_manual_x !== null) return; // 드래그 중엔 스킵
+    if (p_drag_active || p_manual_x !== null) return;
 
-    const scroll_max = document.documentElement.scrollHeight - window.innerHeight;
+    // 섹션 전환과 동일한 scroll_max 사용 (h_scroll_progress와 동기화)
+    if (!h_track) return;
+    const scroll_max = h_track.offsetHeight - window.innerHeight;
     if (scroll_max <= 0) return;
 
     const progress = Math.max(0, Math.min(1, window.scrollY / scroll_max));
+    const P_W      = get_P_W();
     const travel   = window.innerWidth - P_W - P_MARGIN * 2;
     const x        = P_MARGIN + progress * travel;
 
+    // 수평 이동만 — Y, 회전 없음
     penguin_el.style.transform = `translateX(${x.toFixed(1)}px)`;
 
     if (!p_shown) {
@@ -248,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("mousemove", (e) => {
       if (!p_drag_active) return;
       const delta  = e.clientX - p_drag_start_x;
-      const max_x  = window.innerWidth - P_W - P_MARGIN;
+      const max_x  = window.innerWidth - get_P_W() - P_MARGIN;
       const new_x  = Math.max(P_MARGIN, Math.min(max_x, p_drag_origin + delta));
       p_manual_x   = new_x;
       penguin_el.style.transform = `translateX(${new_x.toFixed(1)}px)`;
@@ -282,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("touchmove", (e) => {
       if (!p_drag_active) return;
       const delta = e.touches[0].clientX - p_drag_start_x;
-      const max_x = window.innerWidth - P_W - P_MARGIN;
+      const max_x = window.innerWidth - get_P_W() - P_MARGIN;
       const new_x = Math.max(P_MARGIN, Math.min(max_x, p_drag_origin + delta));
       p_manual_x  = new_x;
       penguin_el.style.transform = `translateX(${new_x.toFixed(1)}px)`;
