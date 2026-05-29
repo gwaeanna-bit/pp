@@ -206,6 +206,516 @@ body {
   z-index: 3;
 }
 
+/* ══ 증명사진 팝업 ══ */
+#id-photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.60);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+#id-photo-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+#id-photo-inner {
+  position: relative;
+  max-width: min(360px, 40vw);
+  border: 6px solid #fff;
+  border-radius: 4px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+  background: #fff;
+  transform: scale(0.88);
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+#id-photo-modal.open #id-photo-inner {
+  transform: scale(1);
+}
+#id-photo-inner img {
+  display: block;
+  width: 100%;
+  border-radius: 0;
+}
+#id-photo-close {
+  position: absolute;
+  top: -18px; right: -18px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #ccc;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: background 0.15s;
+}
+#id-photo-close:hover { background: #f0f0f0; }
+
+.o-star {
+  position: absolute;
+  font-size: clamp(20px, 2.8vw, 44px);
+  color: rgba(255, 240, 120, 0.90);
+  text-shadow:
+    0 0 10px rgba(255, 230, 80, 0.95),
+    0 0 26px rgba(255, 200, 40, 0.70),
+    0 0 50px rgba(200, 160, 20, 0.40);
+  animation:
+    star-pulse  var(--pd, 2.2s) ease-in-out var(--d, 0s) infinite,
+    star-drift  var(--pd2, 7s)  ease-in-out var(--d, 0s) infinite alternate;
+  transform-origin: center;
+  will-change: transform, opacity;
+  cursor: default;
+}
+
+/* 크기 변수로 각 별마다 다른 기본 크기 */
+.o-star { scale: var(--s, 1); }
+
+@keyframes star-pulse {
+  0%, 100% {
+    transform: scale(0.60);
+    opacity: 0.45;
+    text-shadow:
+      0 0 8px rgba(255, 230, 80, 0.6),
+      0 0 18px rgba(255, 200, 40, 0.35);
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+    text-shadow:
+      0 0 14px rgba(255, 240, 100, 1),
+      0 0 32px rgba(255, 210, 50, 0.85),
+      0 0 60px rgba(220, 170, 30, 0.50);
+  }
+}
+
+@keyframes star-drift {
+  from { translate: 0px 0px; }
+  to   { translate: 0px -8px; }
+}
+
+/* 별마다 다른 맥박 주기 */
+.o-star:nth-child(1)  { --pd: 2.0s; --pd2: 6.4s; }
+.o-star:nth-child(2)  { --pd: 2.6s; --pd2: 7.2s; }
+.o-star:nth-child(3)  { --pd: 1.8s; --pd2: 5.8s; }
+.o-star:nth-child(4)  { --pd: 3.0s; --pd2: 8.0s; }
+.o-star:nth-child(5)  { --pd: 2.2s; --pd2: 6.8s; }
+.o-star:nth-child(6)  { --pd: 1.6s; --pd2: 5.4s; }
+.o-star:nth-child(7)  { --pd: 2.8s; --pd2: 7.6s; }
+.o-star:nth-child(8)  { --pd: 2.1s; --pd2: 6.2s; }
+.o-star:nth-child(9)  { --pd: 3.2s; --pd2: 8.4s; }
+.o-star:nth-child(10) { --pd: 1.9s; --pd2: 5.6s; }
+.o-star:nth-child(11) { --pd: 2.4s; --pd2: 7.0s; }
+.o-star:nth-child(12) { --pd: 2.7s; --pd2: 6.6s; }
+
+#orora-section .orora-penguin-float {
+  position: absolute;
+  left: clamp(56px, 8vw, 150px);
+  top: 50%;
+  z-index: 4;
+  width: min(20vw, 380px);
+  max-height: 68vh;
+  transform: translateY(-50%);
+  animation: penguin-space-float 5.2s ease-in-out infinite;
+}
+
+#orora-section .glitch-img-switch {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  transform-origin: bottom center;
+  transition: transform 0.1s ease;
+}
+
+#orora-section .glitch-img-switch:not(.id-shown):hover {
+  animation: hair-sweep-body 1.1s ease-in-out forwards !important;
+}
+
+@keyframes hair-sweep-body {
+  0%   { transform: rotate(0deg) scale(1) translateY(0); }
+  15%  { transform: rotate(-3deg) scale(1.02) translateY(-4px); }
+  35%  { transform: rotate(2deg) scale(1.04) translateY(-8px); }
+  55%  { transform: rotate(-2deg) scale(1.04) translateY(-6px); }
+  75%  { transform: rotate(1deg) scale(1.02) translateY(-3px); }
+  100% { transform: rotate(0deg) scale(1) translateY(0); }
+}
+
+/* 캔버스 오버레이 */
+#hair-sweep-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+#orora-section .center-img15 {
+  display: block;
+  width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgba(0,0,0,0.38));
+}
+
+#orora-section .orora-center-img17 {
+  position: absolute;
+  right: clamp(56px, 8vw, 150px);
+  top: 50%;
+  z-index: 4;
+  width: min(28vw, 430px);
+  max-height: 76vh;
+  object-fit: contain;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 14px 30px rgba(0,0,0,0.42));
+  animation: img17-space-float 5.8s ease-in-out infinite;
+  cursor: pointer;
+}
+
+#orora-section .orora-center-img17:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.85);
+  outline-offset: 8px;
+}
+
+#orora-section .orora-hobby-roll {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(3, 9, 18, 0.42);
+  backdrop-filter: blur(5px);
+  transition: opacity 0.15s ease;
+}
+
+#orora-section.hobby-open .orora-hobby-roll {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#orora-section .orora-hobby-track {
+  display: flex;
+  width: max-content;
+  gap: clamp(18px, 2vw, 32px);
+  padding: 7vh 8vw 8vh;
+  transform: translateX(var(--slide-x, 0px)) translateY(38px);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#orora-section.hobby-open .orora-hobby-track {
+  transform: translateX(var(--slide-x, 0px)) translateY(0);
+}
+
+#orora-section .orora-hobby-track img {
+  width: clamp(260px, 24vw, 420px);
+  height: clamp(180px, 16vw, 285px);
+  object-fit: cover;
+  object-position: center center;
+  border: 0;
+  box-shadow: 0 18px 42px rgba(0,0,0,0.46);
+  opacity: 0;
+  transform: translateX(70px) translateY(26px) rotate(var(--tilt, -2deg)) scale(0.86);
+  transition:
+    opacity 0.36s ease,
+    transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--delay, 0s);
+}
+
+#orora-section .orora-hobby-track img.hobby-face-up {
+  object-position: center bottom;
+}
+
+#orora-section .orora-hobby-track img:nth-child(2n) { --tilt: 2deg; }
+#orora-section .orora-hobby-track img:nth-child(3n) { --tilt: -1deg; }
+#orora-section .orora-hobby-track img:nth-child(1) { --delay: 0.04s; }
+#orora-section .orora-hobby-track img:nth-child(2) { --delay: 0.10s; }
+#orora-section .orora-hobby-track img:nth-child(3) { --delay: 0.16s; }
+#orora-section .orora-hobby-track img:nth-child(4) { --delay: 0.22s; }
+#orora-section .orora-hobby-track img:nth-child(5) { --delay: 0.28s; }
+#orora-section .orora-hobby-track img:nth-child(6) { --delay: 0.34s; }
+#orora-section .orora-hobby-track img:nth-child(7) { --delay: 0.40s; }
+#orora-section .orora-hobby-track img:nth-child(8) { --delay: 0.46s; }
+#orora-section .orora-hobby-track img:nth-child(9) { --delay: 0.52s; }
+#orora-section .orora-hobby-track img:nth-child(10) { --delay: 0.58s; }
+#orora-section .orora-hobby-track img:nth-child(11) { --delay: 0.64s; }
+#orora-section .orora-hobby-track img:nth-child(12) { --delay: 0.70s; }
+#orora-section .orora-hobby-track img:nth-child(13) { --delay: 0.76s; }
+#orora-section .orora-hobby-track img:nth-child(14) { --delay: 0.82s; }
+#orora-section .orora-hobby-track img:nth-child(15) { --delay: 0.88s; }
+#orora-section .orora-hobby-track img:nth-child(16) { --delay: 0.94s; }
+#orora-section .orora-hobby-track img:nth-child(17) { --delay: 1.00s; }
+#orora-section .orora-hobby-track img:nth-child(18) { --delay: 1.06s; }
+#orora-section .orora-hobby-track img:nth-child(19) { --delay: 1.12s; }
+#orora-section .orora-hobby-track img:nth-child(20) { --delay: 1.18s; }
+#orora-section .orora-hobby-track img:nth-child(21) { --delay: 1.24s; }
+#orora-section .orora-hobby-track img:nth-child(22) { --delay: 1.30s; }
+#orora-section .orora-hobby-track img:nth-child(23) { --delay: 1.36s; }
+#orora-section .orora-hobby-track img:nth-child(24) { --delay: 1.42s; }
+#orora-section .orora-hobby-track img:nth-child(25) { --delay: 1.48s; }
+#orora-section .orora-hobby-track img:nth-child(26) { --delay: 1.54s; }
+#orora-section .orora-hobby-track img:nth-child(27) { --delay: 1.60s; }
+#orora-section .orora-hobby-track img:nth-child(28) { --delay: 1.66s; }
+#orora-section .orora-hobby-track img:nth-child(29) { --delay: 1.72s; }
+#orora-section .orora-hobby-track img:nth-child(30) { --delay: 1.78s; }
+#orora-section .orora-hobby-track img:nth-child(31) { --delay: 1.84s; }
+#orora-section .orora-hobby-track img:nth-child(32) { --delay: 1.90s; }
+#orora-section .orora-hobby-track img:nth-child(33) { --delay: 1.96s; }
+#orora-section .orora-hobby-track img:nth-child(34) { --delay: 2.02s; }
+#orora-section .orora-hobby-track img:nth-child(35) { --delay: 2.08s; }
+#orora-section .orora-hobby-track img:nth-child(36) { --delay: 2.14s; }
+#orora-section .orora-hobby-track img:nth-child(37) { --delay: 2.20s; }
+#orora-section .orora-hobby-track img:nth-child(38) { --delay: 2.26s; }
+#orora-section .orora-hobby-track img:nth-child(39) { --delay: 2.32s; }
+#orora-section .orora-hobby-track img:nth-child(40) { --delay: 2.38s; }
+#orora-section .orora-hobby-track img:nth-child(41) { --delay: 2.44s; }
+#orora-section .orora-hobby-track img:nth-child(42) { --delay: 2.50s; }
+#orora-section .orora-hobby-track img:nth-child(43) { --delay: 2.56s; }
+#orora-section .orora-hobby-track img:nth-child(44) { --delay: 2.62s; }
+#orora-section .orora-hobby-track img:nth-child(45) { --delay: 2.68s; }
+#orora-section .orora-hobby-track img:nth-child(46) { --delay: 2.74s; }
+#orora-section .orora-hobby-track img:nth-child(47) { --delay: 2.80s; }
+#orora-section .orora-hobby-track img:nth-child(48) { --delay: 2.86s; }
+#orora-section .orora-hobby-track img:nth-child(49) { --delay: 2.92s; }
+#orora-section .orora-hobby-track img:nth-child(50) { --delay: 2.98s; }
+#orora-section .orora-hobby-track img:nth-child(51) { --delay: 3.04s; }
+#orora-section .orora-hobby-track img:nth-child(52) { --delay: 3.10s; }
+#orora-section .orora-hobby-track img:nth-child(53) { --delay: 3.16s; }
+#orora-section .orora-hobby-track img:nth-child(54) { --delay: 3.22s; }
+#orora-section .orora-hobby-track img:nth-child(55) { --delay: 3.28s; }
+#orora-section .orora-hobby-track img:nth-child(56) { --delay: 3.34s; }
+#orora-section .orora-hobby-track img:nth-child(57) { --delay: 3.40s; }
+#orora-section .orora-hobby-track img:nth-child(58) { --delay: 3.46s; }
+#orora-section .orora-hobby-track img:nth-child(59) { --delay: 3.52s; }
+
+#orora-section.hobby-open .orora-hobby-track img {
+  opacity: 1;
+  transform: translateX(0) translateY(0) rotate(var(--tilt, -2deg)) scale(1);
+}
+
+#orora-section .orora-hobby-track img:hover {
+  transform: translateY(-12px) rotate(0deg) scale(1.05);
+}
+
+#orora-section .orora-hobby-close {
+  position: absolute;
+  top: 10vh;
+  right: 8vw;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 50%;
+  background: rgba(0,0,0,0.32);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#orora-section .orora-hobby-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 54px;
+  height: 54px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.38);
+  color: #fff;
+  font-size: 48px;
+  line-height: 0.8;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#orora-section .orora-hobby-nav:hover {
+  background: rgba(0,0,0,0.58);
+  transform: translateY(-50%) scale(1.06);
+}
+
+#orora-section .orora-hobby-prev {
+  left: 4vw;
+}
+
+#orora-section .orora-hobby-next {
+  right: 4vw;
+}
+
+#orora-section .img16-hover {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  opacity: 0;
+}
+
+#orora-section .img-id-photo {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#orora-section .glitch-img-switch.id-shown .img15-base,
+#orora-section .glitch-img-switch.id-shown .img16-hover {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+#orora-section .glitch-img-switch.id-shown .img-id-photo {
+  opacity: 1;
+}
+
+#orora-section .glitch-img-switch.id-shown {
+  animation: none !important;
+}
+
+/* 별 버튼 */
+#orora-star-btn {
+  position: absolute;
+  right: 26%;
+  top: 26%;
+  background: none;
+  border: none;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  z-index: 5;
+  transform: translate(50%, -50%);
+}
+
+/* 클릭 유도 링 */
+#orora-star-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 240, 180, 0.55);
+  animation: star-ring-pulse 2s ease-out infinite;
+}
+
+/* click 텍스트 */
+#orora-star-btn::after {
+  content: 'click ✦';
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-family: 'Caveat', cursive;
+  color: rgba(255, 245, 160, 0.9);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(255, 220, 60, 0.8);
+  animation: star-text-float 2s ease-in-out infinite;
+}
+
+@keyframes star-ring-pulse {
+  0%   { transform: scale(0.7); opacity: 0.9; box-shadow: 0 0 0 0 rgba(255,240,150,0.5); }
+  60%  { transform: scale(1.6); opacity: 0.3; box-shadow: 0 0 16px 6px rgba(255,220,80,0.15); }
+  100% { transform: scale(2.0); opacity: 0; }
+}
+
+@keyframes star-text-float {
+  0%, 100% { opacity: 0.7; transform: translateX(-50%) translateY(0); }
+  50%       { opacity: 1;   transform: translateX(-50%) translateY(-4px); }
+}
+
+#orora-section .glitch-img-switch::before,
+#orora-section .glitch-img-switch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#orora-section .glitch-img-switch::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.12) 0,
+    rgba(255,255,255,0.12) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  mix-blend-mode: screen;
+}
+
+#orora-section .glitch-img-switch::after {
+  border-left: 3px solid rgba(0,255,255,0.65);
+  border-right: 3px solid rgba(255,0,120,0.6);
+  transform: translateX(0);
+}
+
+#orora-section .glitch-img-switch:hover,
+#orora-section .glitch-img-switch:focus-visible {
+  animation: glitch-shake 0.42s steps(2, end) infinite;
+}
+
+#orora-section .glitch-img-switch:hover .img15-base,
+#orora-section .glitch-img-switch:focus-visible .img15-base {
+  opacity: 1;
+}
+
+#orora-section .glitch-img-switch:hover .img16-hover,
+#orora-section .glitch-img-switch:focus-visible .img16-hover {
+  opacity: 0;
+}
+
+@keyframes glitch-shake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-3px); }
+  40%  { transform: translateX(4px); }
+  60%  { transform: translateX(-2px); }
+  80%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes penguin-space-float {
+  0%, 100% { transform: translateY(-50%) translateY(0) rotate(-1.8deg); }
+  25%      { transform: translateY(-50%) translateY(-16px) rotate(1.2deg); }
+  50%      { transform: translateY(-50%) translateY(-7px) rotate(2.4deg); }
+  75%      { transform: translateY(-50%) translateY(-20px) rotate(-0.8deg); }
+}
+
+@keyframes img17-space-float {
+  0%, 100% { transform: translateY(-50%) translateY(0) rotate(1.5deg); }
+  25%      { transform: translateY(-50%) translateY(-18px) rotate(-1deg); }
+  50%      { transform: translateY(-50%) translateY(-8px) rotate(-2.2deg); }
+  75%      { transform: translateY(-50%) translateY(-22px) rotate(0.8deg); }
+}
+
+@keyframes glitch-flicker {
+  0%, 100% { filter: drop-shadow(0 12px 28px rgba(0,0,0,0.38)); }
+  40%      { filter: drop-shadow(6px 0 0 rgba(255,0,120,0.55)) drop-shadow(-6px 0 0 rgba(0,255,255,0.45)); }
+  70%      { filter: brightness(1.45) contrast(1.35); }
+}
+
+@keyframes glitch-scan {
+  0%   { clip-path: inset(0 0 82% 0); transform: translateX(-5px); }
+  35%  { clip-path: inset(34% 0 42% 0); transform: translateX(5px); }
+  70%  { clip-path: inset(72% 0 4% 0); transform: translateX(-3px); }
+  100% { clip-path: inset(12% 0 68% 0); transform: translateX(3px); }
+}
+
 
 /* ══════════════════════════════════════
    스플래시 화면  (Paper + Aurora)
@@ -218,6 +728,73 @@ body.splash-active { overflow: hidden; }
   background: #0d1218;
   overflow: hidden;
   transition: opacity 0.9s ease;
+}
+
+/* ══ 스플래시 떠다니는 얼음 조각 ══ */
+#splash-ice {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sp-ice {
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: none;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  filter: drop-shadow(0 6px 18px rgba(60,110,180,0.30));
+}
+
+body.splash-active .sp-ice {
+  opacity: 1;
+}
+
+/* 크기별 */
+.sp-ice[data-s="sm"],
+.sp-ice[data-s="md"],
+.sp-ice[data-s="lg"] { width: 110px; height: 110px; }
+
+/* 얼음 조각 SVG 배경 — 각기 다른 polygon */
+.sp-ice::before {
+  content: '';
+  display: block;
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at 30% 25%, rgba(170,210,240,0.48) 0%, rgba(110,160,210,0.22) 55%, rgba(70,120,185,0.10) 100%);
+  border: 1.5px solid rgba(120,170,220,0.38);
+  backdrop-filter: blur(4px);
+  box-shadow:
+    0 2px 10px rgba(50,100,180,0.18),
+    inset 0 1px 6px rgba(200,230,255,0.22);
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%);
+}
+
+/* 얼음 위 디자인툴 아이콘 */
+.ice-tool-icon {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45));
+  opacity: 1;
+}
+
+/* 얼음 하이라이트 (반짝임) */
+.sp-ice::after {
+  content: '';
+  position: absolute;
+  top: 12%; left: 18%;
+  width: 32%; height: 22%;
+  background: rgba(220,240,255,0.25);
+  border-radius: 50%;
+  filter: blur(5px);
+  pointer-events: none;
 }
 
 /* 오로라 배경 */
@@ -372,6 +949,30 @@ body.splash-active { overflow: hidden; }
   text-shadow:
     0 1px 12px rgba(0,0,0,0.9),
     0 2px 30px rgba(0,0,0,0.6);
+}
+
+.story-action {
+  pointer-events: auto;
+}
+
+.failure-btn {
+  border: 1px solid rgba(255,255,255,0.82);
+  background: rgba(0,0,0,0.22);
+  color: #fff;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: clamp(15px, 1.4vw, 20px);
+  font-weight: 500;
+  padding: 13px 30px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.24);
+  backdrop-filter: blur(5px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.failure-btn:hover,
+.failure-btn:focus-visible {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-3px);
 }
 
 /* ══ 홈 섹션 타이틀 (메인페이지) ══ */
@@ -607,6 +1208,7 @@ body.splash-active { overflow: hidden; }
   pointer-events: none;
   transition: opacity 0.7s ease;
   background: #030d18;
+  overflow: hidden;
 }
 #surface-reveal.active {
   opacity: 1;
@@ -618,32 +1220,137 @@ body.splash-active { overflow: hidden; }
   transition: opacity 1s ease;
 }
 #surface-reveal > img {
+  position: absolute;
+  inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
+  transition: opacity 0.35s ease;
+}
+#surface-reveal .surface-hover-img {
+  opacity: 0;
+}
+#surface-reveal.active .surface-base-img {
+  animation: surface-base-out 0.35s ease 3s forwards;
+}
+#surface-reveal.active .surface-hover-img {
+  animation: surface-hover-in 0.35s ease 3s forwards;
+}
+@keyframes surface-base-out {
+  to { opacity: 0; }
+}
+@keyframes surface-hover-in {
+  to { opacity: 1; }
 }
 #surface-thanks {
   position: absolute;
-  bottom: 12%;
+  z-index: 1;
+  bottom: 10%;
   left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Caveat', cursive;
-  font-size: clamp(2rem, 5vw, 3.6rem);
-  font-weight: 700;
+  font-family: 'Nanum Brush Script', cursive;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 400;
   color: #fff;
   text-shadow:
-    0 2px 20px rgba(0, 80, 180, 0.55),
-    0 1px 4px rgba(0, 0, 0, 0.35);
+    0 3px 24px rgba(0, 80, 200, 0.5),
+    0 1px 6px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
-  letter-spacing: 0.03em;
-  opacity: 0;
-  transform: translateX(-50%) translateY(14px);
-  transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+  letter-spacing: 0.02em;
   pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(16px);
+  transition: opacity 0.9s ease 0.5s, transform 0.9s ease 0.5s;
 }
 #surface-reveal.active #surface-thanks {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+/* ══ 수중 디자인툴 해파리 ══ */
+#uw-tools {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10001;
+}
+
+.uw-jelly {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  text-decoration: none;
+  opacity: 0;
+  animation: jelly-drift 3.8s ease-in-out var(--jd, 0s) infinite;
+}
+
+#underwater.active .uw-jelly {
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 0.7s ease var(--jd, 0s);
+}
+
+.jelly-head {
+  width: 88px;
+  height: 68px;
+  border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+  -webkit-clip-path: none;
+  clip-path: none;
+  background: rgba(255,255,255,0.11);
+  border: 1.5px solid rgba(255,255,255,0.45);
+  border-bottom: none;
+  backdrop-filter: blur(5px);
+  box-shadow:
+    0 0 24px rgba(var(--jr), 0.28),
+    inset 0 6px 14px rgba(255,255,255,0.15),
+    inset 0 -2px 6px rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.jelly-head img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.25));
+}
+
+.uw-jelly:hover .jelly-head {
+  transform: scale(1.18);
+  box-shadow:
+    0 0 36px rgba(var(--jr), 0.65),
+    inset 0 2px 10px rgba(255,255,255,0.15);
+}
+
+.jelly-tail {
+  display: flex;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.jelly-tail span {
+  width: 1.5px;
+  border-radius: 99px;
+  background: rgba(var(--jr), 0.55);
+}
+.jelly-tail span:nth-child(1) { height: 18px; animation: jelly-wiggle 2.0s ease-in-out calc(var(--jd, 0s) + 0.0s)  infinite; }
+.jelly-tail span:nth-child(2) { height: 26px; animation: jelly-wiggle 2.0s ease-in-out calc(var(--jd, 0s) + 0.18s) infinite; }
+.jelly-tail span:nth-child(3) { height: 22px; animation: jelly-wiggle 2.0s ease-in-out calc(var(--jd, 0s) + 0.34s) infinite; }
+.jelly-tail span:nth-child(4) { height: 16px; animation: jelly-wiggle 2.0s ease-in-out calc(var(--jd, 0s) + 0.50s) infinite; }
+
+@keyframes jelly-drift {
+  0%, 100% { transform: translateY(0px); }
+  40%       { transform: translateY(-13px); }
+  70%       { transform: translateY(-6px); }
+}
+
+@keyframes jelly-wiggle {
+  0%, 100% { transform: skewX(0deg);  opacity: 0.55; }
+  50%       { transform: skewX(8deg); opacity: 0.85; }
 }
 
 /* 수중 안내 텍스트 */
@@ -1048,6 +1755,32 @@ body.splash-active { overflow: hidden; }
   50%     { opacity: 1;   }
 }
 
+/* ══ 메인 눈보라 캔버스 ══ */
+#main-snow-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+#main-snow-canvas.visible {
+  opacity: 1;
+}
+
+/* ══ 마지막 섹션 호버 이미지 (img14) ══ */
+#video-section .video-hover-img {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 2;
+  object-fit: cover;
+}
+#video-section:hover .video-hover-img {
+  opacity: 1;
+}
+
 /* ══ 영상 스킵 버튼 (fixed — 항상 최상위) ══ */
 #video-skip-btn {
   position: fixed;
@@ -1174,8 +1907,17 @@ body.splash-active { overflow: hidden; }
   transition: opacity 0.35s ease;
 }
 
-/* 어른 펭귄 — 더 크게, 자연스럽게 페이드인 */
+/* 자전거 펭귄 */
 .penguin-adult {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 28vh;
+  opacity: 0;
+  transition: opacity 0.45s ease 0.15s;
+}
+
+/* 황제펭귄 */
+.penguin-emperor {
   position: absolute;
   bottom: 0; left: 0;
   height: 38vh;
@@ -1183,8 +1925,28 @@ body.splash-active { overflow: hidden; }
   transition: opacity 0.45s ease 0.15s;
 }
 
-#penguin.grown .penguin-young { opacity: 0; }
-#penguin.grown .penguin-adult { opacity: 1; }
+/* 단계 1: 자전거 */
+#penguin.grown .penguin-young    { opacity: 0; }
+#penguin.grown .penguin-adult    { opacity: 1; }
+#penguin.grown .penguin-emperor  { opacity: 0; }
+
+/* 단계 2: 황제펭귄 */
+#penguin.fully-grown .penguin-young   { opacity: 0; }
+#penguin.fully-grown .penguin-adult   { opacity: 0; }
+#penguin.fully-grown .penguin-emperor { opacity: 1; }
+
+/* 취미 갤러리 오픈 시 자전거 펭귄 */
+.penguin-hobby {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 28vh;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+#penguin.hobby-mode .penguin-young,
+#penguin.hobby-mode .penguin-adult,
+#penguin.hobby-mode .penguin-emperor { opacity: 0 !important; }
+#penguin.hobby-mode .penguin-hobby   { opacity: 1; }
 
 /* 변신 시 부드러운 발광 효과 */
 #penguin.spinning .p-inner {

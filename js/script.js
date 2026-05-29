@@ -324,9 +324,13 @@ document.addEventListener("DOMContentLoaded", () => {
       splash.classList.remove("fade-out");
       document.body.classList.add("splash-active");
 
+      // 얼음 리셋 트리거
+      window.dispatchEvent(new CustomEvent('splash-restored'));
       // 패럴랙스 재시작
       raf_id = requestAnimationFrame(tick);
     };
+
+    window.restore_splash = restore_splash;
 
     window.addEventListener("scroll", () => {
       // uw_done(수중 완료) 이후에는 스플래시 복원 안 함
@@ -349,6 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (sp_falling) return;
       sp_falling = true;
       sp_drag = false;
+      // 얼음 폭발 트리거
+      window.dispatchEvent(new CustomEvent('penguin-splash'));
       if (splash_center) {
         splash_center.style.transition =
           'transform 0.9s cubic-bezier(0.55,0,1,0.45), opacity 0.7s ease';
@@ -590,28 +596,31 @@ document.addEventListener("DOMContentLoaded", () => {
   let p_shown        = false;
   const P_MARGIN     = 40;
 
-  /* 스핀 변신 상태 */
-  let penguin_is_grown  = false;
-  let penguin_spinning  = false;
+  /* 스핀 변신 상태 — 0: 어린펭귄, 1: 자전거, 2: 황제펭귄 */
+  let penguin_stage   = 0;   // 현재 단계
+  let penguin_spinning = false;
 
-  const spin_to = (to_grown) => {
-    if (penguin_spinning || !penguin_el) return;
+  const spin_to_stage = (stage) => {
+    if (penguin_spinning || !penguin_el || stage === penguin_stage) return;
     penguin_spinning = true;
     penguin_el.classList.add("spinning");
 
-    // 발광 정점(300ms)에 이미지 교체 → 자연스러운 크로스페이드
     setTimeout(() => {
-      if (to_grown) penguin_el.classList.add("grown");
-      else          penguin_el.classList.remove("grown");
+      // 클래스 초기화 후 단계별 적용
+      penguin_el.classList.remove("grown", "fully-grown");
+      if (stage === 1) penguin_el.classList.add("grown");
+      else if (stage === 2) penguin_el.classList.add("fully-grown");
     }, 300);
 
-    // 변신 완료 후 정리
     setTimeout(() => {
       penguin_el.classList.remove("spinning");
-      penguin_spinning  = false;
-      penguin_is_grown  = to_grown;
+      penguin_spinning = false;
+      penguin_stage    = stage;
     }, 560);
   };
+
+  // 하위호환 래퍼 (기존 spin_to 호출 대비)
+  const spin_to = (to_grown) => spin_to_stage(to_grown ? 1 : 0);
   const get_P_W = () => penguin_el ? penguin_el.offsetWidth : Math.round(window.innerHeight / 3 * 0.6);
 
   /* 드래그 상태 */
@@ -637,11 +646,10 @@ document.addEventListener("DOMContentLoaded", () => {
       penguin_el.classList.add("visible");
     }
 
-    // 50% 지점에서 3D 스핀으로 어른 황제펭귄 변신
-    const should_grow = progress >= 0.5;
-    if (should_grow !== penguin_is_grown) {
-      spin_to(should_grow);
-    }
+    // 섹션 기반 변신: 0~5→어린펭귄 / 6~→황제펭귄
+    const idx = current_section_idx;
+    const target_stage = idx < 6 ? 0 : 2;
+    if (target_stage !== penguin_stage) spin_to_stage(target_stage);
 
     penguin_el.classList.add("walking");
     clearTimeout(p_scroll_timer);
@@ -656,9 +664,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const idx    = Math.min(section_count - 1, Math.floor(prog * section_count));
     if (idx !== current_section_idx) show_section(idx);
 
-    // 50% 기준 변신
-    const should_grow = prog >= 0.5;
-    if (should_grow !== penguin_is_grown) spin_to(should_grow);
+    // 섹션 기반 변신: 0~5→어린펭귄 / 6~→황제펭귄
+    const drag_idx = Math.min(section_count - 1, Math.floor(prog * section_count));
+    const target_stage = drag_idx < 6 ? 0 : 2;
+    if (target_stage !== penguin_stage) spin_to_stage(target_stage);
   };
 
   /* ── 드래그로 자유 이동 ── */
@@ -927,5 +936,587 @@ document.addEventListener("DOMContentLoaded", () => {
     do_portfolio_zoom(dy * 3);
   }, { passive: true });
 
+  /* ══════════════════════════════════════
+     스플래시 얼음 조각 — 집결 후 펭귄 낙하 시 폭발
+     ══════════════════════════════════════ */
+  const sp_ice_els = Array.from(document.querySelectorAll('.sp-ice'));
+  if (sp_ice_els.length) {
+    const ICE_PAD = 60;
+    let ice_mx = -999, ice_my = -999;
+    let ice_mode = 'gather'; // 'gather' | 'explode'
+
+    document.addEventListener('mousemove', e => { ice_mx = e.clientX; ice_my = e.clientY; });
+
+    // 클러스터 형태로 모여있는 배치
+    const GATHER_PRESETS = [
+      [0.58, 0.22], [0.70, 0.18], [0.82, 0.24],   // 상단 행
+      [0.62, 0.42], [0.76, 0.38], [0.88, 0.44],   // 중간 행
+      [0.70, 0.60],                                  // 하단
+    ];
+    const calc_gather_targets = (count) => {
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      return Array.from({ length: count }, (_, i) => {
+        const [px, py] = GATHER_PRESETS[i % GATHER_PRESETS.length];
+        return {
+          tx: W * px + (Math.random() - 0.5) * W * 0.03,
+          ty: H * py + (Math.random() - 0.5) * H * 0.04,
+        };
+      });
+    };
+
+    const gather_targets = calc_gather_targets(sp_ice_els.length);
+
+    const ice_chunks = sp_ice_els.map((el, i) => {
+      // 초기 위치: gather 타겟(우측 바다) 근처에서 시작
+      const ox = gather_targets[i].tx + (Math.random() - 0.5) * 60;
+      const oy = gather_targets[i].ty + (Math.random() - 0.5) * 60;
+      el.style.left      = '0';
+      el.style.top       = '0';
+      el.style.transform = `translate(${ox.toFixed(0)}px, ${oy.toFixed(0)}px)`;
+      return {
+        el,
+        x: ox, y: oy,
+        ox, oy,
+        vx: 0, vy: 0,
+        tx: gather_targets[i].tx,
+        ty: gather_targets[i].ty,
+        spd:   0.09 + Math.random() * 0.07,
+        phase: Math.random() * Math.PI * 2,
+        rot:   (Math.random() - 0.5) * 14,
+      };
+    });
+
+    // 펭귄이 바다에 빠지면 → 얼음 위로 팡!
+    window.addEventListener('penguin-splash', () => {
+      ice_mode = 'explode';
+      ice_chunks.forEach(f => {
+        f.vx += (Math.random() - 0.5) * 22;
+        f.vy -= 16 + Math.random() * 13;   // 강하게 위로
+      });
+    });
+
+    // 스플래시 복원 → 얼음 초기 위치 리셋
+    window.addEventListener('splash-restored', () => {
+      ice_mode = 'gather';
+      const gt = calc_gather_targets(sp_ice_els.length);
+      ice_chunks.forEach((f, i) => {
+        f.tx = gt[i].tx;
+        f.ty = gt[i].ty;
+        f.x  = f.ox + (Math.random() - 0.5) * 160;
+        f.y  = f.oy + (Math.random() - 0.5) * 160;
+        f.vx = 0;
+        f.vy = 0;
+      });
+    });
+
+    const ice_tick = (ts) => {
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const sp_active = document.body.classList.contains('splash-active');
+
+      ice_chunks.forEach(f => {
+        if (!sp_active) return;
+
+        if (ice_mode === 'explode') {
+          // 폭발 물리 — 위로 날아가며 중력 약간
+          f.vx *= 0.965;
+          f.vy *= 0.965;
+          f.vy += 0.18;        // 중력 (너무 오래 날면 다시 내려오게)
+          f.x  += f.vx;
+          f.y  += f.vy;
+          const bob  = Math.sin(ts * 0.00045 + f.phase) * 4;
+          const tilt = f.rot + f.vx * 10;
+          f.el.style.transform =
+            `translate(${f.x.toFixed(1)}px, ${(f.y + bob).toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
+          return;
+        }
+
+        // ── gather 모드: 펭귄 주변 집결 ──
+
+        /* 마우스 회피 — 약하게 */
+        const relX  = ice_mx - f.x - 50;
+        const relY  = ice_my - f.y - 50;
+        const mDist = Math.sqrt(relX * relX + relY * relY);
+        if (mDist < 100 && mDist > 1) {
+          const push = (1 - mDist / 100) * 0.6;
+          f.vx -= (relX / mDist) * push;
+          f.vy -= (relY / mDist) * push;
+        }
+
+        /* 집결 목표로 이동 — 강한 인력 */
+        const dx   = f.tx - f.x;
+        const dy   = f.ty - f.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 12) {
+          // 도착 — 거의 정지, 아주 미세한 떨림만
+          f.vx += (Math.random() - 0.5) * 0.008;
+          f.vy += (Math.random() - 0.5) * 0.008;
+        } else {
+          f.vx += ((dx / dist) * f.spd - f.vx) * 0.045;
+          f.vy += ((dy / dist) * f.spd - f.vy) * 0.045;
+        }
+
+        /* 강한 감쇠 & 위치 */
+        f.vx *= 0.955;
+        f.vy *= 0.955;
+        f.x  += f.vx;
+        f.y  += f.vy;
+
+        /* 경계 반사 — 우측 바다 안으로만 */
+        const SEA_X_MIN = W * 0.54;
+        const SEA_X_MAX = W * 0.97;
+        const SEA_Y_MIN = H * 0.33;
+        const SEA_Y_MAX = H * 0.84;
+        if (f.x < SEA_X_MIN) { f.x = SEA_X_MIN; f.vx =  Math.abs(f.vx) * 0.5; }
+        if (f.x > SEA_X_MAX) { f.x = SEA_X_MAX; f.vx = -Math.abs(f.vx) * 0.5; }
+        if (f.y < SEA_Y_MIN) { f.y = SEA_Y_MIN; f.vy =  Math.abs(f.vy) * 0.5; }
+        if (f.y > SEA_Y_MAX) { f.y = SEA_Y_MAX; f.vy = -Math.abs(f.vy) * 0.5; }
+
+        /* 둥실 + 회전 — 잔잔하게 */
+        const bob  = Math.sin(ts * 0.00030 + f.phase) * 4;
+        const tilt = f.rot + f.vx * 3;
+
+        f.el.style.transform =
+          `translate(${f.x.toFixed(1)}px, ${(f.y + bob).toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
+      });
+
+      requestAnimationFrame(ice_tick);
+    };
+
+    requestAnimationFrame(ice_tick);
+  }
+
+  /* ══════════════════════════════════════
+     메인 눈보라 시스템
+     ══════════════════════════════════════ */
+  const main_snow_canvas = document.getElementById("main-snow-canvas");
+  const main_snow_ctx    = main_snow_canvas ? main_snow_canvas.getContext("2d") : null;
+
+  if (main_snow_canvas && main_snow_ctx) {
+    let msw = window.innerWidth;
+    let msh = window.innerHeight;
+    main_snow_canvas.width  = msw;
+    main_snow_canvas.height = msh;
+
+    let ms_wind_target = 0, ms_wind = 0, ms_gust = 0, ms_last_mx = msw / 2;
+
+    document.addEventListener("mousemove", (e) => {
+      const speed   = Math.abs(e.clientX - ms_last_mx);
+      ms_wind_target = (e.clientX - msw / 2) / (msw / 2) * 2.8;
+      ms_gust        = Math.min(speed * 0.05, 3.0);
+      ms_last_mx     = e.clientX;
+    });
+
+    // 큰 눈송이 + 작은 눈송이 혼합
+    const ms_flakes = Array.from({ length: 220 }, (_, i) => ({
+      x:      Math.random() * msw,
+      y:      Math.random() * msh,
+      r:      i < 40 ? Math.random() * 3.5 + 1.2   // 큰 눈송이
+                     : Math.random() * 1.8 + 0.3,   // 작은 눈송이
+      speed:  i < 40 ? Math.random() * 1.2 + 0.6
+                     : Math.random() * 2.2 + 0.4,
+      drift:  (Math.random() - 0.5) * 0.6,
+      flut:   Math.random() * Math.PI * 2,
+      flut_sp:Math.random() * 0.022 + 0.006,
+      alpha:  i < 40 ? Math.random() * 0.55 + 0.25
+                     : Math.random() * 0.35 + 0.10,
+      wobble: Math.random() * 0.8 + 0.2,  // 좌우 흔들림 강도
+    }));
+
+    const tick_main_snow = () => {
+      const is_active = penguin_ready &&
+                        current_section_idx === 0 &&
+                        !(uw_el_global && uw_el_global.classList.contains("active"));
+
+      // 첫 섹션(홈)에서만 표시
+      if (is_active) {
+        main_snow_canvas.classList.add("visible");
+      } else {
+        main_snow_canvas.classList.remove("visible");
+      }
+
+      main_snow_ctx.clearRect(0, 0, msw, msh);
+      ms_wind += (ms_wind_target - ms_wind) * 0.035;
+      ms_gust *= 0.92;
+      const tw = ms_wind + ms_gust;
+
+      ms_flakes.forEach(f => {
+        f.flut += f.flut_sp;
+        f.x    += f.drift + tw + Math.sin(f.flut) * f.wobble;
+        f.y    += f.speed + Math.abs(tw) * 0.12;
+
+        // 화면 밖으로 나가면 위에서 재등장
+        if (f.y > msh + 8)  { f.y = -8;  f.x = Math.random() * msw; }
+        if (f.x > msw + 8)  f.x = -8;
+        if (f.x < -8)        f.x = msw + 8;
+
+        // 큰 눈송이 — 별 모양
+        if (f.r > 2.5) {
+          main_snow_ctx.save();
+          main_snow_ctx.translate(f.x, f.y);
+          main_snow_ctx.rotate(f.flut * 0.3);
+          main_snow_ctx.strokeStyle = `rgba(210,230,255,${f.alpha})`;
+          main_snow_ctx.lineWidth   = 0.8;
+          for (let a = 0; a < 6; a++) {
+            main_snow_ctx.beginPath();
+            main_snow_ctx.moveTo(0, 0);
+            main_snow_ctx.lineTo(
+              Math.cos((a / 6) * Math.PI * 2) * f.r * 2.2,
+              Math.sin((a / 6) * Math.PI * 2) * f.r * 2.2
+            );
+            main_snow_ctx.stroke();
+          }
+          // 중심 원
+          main_snow_ctx.beginPath();
+          main_snow_ctx.arc(0, 0, f.r * 0.45, 0, Math.PI * 2);
+          main_snow_ctx.fillStyle = `rgba(230,240,255,${f.alpha * 0.9})`;
+          main_snow_ctx.fill();
+          main_snow_ctx.restore();
+        } else {
+          // 작은 눈송이 — 원
+          main_snow_ctx.beginPath();
+          main_snow_ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          main_snow_ctx.fillStyle = `rgba(220,235,255,${f.alpha})`;
+          main_snow_ctx.fill();
+        }
+      });
+
+      requestAnimationFrame(tick_main_snow);
+    };
+
+    window.addEventListener("resize", () => {
+      msw = window.innerWidth; msh = window.innerHeight;
+      main_snow_canvas.width = msw; main_snow_canvas.height = msh;
+    });
+
+    tick_main_snow();
+  }
+
+  /* ══════════════════════════════════════
+     수중 해파리 자유 수영 시스템
+     ══════════════════════════════════════ */
+  const uw_jellies = Array.from(document.querySelectorAll('.uw-jelly'));
+  if (uw_jellies.length) {
+    const JPAD  = 72;
+    let   jmx   = -999, jmy = -999;
+
+    document.addEventListener('mousemove', e => { jmx = e.clientX; jmy = e.clientY; });
+
+    // 초기 위치 픽셀 변환 & CSS 드리프트 해제
+    const jfish = uw_jellies.map((el, i) => {
+      const lp = parseFloat(el.style.left) || (8 + i * 9);
+      const tp = parseFloat(el.style.top)  || (10 + i * 8);
+      const x  = lp / 100 * window.innerWidth;
+      const y  = tp / 100 * window.innerHeight;
+      el.style.left      = '0';
+      el.style.top       = '0';
+      el.style.animation = 'none';
+      el.style.transform = `translate(${x.toFixed(0)}px,${y.toFixed(0)}px)`;
+      return {
+        el, x, y, vx: 0, vy: 0,
+        tx:    JPAD + Math.random() * (window.innerWidth  - JPAD * 2),
+        ty:    JPAD + Math.random() * (window.innerHeight - JPAD * 2),
+        spd:   0.55 + Math.random() * 0.75,
+        idle:  Math.floor(Math.random() * 100),
+        phase: Math.random() * Math.PI * 2,
+      };
+    });
+
+    const jelly_tick = (ts) => {
+      const W      = window.innerWidth;
+      const H      = window.innerHeight;
+      const active = uw_el_global && uw_el_global.classList.contains('active');
+
+      jfish.forEach(f => {
+        if (!active) return;
+
+        /* 마우스 회피 */
+        const relX  = jmx - f.x - 34;
+        const relY  = jmy - f.y - 34;
+        const mDist = Math.sqrt(relX * relX + relY * relY);
+        if (mDist < 150 && mDist > 1) {
+          const push = (1 - mDist / 150) * 2.4;
+          f.vx -= (relX / mDist) * push;
+          f.vy -= (relY / mDist) * push;
+        }
+
+        /* 목표 지점 추적 */
+        const dx   = f.tx - f.x;
+        const dy   = f.ty - f.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 40) {
+          f.idle--;
+          if (f.idle <= 0) {
+            f.tx   = JPAD + Math.random() * (W - JPAD * 2);
+            f.ty   = JPAD + Math.random() * (H - JPAD * 2.5);
+            f.idle = 60 + Math.floor(Math.random() * 180);
+          }
+        } else {
+          f.vx += ((dx / dist) * f.spd - f.vx) * 0.026;
+          f.vy += ((dy / dist) * f.spd - f.vy) * 0.026;
+        }
+
+        /* 속도 감쇠 & 위치 갱신 */
+        f.vx *= 0.965;
+        f.vy *= 0.965;
+        f.x  += f.vx;
+        f.y  += f.vy;
+
+        /* 경계 반사 */
+        if (f.x < JPAD)           { f.x = JPAD;           f.vx =  Math.abs(f.vx) * 0.7; }
+        if (f.x > W - JPAD)       { f.x = W - JPAD;       f.vx = -Math.abs(f.vx) * 0.7; }
+        if (f.y < JPAD * 0.4)     { f.y = JPAD * 0.4;     f.vy =  Math.abs(f.vy) * 0.7; }
+        if (f.y > H - JPAD * 1.6) { f.y = H - JPAD * 1.6; f.vy = -Math.abs(f.vy) * 0.7; }
+
+        /* 둥실 (사인파) + 이동 방향 기울기 */
+        const bob  = Math.sin(ts * 0.00072 + f.phase) * 9;
+        const tilt = Math.max(-22, Math.min(22, f.vx * 8));
+
+        f.el.style.transform =
+          `translate(${f.x.toFixed(1)}px, ${(f.y + bob).toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
+      });
+
+      requestAnimationFrame(jelly_tick);
+    };
+
+    requestAnimationFrame(jelly_tick);
+  }
+
+  const orora_section = document.getElementById("orora-section");
+  const img17_trigger = document.querySelector(".orora-center-img17");
+  const orora_hobby_roll = document.querySelector(".orora-hobby-roll");
+  const orora_hobby_close = document.querySelector(".orora-hobby-close");
+  const orora_hobby_track = document.querySelector(".orora-hobby-track");
+  const orora_hobby_prev = document.querySelector(".orora-hobby-prev");
+  const orora_hobby_next = document.querySelector(".orora-hobby-next");
+
+  if (orora_section && img17_trigger && orora_hobby_roll && orora_hobby_track) {
+    let hobby_slide = 0;
+    let hobby_auto_timer = null;
+
+    const update_hobby_slide = () => {
+      const first_img = orora_hobby_track.querySelector("img");
+      if (!first_img) return;
+      const gap = parseFloat(getComputedStyle(orora_hobby_track).columnGap) || 24;
+      const step = first_img.getBoundingClientRect().width + gap;
+      const max_slide = Math.max(0, orora_hobby_track.children.length - 3);
+      hobby_slide = Math.max(0, Math.min(max_slide, hobby_slide));
+      orora_hobby_track.style.setProperty("--slide-x", `${(-hobby_slide * step).toFixed(1)}px`);
+    };
+
+    const stop_hobby_auto = () => {
+      if (!hobby_auto_timer) return;
+      clearInterval(hobby_auto_timer);
+      hobby_auto_timer = null;
+    };
+
+    const start_hobby_auto = () => {
+      stop_hobby_auto();
+      hobby_auto_timer = setInterval(() => {
+        if (!orora_section.classList.contains("hobby-open")) {
+          stop_hobby_auto();
+          return;
+        }
+        const max_slide = Math.max(0, orora_hobby_track.children.length - 3);
+        hobby_slide = hobby_slide >= max_slide ? 0 : hobby_slide + 1;
+        update_hobby_slide();
+      }, 3200);
+    };
+
+    const set_orora_hobbies = (is_open) => {
+      orora_section.classList.toggle("hobby-open", is_open);
+      orora_hobby_roll.setAttribute("aria-hidden", is_open ? "false" : "true");
+      const penguin_el2 = document.getElementById("penguin");
+      if (penguin_el2) penguin_el2.classList.toggle("hobby-mode", is_open);
+      if (is_open) {
+        hobby_slide = 0;
+        requestAnimationFrame(update_hobby_slide);
+        start_hobby_auto();
+      } else {
+        stop_hobby_auto();
+      }
+    };
+
+    const toggle_orora_hobbies = () => set_orora_hobbies(!orora_section.classList.contains("hobby-open"));
+
+    img17_trigger.addEventListener("click", toggle_orora_hobbies);
+    img17_trigger.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      toggle_orora_hobbies();
+    });
+
+    // 왼쪽 펭귄(glitch-img-switch) 클릭 → 증명사진 인라인 토글
+    const glitch_switch = orora_section.querySelector(".glitch-img-switch");
+
+    if (glitch_switch) {
+      glitch_switch.addEventListener("click", () => {
+        glitch_switch.classList.toggle("id-shown");
+      });
+
+      // 머리 쓸어넘기기 캔버스 파티클
+      const hair_canvas = document.getElementById("hair-sweep-canvas");
+      if (hair_canvas) {
+        const hctx = hair_canvas.getContext("2d");
+        let hair_particles = [];
+        let hair_raf = null;
+        let is_sweeping = false;
+
+        const resize_hair_canvas = () => {
+          hair_canvas.width  = glitch_switch.offsetWidth;
+          hair_canvas.height = glitch_switch.offsetHeight;
+        };
+        resize_hair_canvas();
+        window.addEventListener("resize", resize_hair_canvas);
+
+        const spawn_sweep = () => {
+          const W = hair_canvas.width;
+          const H = hair_canvas.height;
+          // 머리 위쪽(상단 40%) 에서 양쪽으로 퍼지는 선들
+          for (let i = 0; i < 28; i++) {
+            const side   = Math.random() > 0.5 ? 1 : -1; // 좌우
+            const startX = W * 0.5 + (Math.random() - 0.5) * W * 0.18;
+            const startY = H * (0.05 + Math.random() * 0.30);
+            const speed  = 3.5 + Math.random() * 4;
+            const angle  = side * (Math.PI * (0.05 + Math.random() * 0.25));
+            hair_particles.push({
+              x: startX, y: startY,
+              vx: Math.cos(angle) * speed * side,
+              vy: Math.sin(angle) * speed * 0.4 + 0.5,
+              life: 1.0,
+              decay: 0.025 + Math.random() * 0.02,
+              width: 1.2 + Math.random() * 1.8,
+              len: 18 + Math.random() * 28,
+              color: `hsla(${220 + Math.random() * 40}, 15%, ${88 + Math.random() * 12}%, `,
+            });
+          }
+          // 광택 포인트들
+          for (let i = 0; i < 12; i++) {
+            hair_particles.push({
+              x: W * (0.3 + Math.random() * 0.4),
+              y: H * (0.02 + Math.random() * 0.25),
+              vx: (Math.random() - 0.5) * 2,
+              vy: (Math.random() - 0.3) * 1.5,
+              life: 1.0,
+              decay: 0.04 + Math.random() * 0.03,
+              width: 2 + Math.random() * 3,
+              len: 0,   // dot
+              color: `hsla(200, 80%, 95%, `,
+              dot: true,
+            });
+          }
+        };
+
+        const draw_hair = () => {
+          const W = hair_canvas.width;
+          const H = hair_canvas.height;
+          hctx.clearRect(0, 0, W, H);
+
+          hair_particles = hair_particles.filter(p => p.life > 0);
+          hair_particles.forEach(p => {
+            hctx.save();
+            if (p.dot) {
+              hctx.beginPath();
+              hctx.arc(p.x, p.y, p.width, 0, Math.PI * 2);
+              hctx.fillStyle = p.color + p.life + ")";
+              hctx.fill();
+            } else {
+              hctx.beginPath();
+              hctx.moveTo(p.x, p.y);
+              hctx.lineTo(p.x + p.vx * (p.len / 5), p.y + p.vy * (p.len / 5));
+              hctx.strokeStyle = p.color + (p.life * 0.7) + ")";
+              hctx.lineWidth = p.width * p.life;
+              hctx.lineCap = "round";
+              hctx.stroke();
+            }
+            hctx.restore();
+            p.x    += p.vx;
+            p.y    += p.vy;
+            p.life -= p.decay;
+          });
+
+          if (hair_particles.length > 0 || is_sweeping) {
+            hair_raf = requestAnimationFrame(draw_hair);
+          } else {
+            hctx.clearRect(0, 0, W, H);
+            hair_raf = null;
+          }
+        };
+
+        glitch_switch.addEventListener("mouseenter", () => {
+          if (glitch_switch.classList.contains("id-shown")) return;
+          is_sweeping = true;
+          resize_hair_canvas();
+          spawn_sweep();
+          if (!hair_raf) hair_raf = requestAnimationFrame(draw_hair);
+          // 0.5초 후 한 번 더 스폰 (양손 느낌)
+          setTimeout(() => { if (is_sweeping) spawn_sweep(); }, 480);
+        });
+
+        glitch_switch.addEventListener("mouseleave", () => {
+          is_sweeping = false;
+        });
+      }
+
+      // 별 버튼 → 취미 사진 열기
+      const star_btn = document.getElementById("orora-star-btn");
+      if (star_btn) {
+        star_btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggle_orora_hobbies();
+        });
+      }
+    }
+
+    if (orora_hobby_close) {
+      orora_hobby_close.addEventListener("click", () => set_orora_hobbies(false));
+    }
+
+    if (orora_hobby_prev) {
+      orora_hobby_prev.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hobby_slide -= 1;
+        update_hobby_slide();
+      });
+    }
+
+    if (orora_hobby_next) {
+      orora_hobby_next.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hobby_slide += 1;
+        update_hobby_slide();
+      });
+    }
+
+    orora_hobby_roll.addEventListener("click", (e) => {
+      if (e.target === orora_hobby_roll) set_orora_hobbies(false);
+    });
+
+    orora_hobby_roll.addEventListener("wheel", (e) => {
+      if (!orora_section.classList.contains("hobby-open")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      hobby_slide += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1;
+      update_hobby_slide();
+    }, { passive: false });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") set_orora_hobbies(false);
+      if (!orora_section.classList.contains("hobby-open")) return;
+      if (e.key === "ArrowLeft") {
+        hobby_slide -= 1;
+        update_hobby_slide();
+      }
+      if (e.key === "ArrowRight") {
+        hobby_slide += 1;
+        update_hobby_slide();
+      }
+    });
+
+    window.addEventListener("resize", update_hobby_slide);
+  }
 
 });

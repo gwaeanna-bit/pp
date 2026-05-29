@@ -14,6 +14,31 @@
 
   <!-- ══ 스플래시 화면 ══ -->
   <div id="splash">
+    <!-- 떠다니는 얼음 조각들 (img3 툴 사진) -->
+    <div id="splash-ice">
+      <div class="sp-ice" data-s="md" style="--sx:78%;--sy:66%">
+        <img class="ice-tool-icon" src="img3/image%20647.png" alt="툴1">
+      </div>
+      <div class="sp-ice" data-s="lg" style="--sx:82%;--sy:60%">
+        <img class="ice-tool-icon" src="img3/image%20662.png" alt="툴2">
+      </div>
+      <div class="sp-ice" data-s="sm" style="--sx:86%;--sy:68%">
+        <img class="ice-tool-icon" src="img3/image%20664.png" alt="툴3">
+      </div>
+      <div class="sp-ice" data-s="md" style="--sx:80%;--sy:74%">
+        <img class="ice-tool-icon" src="img3/image%20665.png" alt="툴4">
+      </div>
+      <div class="sp-ice" data-s="lg" style="--sx:86%;--sy:74%">
+        <img class="ice-tool-icon" src="img3/image%20666.png" alt="툴5">
+      </div>
+      <div class="sp-ice" data-s="sm" style="--sx:90%;--sy:70%">
+        <img class="ice-tool-icon" src="img3/image%20668.png" alt="툴6">
+      </div>
+      <div class="sp-ice" data-s="md" style="--sx:92%;--sy:64%">
+        <img class="ice-tool-icon" src="img3/image%20671.png" alt="툴7">
+      </div>
+    </div>
+
     <!-- 오로라 배경 (패럴랙스) -->
     <div id="splash-bg">
       <img src="img/img7.png" alt="남극 배경" />
@@ -46,8 +71,9 @@
 
   <!-- ══ 수면 전환 화면 (img11) ══ -->
   <div id="surface-reveal">
-    <img src="img/img11.png" alt="수면 위" />
-    <p id="surface-thanks">꺼내주셔서 감사합니다!</p>
+    <img class="surface-base-img" src="img/img11.png" alt="수면 위" />
+    <img class="surface-hover-img" src="img/img14.png" alt="점프하는 펭귄" />
+    <p id="surface-thanks">Thanks for visiting.</p>
   </div>
 
   <!-- ══ 수중 전환 화면 ══ -->
@@ -55,16 +81,49 @@
     <img src="img/img9.png" alt="수중 배경" />
     <div id="underwater-overlay"></div>
     <img id="uw-penguin" src="img/img10.png" alt="헤엄치는 펭귄" draggable="false" />
-    <p id="uw-instruction">디자인 바다에서 저를 건져주실 분 계신가요?</p>
+    <p id="uw-instruction">디자인 바다에서 저를 위로 건져주실 분 계신가요?</p>
     <p id="underwater-hint">✦ scroll to explore</p>
+
+    <!-- 디자인툴 해파리 (img3 로컬 이미지) -->
+    <div id="uw-tools">
+      <div class="uw-jelly" style="left:7%;top:14%;--jd:0.1s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20647.png" alt="툴1"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:15%;top:50%;--jd:0.6s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20662.png" alt="툴2"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:3%;top:68%;--jd:1.2s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20664.png" alt="툴3"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:38%;top:5%;--jd:0.4s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20665.png" alt="툴4"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:62%;top:66%;--jd:1.0s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20666.png" alt="툴5"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:70%;top:8%;--jd:0.3s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20668.png" alt="툴6"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:84%;top:42%;--jd:0.7s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20671.png" alt="툴7"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
   </div>
 
   <!-- ══ 고정 헤더 ══ -->
   <header class="header">
-    <div class="logo">🐧 FIRST PENGUIN</div>
+    <div class="logo" onclick="if(typeof restore_splash==='function') restore_splash();" style="cursor:pointer;">🐧 FIRST PENGUIN</div>
     <nav class="nav">
       <a href="#" onclick="scrollToSection(0); return false;">Home</a>
-      <a href="#" onclick="scrollToSection(1); return false;">About</a>
+      <a href="#" onclick="scrollToSection(5); return false;">About</a>
+      <a href="#" onclick="scrollToSection(11); return false;">Portfolio</a>
       <a href="#" onclick="scrollToSection(2); return false;">Story</a>
     </nav>
   </header>
@@ -107,8 +166,8 @@
         <!-- 패널 3: section03 -->
         <section class="h-section">
           <img class="bg-img" src="images/section03.png" alt="비행" />
-          <div class="story-text">
-            <p class="story-body">전략은 머무르는 순간 낡아간다.<br>몸으로는 해결 속에서 더 선명해진다.<br>나는 통통거리며 나아가면서 직접 부딪히며 방향을 쪼개해나가는 사람이다.</p>
+          <div class="story-text story-action">
+            <button class="failure-btn" type="button" onclick="scrollToSection(4)">실패 보러가기</button>
           </div>
         </section>
 
@@ -121,11 +180,92 @@
         </section>
 
         <!-- 패널 5: section05 -->
-        <section class="h-section">
-          <img class="bg-img" src="images/section05.png" alt="잠수" />
+        <section class="h-section" id="orora-section">
+          <img class="bg-img" src="images/orora_2.png" alt="오로라 배경" />
+          <div class="orora-penguin-float">
+            <div class="glitch-img-switch" tabindex="0" aria-label="이미지 변경">
+              <img class="center-img15 img15-base" src="img/img15.png" alt="가운데 펭귄" />
+              <img class="center-img15 img16-hover" src="img/img20.png" alt="변경된 이미지" />
+              <img class="center-img15 img-id-photo" src="img/img16.png" alt="증명사진" />
+              <canvas id="hair-sweep-canvas"></canvas>
+            </div>
+          </div>
+          <img class="orora-center-img17" src="img/img20.png" alt="자전거 펭귄" role="button" tabindex="0" aria-label="취미 이미지 보기" />
+          <button id="orora-star-btn" aria-label="별 클릭" title="Click me!"></button>
+          <div class="orora-hobby-roll" role="dialog" aria-modal="true" aria-hidden="true" aria-label="취미 사진 모달">
+            <button class="orora-hobby-close" type="button" aria-label="닫기">×</button>
+            <button class="orora-hobby-nav orora-hobby-prev" type="button" aria-label="이전 사진">‹</button>
+            <div class="orora-hobby-track">
+              <img src="hobby/z1.jpg" alt="hobby" />
+              <img src="hobby/z2.jpg" alt="hobby" />
+              <img src="hobby/z3.jpg" alt="hobby" />
+              <img src="hobby/z4.jpg" alt="hobby" />
+              <img src="hobby/z5.jpg" alt="hobby" />
+              <img src="hobby/z7.jpg" alt="hobby" />
+              <img src="hobby/z8.jpg" alt="hobby" />
+              <img src="hobby/z10.jpg" alt="hobby" />
+              <img src="hobby/z11.jpg" alt="hobby" />
+              <img src="hobby/z12.jpg" alt="hobby" />
+              <img src="hobby/z13.jpg" alt="hobby" />
+              <img src="hobby/z14.jpg" alt="hobby" />
+              <img src="hobby/z15.jpg" alt="hobby" />
+              <img src="hobby/z16.jpg" alt="hobby" />
+              <img src="hobby/z17.jpg" alt="hobby" />
+              <img src="hobby/z18.jpg" alt="hobby" />
+              <img src="hobby/z19.jpg" alt="hobby" />
+              <img src="hobby/z20.jpg" alt="hobby" />
+              <img src="hobby/z21.jpg" alt="hobby" />
+              <img src="hobby/z22.jpg" alt="hobby" />
+              <img src="hobby/z23.jpg" alt="hobby" />
+              <img src="hobby/z24.jpg" alt="hobby" />
+              <img src="hobby/z25.jpg" alt="hobby" />
+              <img src="hobby/z26.jpg" alt="hobby" />
+              <img src="hobby/z27.jpg" alt="hobby" />
+              <img src="hobby/z28.jpg" alt="hobby" />
+              <img src="hobby/z29.jpg" alt="hobby" />
+              <img src="hobby/z30.jpg" alt="hobby" />
+              <img src="hobby/z31.jpg" alt="hobby" />
+              <img src="hobby/z32.jpg" alt="hobby" />
+              <img src="hobby/z33.jpg" alt="hobby" />
+              <img src="hobby/z34.jpg" alt="hobby" />
+              <img src="hobby/z35.jpg" alt="hobby" />
+              <img src="hobby/z36.jpg" alt="hobby" />
+              <img src="hobby/z37.jpg" alt="hobby" />
+              <img src="hobby/z38.jpg" alt="hobby" />
+              <img src="hobby/z39.jpg" alt="hobby" />
+              <img src="hobby/z40.jpg" alt="hobby" />
+              <img src="hobby/z41.jpg" alt="hobby" />
+              <img src="hobby/z42.jpg" alt="hobby" />
+              <img src="hobby/z43.jpg" alt="hobby" />
+              <img src="hobby/z44.jpg" alt="hobby" />
+              <img src="hobby/z45.jpg" alt="hobby" />
+              <img src="hobby/z46.jpg" alt="hobby" />
+              <img src="hobby/z47.jpg" alt="hobby" />
+              <img src="hobby/z48.jpg" alt="hobby" />
+              <img src="hobby/z58.jpeg" alt="hobby" />
+              <img src="hobby/z50.jpg" alt="hobby" />
+              <img src="hobby/z51.jpg" alt="hobby" />
+              <img src="hobby/z52.jpg" alt="hobby" />
+              <img src="hobby/z53.jpg" alt="hobby" />
+              <img src="hobby/z54.jpg" alt="hobby" />
+              <img src="hobby/z55.jpg" alt="hobby" />
+              <img src="hobby/z56.jpg" alt="hobby" />
+              <img src="hobby/z57.jpeg" alt="hobby" />
+              <img src="hobby/z49.jpg" alt="hobby" />
+              <img src="hobby/z59.jpeg" alt="hobby" />
+              <img src="hobby/z60.jpeg" alt="hobby" />
+              <img class="hobby-face-up" src="hobby/z61.jpeg" alt="hobby" />
+            </div>
+            <button class="orora-hobby-nav orora-hobby-next" type="button" aria-label="다음 사진">›</button>
+          </div>
           <div class="story-text">
             <p class="story-body">깊이 뛰어들 때 비로소<br>진짜 세계가 보인다.</p>
           </div>
+        </section>
+
+        <!-- 패널 6: img19 -->
+        <section class="h-section" id="img19-section">
+          <img class="bg-img" src="img/img19.png" alt="사막 위 펭귄" />
         </section>
 
         <!-- 패널 6: section06 -->
@@ -152,9 +292,41 @@
           </div>
         </section>
 
-        <!-- 패널 9: 프로필 -->
+        <!-- 패널 9: 프로필 + 취미 갤러리 -->
         <section class="h-section" id="pp-section">
           <img class="bg-img" src="images/pp.png" alt="프로필 배경" />
+
+          <!-- 취미 갤러리 (종이 아래) -->
+          <div class="hobby-gallery">
+            <p class="hobby-label">Hobbies &amp; Daily Life</p>
+            <div class="hobby-strip">
+              <div class="hobby-item hobby-tall">
+                <img src="hobby/z1.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-wide">
+                <img src="hobby/z2.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-mid">
+                <img src="hobby/z3.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-wide">
+                <img src="hobby/z4.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-tall">
+                <img src="hobby/z5.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-mid">
+                <img src="hobby/z7.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-wide">
+                <img src="hobby/z8.jpg" alt="hobby">
+              </div>
+            </div>
+          </div>
+
+          <!-- 종이 넘김 효과 레이어 (갤러리 위) -->
+          <div class="paper-peel"></div>
+          <div class="paper-fold-shadow"></div>
         </section>
 
         <!-- 패널 10: section11 – 폰 줌인 -->
@@ -169,9 +341,10 @@
 
         <!-- 패널 11: 비디오 (마지막) -->
         <section class="h-section" id="video-section">
-          <video class="bg-img" autoplay muted loop playsinline>
+          <video class="bg-img" autoplay muted loop playsinline style="opacity:0;transition:opacity 0.5s ease;" oncanplay="this.style.opacity='1'">
             <source src="vidieos/main.mp4" type="video/mp4" />
           </video>
+          <img class="bg-img video-hover-img" src="img/img14.png" alt="황제펭귄" />
         </section>
 
       </div><!-- /#h-rail -->
@@ -181,9 +354,20 @@
 
 
   <!-- 영상 스킵 버튼 (fixed, body 레벨) -->
-  <button id="video-skip-btn" aria-label="영상 스킵하기">
-    영상 스킵하기 <span class="skip-arrow">→</span>
+  <button id="video-skip-btn" aria-label="Skip">
+    Skip <span class="skip-arrow">→</span>
   </button>
+
+  <!-- 메인 눈보라 캔버스 -->
+  <canvas id="main-snow-canvas"></canvas>
+
+  <!-- 증명사진 팝업 (fixed — 섹션 밖) -->
+  <div id="id-photo-modal" aria-hidden="true">
+    <div id="id-photo-inner">
+      <img src="img/img16.png" alt="증명사진" />
+      <button id="id-photo-close" aria-label="닫기">×</button>
+    </div>
+  </div>
 
   <!-- 종이 바닥선 -->
   <div id="ground"></div>
@@ -191,8 +375,10 @@
   <!-- 걷는 펭귄 캐릭터 -->
   <div id="penguin">
     <div class="p-inner">
-      <img class="penguin-img penguin-young" src="images/section12.png" alt="어린 펭귄" />
-      <img class="penguin-img penguin-adult" src="images/section19.png" alt="황제펭귄" />
+      <img class="penguin-img penguin-young"   src="images/section12.png" alt="어린 펭귄" />
+      <img class="penguin-img penguin-adult"   src="images/section19.png" alt="황제펭귄" />
+      <img class="penguin-img penguin-emperor" src="images/section19.png" alt="황제펭귄" />
+      <img class="penguin-img penguin-hobby"   src="img/img18.png"        alt="자전거 펭귄" />
     </div>
   </div>
 

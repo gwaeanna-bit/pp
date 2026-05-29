@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Tools Jellyfish</title>
+<style>
+  :root { color-scheme: light; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #071525; overflow: hidden; width: 100vw; height: 100vh; cursor: none; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="jc"></canvas>
+<script>
+const canvas = document.getElementById('jc');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const W = canvas.width, H = canvas.height;
+
+const mouse = { x: W / 2, y: H / 2 };
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+const tools = [
+  { label: 'Ps', bg: '#001E36', text: '#31A8FF', name: 'Photoshop' },
+  { label: 'Ai', bg: '#2C0000', text: '#FF9A00', name: 'Illustrator' },
+  { label: 'Xd', bg: '#2B0040', text: '#FF61F6', name: 'Adobe XD' },
+  { label: 'Pr', bg: '#0D0033', text: '#9999FF', name: 'Premiere' },
+  { label: 'Fig', bg: '#1E1E1E', text: '#A259FF', name: 'Figma', isFig: true },
+  { label: 'Sk', bg: '#3A2A00', text: '#F7B500', name: 'Sketch' },
+  { label: 'Fr', bg: '#0044CC', text: '#fff', name: 'Framer' },
+  { label: 'Cv', bg: '#4A0099', text: '#fff', name: 'Canva' },
+  { label: 'In', bg: '#8B0022', text: '#FF3366', name: 'InVision' },
+  { label: 'Zp', bg: '#3A1800', text: '#FF4F00', name: 'Zeplin' },
+];
+
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+const jellies = tools.map((tool, i) => {
+  const angle = Math.random() * Math.PI * 2;
+  const speed = rand(0.4, 0.9);
+  return {
+    tool,
+    x: rand(80, W - 80),
+    y: rand(80, H - 80),
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    r: rand(34, 50),
+    // steering
+    targetAngle: angle,
+    turnSpeed: rand(0.008, 0.018),
+    // animation
+    phase: Math.random() * Math.PI * 2,
+    pulsePhase: Math.random() * Math.PI * 2,
+    tPhase: Math.random() * Math.PI * 2,
+    gAlpha: rand(0.25, 0.45),
+    // direction change timer
+    wanderTimer: rand(0, 200),
+    wanderInterval: rand(120, 280),
+    // body tilt
+    tilt: 0,
+    // trail
+    trail: [],
+  };
+});
+
+function updateJelly(j) {
+  j.wanderTimer++;
+  if (j.wanderTimer > j.wanderInterval) {
+    j.wanderTimer = 0;
+    j.wanderInterval = rand(120, 280);
+    j.targetAngle = Math.random() * Math.PI * 2;
+  }
+
+  // mouse repulsion
+  const dx = j.x - mouse.x;
+  const dy = j.y - mouse.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < 120) {
+    const repelAngle = Math.atan2(dy, dx);
+    const force = (120 - dist) / 120;
+    j.vx += Math.cos(repelAngle) * force * 0.15;
+    j.vy += Math.sin(repelAngle) * force * 0.15;
+  }
+
+  // steer toward target angle
+  const curAngle = Math.atan2(j.vy, j.vx);
+  let diff = j.targetAngle - curAngle;
+  while (diff > Math.PI) diff -= Math.PI * 2;
+  while (diff < -Math.PI) diff += Math.PI * 2;
+  const newAngle = curAngle + diff * j.turnSpeed;
+  const spd = Math.sqrt(j.vx * j.vx + j.vy * j.vy);
+  const targetSpd = rand(0.3, 0.8);
+  const adjSpd = spd + (targetSpd - spd) * 0.02;
+  j.vx = Math.cos(newAngle) * adjSpd;
+  j.vy = Math.sin(newAngle) * adjSpd;
+
+  // clamp speed
+  const s = Math.sqrt(j.vx * j.vx + j.vy * j.vy);
+  if (s > 1.5) { j.vx *= 1.5 / s; j.vy *= 1.5 / s; }
+
+  j.x += j.vx;
+  j.y += j.vy;
+
+  // bounce off walls with margin
+  const m = j.r + 20;
+  if (j.x < m) { j.vx += 0.15; j.targetAngle = 0; }
+  if (j.x > W - m) { j.vx -= 0.15; j.targetAngle = Math.PI; }
+  if (j.y < m) { j.vy += 0.15; j.targetAngle = Math.PI / 2; }
+  if (j.y > H - m) { j.vy -= 0.15; j.targetAngle = -Math.PI / 2; }
+
+  // tilt based on horizontal velocity
+  j.tilt = j.vx * 0.3;
+
+  // trail
+  j.trail.push({ x: j.x, y: j.y });
+  if (j.trail.length > 18) j.trail.shift();
+}
+
+function drawBg(t) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0d2040');
+  g.addColorStop(0.5, '#071828');
+  g.addColorStop(1, '#030d1a');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(30,90,160,0.09)';
+  ctx.lineWidth = 1;
+  for (let row = 0; row < 8; row++) {
+    const y = (row / 7) * H;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 18) {
+      const wy = y + Math.sin(x * 0.011 + t * 0.4 + row * 0.6) * 7;
+      x === 0 ? ctx.moveTo(x, wy) : ctx.lineTo(x, wy);
+    }
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < 50; i++) {
+    const px = (i * 197.3) % W;
+    const py = (i * 109.7) % H;
+    ctx.beginPath();
+    ctx.arc(px, py, 1, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(120,200,255,${0.025 + (i % 5) * 0.008})`;
+    ctx.fill();
+  }
+
+  // draw cursor ripple
+  ctx.beginPath();
+  ctx.arc(mouse.x, mouse.y, 6, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(140,210,255,0.5)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(mouse.x, mouse.y, 18 + Math.sin(t * 3) * 4, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(100,180,255,0.18)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+}
+
+function drawJelly(j, t) {
+  const pulse = 1 + Math.sin(t * 1.8 + j.pulsePhase) * 0.04;
+  const r = j.r * pulse;
+
+  // trail
+  for (let k = 0; k < j.trail.length; k++) {
+    const alpha = (k / j.trail.length) * 0.06;
+    ctx.beginPath();
+    ctx.arc(j.trail[k].x, j.trail[k].y, r * 0.3 * (k / j.trail.length), 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(80,160,255,${alpha})`;
+    ctx.fill();
+  }
+
+  ctx.save();
+  ctx.translate(j.x, j.y);
+  ctx.rotate(j.tilt);
+
+  // tentacles
+  for (let i = 0; i < 9; i++) {
+    const ang = (i / 9) * Math.PI * 1.4 - Math.PI * 0.2;
+    const tx = Math.cos(ang) * r * 0.62;
+    const ty0 = Math.sin(ang) * r * 0.25 + r * 0.55;
+    const tLen = 30 + (i % 4) * 10;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty0);
+    for (let s = 0.05; s <= 1; s += 0.05) {
+      const lx = tx + Math.sin(s * 3.2 * Math.PI + j.tPhase + i * 0.8 + t * 1.3) * 8 * s;
+      const ly = ty0 + s * tLen;
+      ctx.lineTo(lx, ly);
+    }
+    ctx.strokeStyle = `rgba(100,200,255,${0.1 + 0.07 * Math.sin(t * 1.1 + i)})`;
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+  }
+
+  // glow
+  const glow = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.5);
+  glow.addColorStop(0, `rgba(80,160,255,${j.gAlpha * 0.22})`);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2);
+  ctx.fillStyle = glow;
+  ctx.fill();
+
+  // dome top
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r, r * 0.68, 0, Math.PI, Math.PI * 2);
+  const bg2 = ctx.createRadialGradient(0, -r * 0.15, r * 0.05, 0, 0, r);
+  bg2.addColorStop(0, 'rgba(160,220,255,0.22)');
+  bg2.addColorStop(0.6, 'rgba(60,140,230,0.1)');
+  bg2.addColorStop(1, 'rgba(20,80,180,0.04)');
+  ctx.fillStyle = bg2;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(140,210,255,0.42)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // bell bottom edge
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r, r * 0.68, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(100,180,255,0.1)';
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
+
+  // inner highlight
+  ctx.beginPath();
+  ctx.ellipse(-r * 0.15, -r * 0.28, r * 0.28, r * 0.14, -0.3, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(220,240,255,0.07)';
+  ctx.fill();
+
+  // icon circle
+  const ir = r * 0.5;
+  ctx.beginPath();
+  ctx.ellipse(0, -r * 0.1, ir, ir * 0.72, 0, 0, Math.PI * 2);
+  ctx.fillStyle = j.tool.bg;
+  ctx.globalAlpha = 0.93;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(200,230,255,0.2)';
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
+
+  const oy = -r * 0.1;
+  if (j.tool.isFig) {
+    const s = ir * 0.24;
+    ctx.fillStyle = '#FF7262'; ctx.beginPath(); ctx.roundRect(-s, oy - s * 2, s * 1.8, s * 2, 2); ctx.fill();
+    ctx.fillStyle = '#F24E1E'; ctx.beginPath(); ctx.roundRect(-s, oy, s * 1.8, s * 2, 2); ctx.fill();
+    ctx.fillStyle = '#A259FF'; ctx.beginPath(); ctx.roundRect(s * 0.28, oy - s * 2, s * 1.8, s * 4, 2); ctx.fill();
+    ctx.fillStyle = '#0ACF83'; ctx.beginPath(); ctx.arc(s * 1.18, oy + s, s * 0.84, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1ABCFE'; ctx.beginPath(); ctx.arc(s * 1.18, oy - s, s * 0.84, 0, Math.PI * 2); ctx.fill();
+  } else {
+    ctx.font = `bold ${ir * 0.52}px Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = j.tool.text;
+    ctx.fillText(j.tool.label, 0, oy);
+  }
+
+  ctx.font = `${r * 0.18}px Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(160,215,255,0.6)';
+  ctx.fillText(j.tool.name, 0, r * 0.52);
+
+  ctx.restore();
+}
+
+let frame = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  const t = frame * 0.016;
+  frame++;
+  ctx.clearRect(0, 0, W, H);
+  drawBg(t);
+  jellies.forEach(j => {
+    updateJelly(j);
+    drawJelly(j, t);
+  });
+}
+animate();
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+</body>
+</html>
