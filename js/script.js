@@ -7,7 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const splash_bg   = document.getElementById("splash-bg");
   const splash_text = document.getElementById("splash-text");
 
-  let penguin_ready = false;
+  let penguin_ready  = false;
+  let uw_end_shown   = false;   // 최상위 스코프 — dismiss_underwater에서도 리셋 가능
+  // 전역 접근용 수중화면 참조
+  const uw_el_global = document.getElementById("underwater");
+  // 외부 스코프에서 수중화면 표시 함수 참조
+  let show_uw_screen = null;
 
   if (splash && splash_bg) {
     let target_x = 0, target_y = 0;
@@ -55,27 +60,59 @@ document.addEventListener("DOMContentLoaded", () => {
       splash_dismissed = true;
       if (raf_id) cancelAnimationFrame(raf_id);
 
-      // 스플래시 페이드아웃
+      // 스플래시 페이드아웃 → 바로 메인으로
       splash.classList.add("fade-out");
       document.body.classList.remove("splash-active");
-
-      // 수중 화면 — splash fade-out 직후 표시
-      requestAnimationFrame(() => {
-        const uw = document.getElementById("underwater");
-        if (uw) uw.classList.add("active");
-        // nav 수중 화면 위로 노출
-        const hdr = document.querySelector(".header");
-        if (hdr) hdr.classList.add("uw-visible");
-      });
 
       setTimeout(() => {
         splash.style.visibility = "hidden";
         splash.style.pointerEvents = "none";
       }, 950);
+
+      // 수중 화면은 건너뛰고 메인 콘텐츠 직행
+      // restore_splash 트리거 방지: scrollY=0 이벤트가 와도 복원 안 하도록 플래그 해제
+      setTimeout(() => {
+        splash_dismissed = false;
+        uw_done = true;
+        init_main();
+      }, 400);
     };
 
-    /* ── 수중 화면 → 메인 콘텐츠 ── */
+    /* ── 수중 화면 ── */
     const uw_el = document.getElementById("underwater");
+    let uw_surfaced = false;  // 외부 스코프로 이동
+
+    /* ── 수중 화면 표시 함수 (영상 끝에서 호출) ── */
+    show_uw_screen = () => {
+      if (!uw_el) return;
+      uw_done     = false;
+      uw_accum    = 0;
+      uw_surfaced = false;
+      // 수중화면 진입 시 영상 스킵 버튼 숨기기
+      const _sb = document.getElementById("video-skip-btn");
+      if (_sb) _sb.classList.remove("visible");
+      // 펭귄 위치·상태 초기화
+      const pg = document.getElementById("uw-penguin");
+      if (pg) {
+        pg.style.transition = "";
+        pg.style.transform  = "";
+        pg.style.filter     = "";
+        pg.style.opacity    = "";
+      }
+      // surface-reveal 초기화
+      const sr = document.getElementById("surface-reveal");
+      if (sr) {
+        sr.style.display = "";
+        sr.classList.remove("active", "fade-out");
+      }
+      uw_el.classList.remove("active", "fade-out");
+      uw_el.style.visibility = "";
+      requestAnimationFrame(() => {
+        uw_el.classList.add("active");
+        const hdr = document.querySelector(".header");
+        if (hdr) hdr.classList.add("uw-visible");
+      });
+    };
 
     /* ── 수중 펭귄 드래그 ── */
     const uw_pg = document.getElementById("uw-penguin");
@@ -84,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
       let uw_drag = false, uw_dx = 0, uw_dy = 0;
       let uw_vx = 0, uw_vy = 0;
       let uw_raf = null;
-      let uw_surfaced = false;
 
       const uw_pg_apply = (x, y, tilt) => {
         uw_pg.style.transform =
@@ -101,23 +137,14 @@ document.addEventListener("DOMContentLoaded", () => {
           uw_pg.style.filter = "drop-shadow(0 0 60px rgba(160,220,255,1)) brightness(1.5)";
           uw_pg.style.opacity = "0";
 
-          // img11 오버레이 등장
+          // img11 오버레이 등장 — 최종 화면으로 고정
           setTimeout(() => {
             const sr = document.getElementById("surface-reveal");
+            dismiss_underwater();
             if (sr) {
               sr.classList.add("active");
-              // 수중 화면 페이드아웃
-              dismiss_underwater();
-              // img11 일정 시간 후 페이드아웃
-              setTimeout(() => {
-                sr.classList.remove("active");
-                sr.classList.add("fade-out");
-                setTimeout(() => {
-                  sr.style.display = "none";
-                }, 1000);
-              }, 1800);
+              // 더 이상 페이드아웃 없음 — 마지막 화면
             } else {
-              dismiss_underwater();
             }
           }, 350);
         }
@@ -188,13 +215,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
     let uw_accum = 0;
-    const UW_TOTAL = 600;
+    const UW_TOTAL = 2000;
     let uw_done = false;
 
     const dismiss_underwater = () => {
       if (uw_done) return;
       uw_done = true;
-      // 스크롤 0으로 리셋 시 restore_splash 재진입 방지
       splash_dismissed = false;
       // nav 수중 모드 해제
       const hdr = document.querySelector(".header");
@@ -202,17 +228,56 @@ document.addEventListener("DOMContentLoaded", () => {
       if (uw_el) {
         uw_el.classList.remove("active");
         uw_el.classList.add("fade-out");
-        setTimeout(() => { uw_el.style.visibility = "hidden"; }, 950);
+        setTimeout(() => {
+          uw_el.style.visibility = "hidden";
+          // 다음 방문을 위해 uw_end_shown 리셋 (영상 끝에서만)
+          if (penguin_ready) uw_end_shown = false;
+        }, 950);
       }
-      init_main();
+      // 영상 끝 수중화면이면 스크롤 유지, 아니면 메인 초기화
+      if (!penguin_ready) init_main();
     };
 
-    // window 레벨에서 수중 화면 스크롤 처리 (splash wheel 간섭 방지)
+    // 수중화면 스크롤 시 펭귄 위로 끌어올리기
+    const uw_scroll_rise = (delta) => {
+      if (!uw_el || !uw_el.classList.contains("active") || uw_done || uw_surfaced) return;
+      uw_accum = Math.max(0, Math.min(UW_TOTAL, uw_accum + delta));
+
+      // 펭귄을 스크롤 진행도에 따라 위로 이동
+      const pg = document.getElementById("uw-penguin");
+      if (pg) {
+        const progress = uw_accum / UW_TOTAL;
+        const rise = progress * (window.innerHeight * 0.52);
+        const tilt = -(progress * 18);
+        pg.style.animation = "none";
+        pg.style.transform = `translate(-50%, calc(-50% - ${rise.toFixed(1)}px)) rotate(${tilt.toFixed(1)}deg)`;
+      }
+
+      // 끝까지 올라가면 수면 돌파
+      if (uw_accum >= UW_TOTAL) {
+        uw_surfaced = true;
+        if (pg) {
+          pg.style.transition = "transform 0.4s cubic-bezier(0.34,1.56,0.64,1), filter 0.4s ease, opacity 0.4s ease";
+          pg.style.transform  = `translate(-50%, calc(-50% - ${(window.innerHeight * 0.6).toFixed(0)}px)) rotate(0deg) scale(1.4)`;
+          pg.style.filter     = "drop-shadow(0 0 60px rgba(160,220,255,1)) brightness(1.5)";
+          pg.style.opacity    = "0";
+        }
+        setTimeout(() => {
+          const sr = document.getElementById("surface-reveal");
+          dismiss_underwater();
+          if (sr) {
+            sr.classList.add("active");
+            // img11은 최종 화면 — 페이드아웃 없이 그대로 유지
+          }
+        }, 350);
+      }
+    };
+
+    // window 레벨에서 수중 화면 스크롤 처리
     window.addEventListener("wheel", (e) => {
       if (!uw_el || !uw_el.classList.contains("active") || uw_done) return;
       e.preventDefault();
-      uw_accum = Math.max(0, Math.min(UW_TOTAL, uw_accum + e.deltaY));
-      if (uw_accum >= UW_TOTAL) dismiss_underwater();
+      uw_scroll_rise(e.deltaY);
     }, { passive: false });
 
     let uw_touch_y = 0;
@@ -223,9 +288,8 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("touchmove", (e) => {
       if (!uw_el || !uw_el.classList.contains("active") || uw_done) return;
       const dy = uw_touch_y - e.touches[0].clientY;
-      uw_accum = Math.max(0, Math.min(UW_TOTAL, uw_accum + dy * 3));
       uw_touch_y = e.touches[0].clientY;
-      if (uw_accum >= UW_TOTAL) dismiss_underwater();
+      uw_scroll_rise(dy * 3);
     }, { passive: true });
 
     /* ── 스플래시 복원 (맨 위로 스크롤 시) ── */
@@ -271,58 +335,109 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }, { passive: true });
 
-    /* ── 스플래시 펭귄 — 스크롤로 오른쪽 바다로 밀기 ── */
-    const splash_center  = document.getElementById("splash-center");
-    const SP_TOTAL       = 1600;
-    let   sp_accum       = 0;
-    let   sp_falling     = false;
+    /* ── 스플래시 펭귄 — 드래그앤드롭으로 바다에 빠뜨리기 ── */
+    const splash_center = document.getElementById("splash-center");
+    let sp_accum  = 0; // restore_splash 호환용
+    let sp_falling = false;
 
-    const update_splash_pos = () => {
-      if (splash_dismissed || sp_falling) return;
-      const progress = Math.min(1, sp_accum / SP_TOTAL);
-      const travel_x = window.innerWidth * 0.55;
-      const tilt     = progress * 38;
+    let sp_drag = false;
+    let sp_start_x = 0, sp_start_y = 0;
+    let sp_cur_x = 0, sp_cur_y = 0;
+    let sp_vx = 0;
 
+    const sp_do_fall = () => {
+      if (sp_falling) return;
+      sp_falling = true;
+      sp_drag = false;
       if (splash_center) {
-        splash_center.style.transition = 'none';
-        splash_center.style.transform  =
-          `translateX(${(progress * travel_x).toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
-        splash_center.style.opacity = Math.max(0, 1 - progress * 1.2).toFixed(3);
+        splash_center.style.transition =
+          'transform 0.9s cubic-bezier(0.55,0,1,0.45), opacity 0.7s ease';
+        splash_center.style.transform =
+          `translate(${(sp_cur_x + window.innerWidth * 0.35).toFixed(0)}px, ${(sp_cur_y + 200).toFixed(0)}px) rotate(95deg)`;
+        splash_center.style.opacity = '0';
       }
-
-      if (progress >= 1 && !sp_falling) {
-        sp_falling = true;
-        if (splash_center) {
-          splash_center.style.transition =
-            'transform 1.1s cubic-bezier(0.55,0,1,0.45), opacity 0.9s ease';
-          splash_center.style.transform =
-            `translateX(${(travel_x * 1.5).toFixed(1)}px) translateY(120px) rotate(90deg)`;
-          splash_center.style.opacity = '0';
-        }
-        setTimeout(() => dismiss_splash(), 1000);
-      }
+      setTimeout(() => dismiss_splash(), 900);
     };
 
-    // 마우스 휠 스크롤
-    splash.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      if (splash_dismissed || sp_falling) return;
-      sp_accum = Math.max(0, Math.min(SP_TOTAL, sp_accum + e.deltaY));
-      update_splash_pos();
-    }, { passive: false });
+    // 마우스 드래그
+    if (splash_center) {
+      splash_center.style.cursor = 'grab';
 
-    // 터치 스와이프 (위로 올리면 펭귄 밀기)
-    let touch_y = 0;
-    splash.addEventListener("touchstart", (e) => {
-      touch_y = e.touches[0].clientY;
-    }, { passive: true });
-    splash.addEventListener("touchmove", (e) => {
-      if (splash_dismissed || sp_falling) return;
-      const dy = touch_y - e.touches[0].clientY;
-      sp_accum = Math.max(0, Math.min(SP_TOTAL, sp_accum + dy * 3));
-      touch_y  = e.touches[0].clientY;
-      update_splash_pos();
-    }, { passive: true });
+      splash_center.addEventListener("mousedown", (e) => {
+        if (splash_dismissed || sp_falling) return;
+        sp_drag    = true;
+        sp_start_x = e.clientX - sp_cur_x;
+        sp_start_y = e.clientY - sp_cur_y;
+        splash_center.style.cursor = 'grabbing';
+        splash_center.style.transition = 'none';
+        e.preventDefault();
+      });
+
+      document.addEventListener("mousemove", (e) => {
+        if (!sp_drag || splash_dismissed || sp_falling) return;
+        const nx = e.clientX - sp_start_x;
+        const ny = e.clientY - sp_start_y;
+        sp_vx   = nx - sp_cur_x;
+        sp_cur_x = nx; sp_cur_y = ny;
+        const tilt = Math.min(50, Math.max(-15, sp_cur_x * 0.08));
+        splash_center.style.transform =
+          `translate(${sp_cur_x.toFixed(1)}px, ${sp_cur_y.toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
+        // 오른쪽 바다 영역 진입 시 자동 낙하
+        if (sp_cur_x > window.innerWidth * 0.28) sp_do_fall();
+      });
+
+      document.addEventListener("mouseup", () => {
+        if (!sp_drag) return;
+        sp_drag = false;
+        splash_center.style.cursor = 'grab';
+        if (sp_falling) return;
+        // 충분히 오른쪽이면 낙하, 아니면 원위치
+        if (sp_cur_x > 120 && sp_vx > 0) {
+          sp_do_fall();
+        } else {
+          splash_center.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
+          splash_center.style.transform  = '';
+          splash_center.style.opacity    = '';
+          sp_cur_x = 0; sp_cur_y = 0;
+        }
+      });
+
+      // 터치 드래그
+      splash_center.addEventListener("touchstart", (e) => {
+        if (splash_dismissed || sp_falling) return;
+        const t = e.touches[0];
+        sp_drag    = true;
+        sp_start_x = t.clientX - sp_cur_x;
+        sp_start_y = t.clientY - sp_cur_y;
+        splash_center.style.transition = 'none';
+      }, { passive: true });
+
+      document.addEventListener("touchmove", (e) => {
+        if (!sp_drag || splash_dismissed || sp_falling) return;
+        const t  = e.touches[0];
+        const nx = t.clientX - sp_start_x;
+        const ny = t.clientY - sp_start_y;
+        sp_vx    = nx - sp_cur_x;
+        sp_cur_x = nx; sp_cur_y = ny;
+        const tilt = Math.min(50, Math.max(-15, sp_cur_x * 0.08));
+        splash_center.style.transform =
+          `translate(${sp_cur_x.toFixed(1)}px, ${sp_cur_y.toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
+        if (sp_cur_x > window.innerWidth * 0.28) sp_do_fall();
+      }, { passive: true });
+
+      document.addEventListener("touchend", () => {
+        if (!sp_drag) return;
+        sp_drag = false;
+        if (sp_falling) return;
+        if (sp_cur_x > 120 && sp_vx > 0) {
+          sp_do_fall();
+        } else {
+          splash_center.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+          splash_center.style.transform  = '';
+          sp_cur_x = 0; sp_cur_y = 0;
+        }
+      });
+    }
   }
 
   /* ══════════════════════════════════════
@@ -350,70 +465,113 @@ document.addEventListener("DOMContentLoaded", () => {
       sec.classList.remove("active", "past");
       if (i === idx)       sec.classList.add("active");
       else if (i < idx)    sec.classList.add("past");
-      // i > idx → 위에 대기 (translateY(-100%))
     });
     current_section_idx = idx;
-  };
 
-  const last_video = document.querySelector(".h-section:last-child video");
-
-  const update_h_scroll = () => {
-    if (!h_track) return;
-    const scroll_max = h_track.offsetHeight - window.innerHeight;
-    if (scroll_max <= 0) return;
-
-    h_scroll_progress = Math.max(0, Math.min(1, window.scrollY / scroll_max));
-
-    // 진행 표시바
-    if (prog_bar) prog_bar.style.width = `${(h_scroll_progress * 100).toFixed(2)}%`;
-
-    // 섹션 전환 (포트폴리오 섹션에서는 줌인 중 자동 전환 차단)
-    const idx = Math.min(section_count - 1,
-      Math.floor(h_scroll_progress * section_count));
-    const pf_idx = h_sections.findIndex(s => s.id === "portfolio-section");
-    if (idx !== current_section_idx) {
-      // 포트폴리오 → 비디오 전환은 줌인 완료 후에만 허용
-      if (current_section_idx === pf_idx && idx > pf_idx) return;
-      show_section(idx);
-    }
-
-    // 펭귄도 같은 progress로 즉시 업데이트
-    update_penguin();
-
-    // 마지막 동영상: 섹션 후반부 스크롤로 줌아웃+페이드
-    if (last_video) {
-      const vid_start  = (section_count - 1) / section_count; // 0.80 (동영상 섹션 시작)
-      const zoom_start = vid_start + (1 - vid_start) * 0.55;  // 0.91 (동영상 55% 지점부터 효과 시작)
-      if (h_scroll_progress >= zoom_start) {
-        const t       = (h_scroll_progress - zoom_start) / (1.0 - zoom_start);
-        const scale   = 1 - t * 0.5;
-        const opacity = 1 - t;
-        last_video.style.transform = `scale(${scale.toFixed(3)})`;
-        last_video.style.opacity   = opacity.toFixed(3);
+    // 영상 스킵 버튼: 비디오 섹션일 때만 표시
+    const _skip_btn = document.getElementById("video-skip-btn");
+    if (_skip_btn) {
+      const is_video = h_sections[idx] && h_sections[idx].id === "video-section";
+      if (is_video) {
+        _skip_btn.classList.add("visible");
       } else {
-        last_video.style.transform = "";
-        last_video.style.opacity   = "";
+        _skip_btn.classList.remove("visible");
       }
     }
   };
 
-  /* ── 섹션 번호로 직접 이동 (헤더 nav용) ── */
-  window.scrollToSection = (index) => {
-    // 수중 화면 중이면 바로 건너뜀
-    if (uw_el && uw_el.classList.contains("active")) {
-      dismiss_underwater();
-      setTimeout(() => {
-        if (!h_track) return;
-        const scroll_max = h_track.offsetHeight - window.innerHeight;
-        const target_sy  = (index / section_count) * scroll_max;
-        window.scrollTo({ top: target_sy, behavior: "smooth" });
-      }, 100);
+  const last_video = document.querySelector(".h-section:last-child video");
+
+  // ── 페이지드 휠 네비게이션 ──
+  let pg_nav_lock  = false;
+  const PG_DELAY   = 650;
+
+  const go_to_section = (idx) => {
+    idx = Math.max(0, Math.min(section_count - 1, idx));
+    show_section(idx);
+    h_scroll_progress = section_count > 1 ? idx / (section_count - 1) : 0;
+    if (prog_bar) prog_bar.style.width = `${(h_scroll_progress * 100).toFixed(2)}%`;
+    update_penguin();
+    // 비디오 섹션 진입 시 재생
+    if (last_video) {
+      if (idx === section_count - 1) {
+        last_video.style.transform = "";
+        last_video.style.opacity   = "";
+        last_video.play && last_video.play().catch(() => {});
+      }
+    }
+  };
+
+  const page_nav = (dir) => {
+    const next = current_section_idx + dir;
+
+    // 마지막 섹션에서 아래로 → 수중화면 (lock이 풀린 후에만 전환)
+    if (next >= section_count) {
+      if (!uw_end_shown && !pg_nav_lock) {
+        uw_end_shown = true;
+        // show_uw_screen 함수 직접 호출 또는 uw_el_global로 직접 처리
+        if (show_uw_screen) {
+          show_uw_screen();
+        } else {
+          // fallback: 직접 수중화면 활성화
+          const _uw = document.getElementById("underwater");
+          const _pg = document.getElementById("uw-penguin");
+          if (_uw) {
+            if (_pg) { _pg.style.transform = ""; _pg.style.opacity = ""; _pg.style.filter = ""; }
+            _uw.classList.remove("active","fade-out");
+            _uw.style.visibility = "";
+            requestAnimationFrame(() => {
+              _uw.classList.add("active");
+              const hdr = document.querySelector(".header");
+              if (hdr) hdr.classList.add("uw-visible");
+            });
+          }
+        }
+      }
       return;
     }
-    if (!h_track) return;
-    const scroll_max = h_track.offsetHeight - window.innerHeight;
-    const target_sy  = (index / section_count) * scroll_max;
-    window.scrollTo({ top: target_sy, behavior: "smooth" });
+
+    if (next < 0 || pg_nav_lock) return;
+    pg_nav_lock = true;
+    go_to_section(next);
+    setTimeout(() => { pg_nav_lock = false; }, PG_DELAY);
+  };
+
+  // 휠 이벤트 — 1회 = 1섹션
+  window.addEventListener("wheel", (e) => {
+    if (!penguin_ready) return;
+    if (uw_el_global && uw_el_global.classList.contains("active")) return;
+    e.preventDefault();
+    page_nav(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+
+  // 터치 스와이프 — 1회 = 1섹션
+  let main_touch_y = 0;
+  window.addEventListener("touchstart", (e) => {
+    if (!penguin_ready) return;
+    main_touch_y = e.touches[0].clientY;
+  }, { passive: true });
+  window.addEventListener("touchend", (e) => {
+    if (!penguin_ready) return;
+    if (uw_el_global && uw_el_global.classList.contains("active")) return;
+    const dy = main_touch_y - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 40) page_nav(dy > 0 ? 1 : -1);
+  }, { passive: true });
+
+  const update_h_scroll = () => {}; // 레거시 호환용 빈 함수
+
+  /* ── 섹션 번호로 직접 이동 (헤더 nav용) ── */
+  window.scrollToSection = (index) => {
+    if (uw_el_global && uw_el_global.classList.contains("active")) {
+      // 수중화면 닫기
+      uw_el_global.classList.remove("active");
+      uw_el_global.classList.add("fade-out");
+      const hdr = document.querySelector(".header");
+      if (hdr) hdr.classList.remove("uw-visible");
+      setTimeout(() => go_to_section(index), 150);
+      return;
+    }
+    go_to_section(index);
   };
 
   // 초기 실행
@@ -466,12 +624,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!penguin_ready || !penguin_el) return;
     if (p_drag_active || p_manual_x !== null) return;
 
-    // 섹션 전환과 동일한 scroll_max 사용 (h_scroll_progress와 동기화)
-    if (!h_track) return;
-    const scroll_max = h_track.offsetHeight - window.innerHeight;
-    if (scroll_max <= 0) return;
-
-    const progress = Math.max(0, Math.min(1, window.scrollY / scroll_max));
+    const progress = h_scroll_progress;
     const P_W      = get_P_W();
     const travel   = window.innerWidth - P_W - P_MARGIN * 2;
     const x        = P_MARGIN + progress * travel;
@@ -538,11 +691,17 @@ document.addEventListener("DOMContentLoaded", () => {
       penguin_el.classList.remove("dragging");
       document.body.style.userSelect = "";
       clearTimeout(p_scroll_timer);
+      // 드래그 끝난 위치를 h_scroll_progress에 반영 → 제자리 고정
+      if (p_manual_x !== null) {
+        const P_W    = get_P_W();
+        const travel = window.innerWidth - P_W - P_MARGIN * 2;
+        h_scroll_progress = Math.max(0, Math.min(1, (p_manual_x - P_MARGIN) / travel));
+      }
       p_scroll_timer = setTimeout(() => {
         penguin_el.classList.remove("walking");
         p_manual_x = null;
-        update_penguin();
-      }, 800);
+        // update_penguin 호출 안 함 → 펭귄 현재 위치 유지
+      }, 300);
     });
 
     /* 터치 드래그 */
@@ -570,17 +729,51 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!p_drag_active) return;
       p_drag_active = false;
       penguin_el.classList.remove("dragging");
+      // 드래그 끝난 위치를 h_scroll_progress에 반영 → 제자리 고정
+      if (p_manual_x !== null) {
+        const P_W    = get_P_W();
+        const travel = window.innerWidth - P_W - P_MARGIN * 2;
+        h_scroll_progress = Math.max(0, Math.min(1, (p_manual_x - P_MARGIN) / travel));
+      }
       clearTimeout(p_scroll_timer);
       p_scroll_timer = setTimeout(() => {
         penguin_el.classList.remove("walking");
         p_manual_x = null;
-        update_penguin();
-      }, 800);
+        // update_penguin 호출 안 함 → 펭귄 현재 위치 유지
+      }, 300);
     });
   }
 
   window.addEventListener("scroll", update_penguin, { passive: true });
   window.addEventListener("resize", update_penguin);
+
+  /* ── 영상 스킵 버튼: 누르면 수중화면(img9/10/11)으로 ── */
+  const video_skip_btn = document.getElementById("video-skip-btn");
+
+  if (video_skip_btn) {
+    video_skip_btn.addEventListener("click", () => {
+      // 버튼 숨기기
+      video_skip_btn.classList.remove("visible");
+      // uw_end_shown 플래그 세팅 (page_nav 중복 방지)
+      uw_end_shown = true;
+      if (show_uw_screen) {
+        show_uw_screen();
+      } else {
+        const _uw = document.getElementById("underwater");
+        const _pg = document.getElementById("uw-penguin");
+        if (_uw) {
+          if (_pg) { _pg.style.transform = ""; _pg.style.opacity = ""; _pg.style.filter = ""; }
+          _uw.classList.remove("active", "fade-out");
+          _uw.style.visibility = "";
+          requestAnimationFrame(() => {
+            _uw.classList.add("active");
+            const hdr = document.querySelector(".header");
+            if (hdr) hdr.classList.add("uw-visible");
+          });
+        }
+      }
+    });
+  }
 
   /* ══════════════════════════════════════
      눈보라 (스플래시 전용)
@@ -692,7 +885,15 @@ document.addEventListener("DOMContentLoaded", () => {
         portfolio_bg.style.opacity   = "0";
       }
       setTimeout(() => {
-        if (vid_idx_global !== -1) show_section(vid_idx_global);
+        if (vid_idx_global !== -1) {
+          show_section(vid_idx_global);
+          // 포트폴리오 줌 경로에서도 영상 재생
+          if (last_video) {
+            last_video.style.transform = "";
+            last_video.style.opacity   = "";
+            last_video.play && last_video.play().catch(() => {});
+          }
+        }
         // 복원
         setTimeout(() => {
           if (portfolio_bg) {

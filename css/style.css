@@ -440,7 +440,7 @@ body.splash-active { overflow: hidden; }
   animation: splash-rise 0.9s ease 0.7s forwards;
 }
 #splash-penguin-spin {
-  width: 580px;
+  width: 460px;
   height: auto;
   filter: drop-shadow(0 14px 28px rgba(0,0,0,0.5));
   transform-origin: center center;
@@ -622,22 +622,46 @@ body.splash-active { overflow: hidden; }
   object-fit: cover;
   display: block;
 }
+#surface-thanks {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Caveat', cursive;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  color: #fff;
+  text-shadow:
+    0 2px 20px rgba(0, 80, 180, 0.55),
+    0 1px 4px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  opacity: 0;
+  transform: translateX(-50%) translateY(14px);
+  transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+  pointer-events: none;
+}
+#surface-reveal.active #surface-thanks {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 /* 수중 안내 텍스트 */
 #uw-instruction {
   position: absolute;
-  top: 30px;
+  bottom: 72px;
   left: 50%;
   transform: translateX(-50%);
-  color: rgba(180, 220, 255, 0.85);
+  color: rgba(180, 220, 255, 0.9);
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-align: center;
+  white-space: nowrap;
   pointer-events: none;
   z-index: 10003;
-  text-shadow: 0 2px 12px rgba(0, 30, 80, 0.7);
+  text-shadow: 0 2px 16px rgba(0, 30, 80, 0.8);
   animation: uw-hint-fade 3s ease-in-out infinite;
 }
 
@@ -1022,6 +1046,49 @@ body.splash-active { overflow: hidden; }
 @keyframes tap-label-blink {
   0%,100% { opacity: 0.4; }
   50%     { opacity: 1;   }
+}
+
+/* ══ 영상 스킵 버튼 (fixed — 항상 최상위) ══ */
+#video-skip-btn {
+  position: fixed;
+  bottom: 44px;
+  right: 44px;
+  z-index: 10020;
+  padding: 12px 24px;
+  border: 1.5px solid rgba(255,255,255,0.55);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.40);
+  color: #fff;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease,
+              background 0.2s ease, border-color 0.2s ease;
+}
+#video-skip-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+#video-skip-btn:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.9);
+}
+#video-skip-btn .skip-arrow {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+#video-skip-btn:hover .skip-arrow {
+  transform: translateX(3px);
 }
 
 /* 줌인 — bg-img가 핸드폰 화면 쪽으로 빨려 들어감 */
