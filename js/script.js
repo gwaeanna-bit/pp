@@ -465,7 +465,9 @@ document.addEventListener("DOMContentLoaded", () => {
     h_track.style.height = `${section_count * window.innerHeight * 1.8}px`;
   };
 
-  // 섹션 전환 — 위에서 아래로 슬라이드
+  const pp_sec_idx = h_sections.findIndex(s => s.id === "pp-section");
+
+  // 섹션 전환 — 페이드 + 스케일
   const show_section = (idx) => {
     h_sections.forEach((sec, i) => {
       sec.classList.remove("active", "past");
@@ -478,12 +480,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const _skip_btn = document.getElementById("video-skip-btn");
     if (_skip_btn) {
       const is_video = h_sections[idx] && h_sections[idx].id === "video-section";
-      if (is_video) {
-        _skip_btn.classList.add("visible");
-      } else {
-        _skip_btn.classList.remove("visible");
-      }
+      if (is_video) _skip_btn.classList.add("visible");
+      else          _skip_btn.classList.remove("visible");
     }
+
   };
 
   const last_video = document.querySelector(".h-section:last-child video");
@@ -1349,12 +1349,23 @@ document.addEventListener("DOMContentLoaded", () => {
       toggle_orora_hobbies();
     });
 
-    // 왼쪽 펭귄(glitch-img-switch) 클릭 → 증명사진 인라인 토글
+    // 왼쪽 펭귄(glitch-img-switch) 클릭 → 증명사진 모달 팝업
+    const id_modal      = document.getElementById("id-photo-modal");
+    const id_modal_close = document.getElementById("id-photo-close");
+
+    const open_id_modal  = () => { if (id_modal) { id_modal.classList.add("open"); id_modal.setAttribute("aria-hidden","false"); } };
+    const close_id_modal = () => { if (id_modal) { id_modal.classList.remove("open"); id_modal.setAttribute("aria-hidden","true"); } };
+
+    if (id_modal_close) id_modal_close.addEventListener("click", close_id_modal);
+    if (id_modal) id_modal.addEventListener("click", (e) => { if (e.target === id_modal) close_id_modal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close_id_modal(); });
+
     const glitch_switch = orora_section.querySelector(".glitch-img-switch");
 
     if (glitch_switch) {
-      glitch_switch.addEventListener("click", () => {
-        glitch_switch.classList.toggle("id-shown");
+      glitch_switch.addEventListener("click", (e) => {
+        e.stopPropagation();
+        open_id_modal();
       });
 
       // 머리 쓸어넘기기 캔버스 파티클
@@ -1495,6 +1506,62 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.target === orora_hobby_roll) set_orora_hobbies(false);
     });
 
+    // 드래그로 슬라이드
+    let drag_start_x = null;
+    let drag_moved = false;
+    orora_hobby_track.addEventListener("mousedown", (e) => {
+      drag_start_x = e.clientX;
+      drag_moved = false;
+      orora_hobby_track.style.cursor = "grabbing";
+      orora_hobby_track.style.transition = "none";
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (drag_start_x === null) return;
+      const dx = e.clientX - drag_start_x;
+      if (Math.abs(dx) > 6) drag_moved = true;
+      const first_img = orora_hobby_track.querySelector("img");
+      if (!first_img) return;
+      const gap = parseFloat(getComputedStyle(orora_hobby_track).columnGap) || 24;
+      const step = first_img.getBoundingClientRect().width + gap;
+      const base = -hobby_slide * step;
+      orora_hobby_track.style.setProperty("--slide-x", `${(base + dx).toFixed(1)}px`);
+    });
+    window.addEventListener("mouseup", (e) => {
+      if (drag_start_x === null) return;
+      const dx = e.clientX - drag_start_x;
+      orora_hobby_track.style.cursor = "grab";
+      orora_hobby_track.style.transition = "";
+      if (Math.abs(dx) > 50) {
+        hobby_slide += dx < 0 ? 1 : -1;
+      }
+      update_hobby_slide();
+      drag_start_x = null;
+    });
+
+    // 터치 드래그
+    let touch_start_x = null;
+    orora_hobby_track.addEventListener("touchstart", (e) => {
+      touch_start_x = e.touches[0].clientX;
+      orora_hobby_track.style.transition = "none";
+    }, { passive: true });
+    orora_hobby_track.addEventListener("touchmove", (e) => {
+      if (touch_start_x === null) return;
+      const dx = e.touches[0].clientX - touch_start_x;
+      const first_img = orora_hobby_track.querySelector("img");
+      if (!first_img) return;
+      const gap = parseFloat(getComputedStyle(orora_hobby_track).columnGap) || 24;
+      const step = first_img.getBoundingClientRect().width + gap;
+      orora_hobby_track.style.setProperty("--slide-x", `${(-hobby_slide * step + dx).toFixed(1)}px`);
+    }, { passive: true });
+    orora_hobby_track.addEventListener("touchend", (e) => {
+      if (touch_start_x === null) return;
+      const dx = e.changedTouches[0].clientX - touch_start_x;
+      orora_hobby_track.style.transition = "";
+      if (Math.abs(dx) > 50) hobby_slide += dx < 0 ? 1 : -1;
+      update_hobby_slide();
+      touch_start_x = null;
+    }, { passive: true });
+
     orora_hobby_roll.addEventListener("wheel", (e) => {
       if (!orora_section.classList.contains("hobby-open")) return;
       e.preventDefault();
@@ -1517,6 +1584,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.addEventListener("resize", update_hobby_slide);
+  }
+
+  // pp-section 반짝이 → 취미 갤러리 공개
+  const pp_star_btn = document.getElementById("pp-star-btn");
+  const pp_hobby_gallery = document.querySelector("#pp-section .hobby-gallery");
+  if (pp_star_btn && pp_hobby_gallery) {
+    pp_star_btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      // 파티클 버스트
+      const rect = pp_star_btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      for (let i = 0; i < 18; i++) {
+        const p = document.createElement("div");
+        const angle = (i / 18) * Math.PI * 2;
+        const dist = 50 + Math.random() * 70;
+        const size = 3 + Math.random() * 5;
+        const hue = 40 + Math.round(Math.random() * 40);
+        p.style.cssText = `
+          position:fixed;left:${cx}px;top:${cy}px;
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:hsl(${hue},100%,80%);
+          pointer-events:none;z-index:9999;
+          box-shadow:0 0 6px 2px hsla(${hue},100%,70%,0.8);
+          transform:translate(-50%,-50%);
+          transition:transform 0.7s cubic-bezier(0.16,1,0.3,1),opacity 0.7s ease;
+        `;
+        document.body.appendChild(p);
+        p.getBoundingClientRect(); // reflow
+        p.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px))`;
+        p.style.opacity = "0";
+        setTimeout(() => p.remove(), 750);
+      }
+
+      // 갤러리 공개 & 버튼 숨김
+      pp_hobby_gallery.classList.add("revealed");
+      pp_star_btn.classList.add("hide");
+    });
   }
 
 });
