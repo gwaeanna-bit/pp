@@ -373,16 +373,20 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // 마우스 드래그 — 펭귄만 움직이고 텍스트는 고정
-    if (splash_penguin_wrap) {
-      splash_penguin_wrap.style.cursor = 'grab';
+    if (splash_center) {
+      splash_center.style.cursor = 'grab';
 
-      splash_penguin_wrap.addEventListener("mousedown", (e) => {
+      splash_center.addEventListener("mousedown", (e) => {
         if (splash_dismissed || sp_falling) return;
         sp_drag    = true;
         sp_start_x = e.clientX - sp_cur_x;
         sp_start_y = e.clientY - sp_cur_y;
-        splash_penguin_wrap.style.cursor = 'grabbing';
-        splash_penguin_wrap.style.transition = 'none';
+        splash_center.style.cursor = 'grabbing';
+        if (splash_penguin_wrap) {
+          splash_penguin_wrap.style.transition = 'none';
+          splash_penguin_wrap.style.animation = 'none';
+          splash_penguin_wrap.style.opacity = '1';
+        }
         e.preventDefault();
       });
 
@@ -402,27 +406,33 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("mouseup", () => {
         if (!sp_drag) return;
         sp_drag = false;
-        splash_penguin_wrap.style.cursor = 'grab';
+        splash_center.style.cursor = 'grab';
         if (sp_falling) return;
         // 충분히 오른쪽이면 낙하, 아니면 원위치
         if (sp_cur_x > 120 && sp_vx > 0) {
           sp_do_fall();
         } else {
-          splash_penguin_wrap.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
-          splash_penguin_wrap.style.transform  = '';
-          splash_penguin_wrap.style.opacity    = '';
+          if (splash_penguin_wrap) {
+            splash_penguin_wrap.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+            splash_penguin_wrap.style.transform  = '';
+            splash_penguin_wrap.style.opacity    = '1';
+          }
           sp_cur_x = 0; sp_cur_y = 0;
         }
       });
 
       // 터치 드래그
-      splash_penguin_wrap.addEventListener("touchstart", (e) => {
+      splash_center.addEventListener("touchstart", (e) => {
         if (splash_dismissed || sp_falling) return;
         const t = e.touches[0];
         sp_drag    = true;
         sp_start_x = t.clientX - sp_cur_x;
         sp_start_y = t.clientY - sp_cur_y;
-        splash_penguin_wrap.style.transition = 'none';
+        if (splash_penguin_wrap) {
+          splash_penguin_wrap.style.transition = 'none';
+          splash_penguin_wrap.style.animation = 'none';
+          splash_penguin_wrap.style.opacity = '1';
+        }
       }, { passive: true });
 
       document.addEventListener("touchmove", (e) => {
@@ -445,8 +455,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sp_cur_x > 120 && sp_vx > 0) {
           sp_do_fall();
         } else {
-          splash_penguin_wrap.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-          splash_penguin_wrap.style.transform  = '';
+          if (splash_penguin_wrap) {
+            splash_penguin_wrap.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+            splash_penguin_wrap.style.transform  = '';
+          }
           sp_cur_x = 0; sp_cur_y = 0;
         }
       });

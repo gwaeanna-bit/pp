@@ -130,7 +130,7 @@ body {
    ══════════════════════════════════════ */
 #h-progress-bar {
   position: fixed;
-  top: 72px; left: 0;
+  bottom: 0; top: auto; left: 0;
   height: 4px; width: 0%;
   z-index: 201;
   background: repeating-linear-gradient(
@@ -1867,19 +1867,7 @@ body.splash-active .sp-ice {
   );
 }
 #ground::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(200, 170, 110, 0.55) 20%,
-    rgba(240, 220, 170, 0.80) 50%,
-    rgba(200, 170, 110, 0.55) 80%,
-    transparent 100%
-  );
-  box-shadow: 0 0 14px rgba(210, 180, 120, 0.30);
+  display: none;
 }
 
 /* 걷는 펭귄 캐릭터 */
