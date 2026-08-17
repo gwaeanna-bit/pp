@@ -1644,4 +1644,82 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ── section06 펭귄 변신 glitch-img-switch ──
+  const s06_glitch = document.getElementById("section06-glitch");
+  if (s06_glitch) {
+    const s06_switch = s06_glitch.querySelector(".glitch-img-switch");
+    if (s06_switch) {
+      const s06_canvas = document.getElementById("hair-sweep-canvas");
+      if (s06_canvas) {
+        const s06_ctx = s06_canvas.getContext("2d");
+        let s06_particles = [];
+        let s06_raf = null;
+        let s06_sweeping = false;
+
+        const s06_resize = () => {
+          s06_canvas.width  = s06_switch.offsetWidth;
+          s06_canvas.height = s06_switch.offsetHeight;
+        };
+        s06_resize();
+        window.addEventListener("resize", s06_resize);
+
+        const s06_spawn = () => {
+          const W = s06_canvas.width, H = s06_canvas.height;
+          for (let i = 0; i < 28; i++) {
+            const side = Math.random() > 0.5 ? 1 : -1;
+            const startX = W * 0.5 + (Math.random() - 0.5) * W * 0.18;
+            const startY = H * (0.05 + Math.random() * 0.30);
+            const speed = 3.5 + Math.random() * 4;
+            const angle = side * (Math.PI * (0.05 + Math.random() * 0.25));
+            s06_particles.push({
+              x: startX, y: startY,
+              vx: Math.cos(angle) * speed * side,
+              vy: Math.sin(angle) * speed * 0.4 + 0.5,
+              life: 1.0, decay: 0.025 + Math.random() * 0.02,
+              width: 1.2 + Math.random() * 1.8, len: 18 + Math.random() * 28,
+              color: `hsla(${220 + Math.random() * 40}, 15%, ${88 + Math.random() * 12}%, `,
+            });
+          }
+        };
+
+        const s06_draw = () => {
+          const W = s06_canvas.width, H = s06_canvas.height;
+          s06_ctx.clearRect(0, 0, W, H);
+          s06_particles = s06_particles.filter(p => p.life > 0);
+          s06_particles.forEach(p => {
+            s06_ctx.save();
+            s06_ctx.beginPath();
+            s06_ctx.moveTo(p.x, p.y);
+            s06_ctx.lineTo(p.x + p.vx * (p.len / 5), p.y + p.vy * (p.len / 5));
+            s06_ctx.strokeStyle = p.color + (p.life * 0.7) + ")";
+            s06_ctx.lineWidth = p.width * p.life;
+            s06_ctx.lineCap = "round";
+            s06_ctx.stroke();
+            s06_ctx.restore();
+            p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+          });
+          if (s06_particles.length > 0 || s06_sweeping) {
+            s06_raf = requestAnimationFrame(s06_draw);
+          } else {
+            s06_ctx.clearRect(0, 0, W, H);
+            s06_raf = null;
+          }
+        };
+
+        s06_switch.addEventListener("mouseenter", () => {
+          s06_sweeping = true;
+          s06_resize();
+          s06_spawn();
+          if (!s06_raf) s06_raf = requestAnimationFrame(s06_draw);
+          setTimeout(() => { if (s06_sweeping) s06_spawn(); }, 480);
+        });
+
+        s06_switch.addEventListener("mouseleave", () => {
+          s06_sweeping = false;
+        });
+      }
+    }
+  }
+
+
 });
