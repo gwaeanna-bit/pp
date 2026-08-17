@@ -306,7 +306,13 @@ document.addEventListener("DOMContentLoaded", () => {
         sc.style.transition = "none";
         sc.style.transform  = "";
         sc.style.opacity    = "";
-        sc.style.cursor     = "grab";
+      }
+      const spw = document.getElementById("splash-penguin-wrap");
+      if (spw) {
+        spw.style.transition = "none";
+        spw.style.transform  = "";
+        spw.style.opacity    = "";
+        spw.style.cursor     = "grab";
       }
       const sp = document.getElementById("splash-penguin-spin");
       if (sp) { sp.style.transform = ""; }
@@ -341,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ── 스플래시 펭귄 — 드래그앤드롭으로 바다에 빠뜨리기 ── */
     const splash_center = document.getElementById("splash-center");
+    const splash_penguin_wrap = document.getElementById("splash-penguin-wrap");
     let sp_accum  = 0; // restore_splash 호환용
     let sp_falling = false;
 
@@ -355,27 +362,27 @@ document.addEventListener("DOMContentLoaded", () => {
       sp_drag = false;
       // 얼음 폭발 트리거
       window.dispatchEvent(new CustomEvent('penguin-splash'));
-      if (splash_center) {
-        splash_center.style.transition =
+      if (splash_penguin_wrap) {
+        splash_penguin_wrap.style.transition =
           'transform 0.9s cubic-bezier(0.55,0,1,0.45), opacity 0.7s ease';
-        splash_center.style.transform =
+        splash_penguin_wrap.style.transform =
           `translate(${(sp_cur_x + window.innerWidth * 0.35).toFixed(0)}px, ${(sp_cur_y + 200).toFixed(0)}px) rotate(95deg)`;
-        splash_center.style.opacity = '0';
+        splash_penguin_wrap.style.opacity = '0';
       }
       setTimeout(() => dismiss_splash(), 900);
     };
 
-    // 마우스 드래그
-    if (splash_center) {
-      splash_center.style.cursor = 'grab';
+    // 마우스 드래그 — 펭귄만 움직이고 텍스트는 고정
+    if (splash_penguin_wrap) {
+      splash_penguin_wrap.style.cursor = 'grab';
 
-      splash_center.addEventListener("mousedown", (e) => {
+      splash_penguin_wrap.addEventListener("mousedown", (e) => {
         if (splash_dismissed || sp_falling) return;
         sp_drag    = true;
         sp_start_x = e.clientX - sp_cur_x;
         sp_start_y = e.clientY - sp_cur_y;
-        splash_center.style.cursor = 'grabbing';
-        splash_center.style.transition = 'none';
+        splash_penguin_wrap.style.cursor = 'grabbing';
+        splash_penguin_wrap.style.transition = 'none';
         e.preventDefault();
       });
 
@@ -386,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sp_vx   = nx - sp_cur_x;
         sp_cur_x = nx; sp_cur_y = ny;
         const tilt = Math.min(50, Math.max(-15, sp_cur_x * 0.08));
-        splash_center.style.transform =
+        splash_penguin_wrap.style.transform =
           `translate(${sp_cur_x.toFixed(1)}px, ${sp_cur_y.toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
         // 오른쪽 바다 영역 진입 시 자동 낙하
         if (sp_cur_x > window.innerWidth * 0.28) sp_do_fall();
@@ -395,27 +402,27 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("mouseup", () => {
         if (!sp_drag) return;
         sp_drag = false;
-        splash_center.style.cursor = 'grab';
+        splash_penguin_wrap.style.cursor = 'grab';
         if (sp_falling) return;
         // 충분히 오른쪽이면 낙하, 아니면 원위치
         if (sp_cur_x > 120 && sp_vx > 0) {
           sp_do_fall();
         } else {
-          splash_center.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
-          splash_center.style.transform  = '';
-          splash_center.style.opacity    = '';
+          splash_penguin_wrap.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
+          splash_penguin_wrap.style.transform  = '';
+          splash_penguin_wrap.style.opacity    = '';
           sp_cur_x = 0; sp_cur_y = 0;
         }
       });
 
       // 터치 드래그
-      splash_center.addEventListener("touchstart", (e) => {
+      splash_penguin_wrap.addEventListener("touchstart", (e) => {
         if (splash_dismissed || sp_falling) return;
         const t = e.touches[0];
         sp_drag    = true;
         sp_start_x = t.clientX - sp_cur_x;
         sp_start_y = t.clientY - sp_cur_y;
-        splash_center.style.transition = 'none';
+        splash_penguin_wrap.style.transition = 'none';
       }, { passive: true });
 
       document.addEventListener("touchmove", (e) => {
@@ -426,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sp_vx    = nx - sp_cur_x;
         sp_cur_x = nx; sp_cur_y = ny;
         const tilt = Math.min(50, Math.max(-15, sp_cur_x * 0.08));
-        splash_center.style.transform =
+        splash_penguin_wrap.style.transform =
           `translate(${sp_cur_x.toFixed(1)}px, ${sp_cur_y.toFixed(1)}px) rotate(${tilt.toFixed(1)}deg)`;
         if (sp_cur_x > window.innerWidth * 0.28) sp_do_fall();
       }, { passive: true });
@@ -438,8 +445,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sp_cur_x > 120 && sp_vx > 0) {
           sp_do_fall();
         } else {
-          splash_center.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-          splash_center.style.transform  = '';
+          splash_penguin_wrap.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+          splash_penguin_wrap.style.transform  = '';
           sp_cur_x = 0; sp_cur_y = 0;
         }
       });
