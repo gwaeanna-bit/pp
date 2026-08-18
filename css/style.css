@@ -1251,12 +1251,19 @@ body.splash-active .sp-ice {
 #surface-reveal .surface-hover-img {
   opacity: 0;
 }
-/* 호버 시 img14로 전환 */
-#surface-reveal:hover .surface-base-img {
-  opacity: 0;
+/* 활성화 후 2.5초 뒤 img14로 자동 전환 */
+#surface-reveal.active .surface-base-img {
+  animation: surface-img-fadeout 0.8s ease 2.5s forwards;
 }
-#surface-reveal:hover .surface-hover-img {
-  opacity: 1;
+#surface-reveal.active .surface-hover-img {
+  animation: surface-img-fadein 0.8s ease 2.5s forwards;
+}
+@keyframes surface-img-fadeout {
+  to { opacity: 0; }
+}
+@keyframes surface-img-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 #surface-thanks {
   position: absolute;
