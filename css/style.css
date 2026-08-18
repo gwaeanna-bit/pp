@@ -1289,6 +1289,37 @@ body.splash-active .sp-ice {
   transform: translateX(-50%) translateY(0);
 }
 
+/* surface-reveal 닫기(X) 버튼 */
+#surface-close-btn {
+  position: absolute;
+  top: 32px;
+  right: 40px;
+  z-index: 20;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.6);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  opacity: 0;
+  pointer-events: none;
+}
+#surface-reveal.active #surface-close-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+#surface-close-btn:hover {
+  background: rgba(255,255,255,0.32);
+  transform: scale(1.1);
+}
+
 /* ══ 수중 디자인툴 해파리 ══ */
 #uw-tools {
   position: absolute;
