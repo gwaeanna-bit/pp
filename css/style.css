@@ -921,18 +921,15 @@ body.splash-active .sp-ice {
   position: absolute;
   bottom: 10%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(24px);
   text-align: center;
   z-index: 5;
   pointer-events: none;
   width: 80%;
   max-width: 700px;
   opacity: 0;
-  transition: opacity 0.6s ease 0.2s;
-}
-
-.h-section.active .story-text {
-  opacity: 1;
+  will-change: opacity, transform;
+  /* opacity & transform은 JS 스크롤 기반으로 제어됨 */
 }
 
 .story-body {
@@ -1302,134 +1299,182 @@ body.splash-active .sp-ice {
 }
 
 /* ══════════════════════════════════════
-   세로 스크롤 소개 섹션 (United Carriers style)
+   소개 세로 스크롤 섹션 (2-column dark grid)
    ══════════════════════════════════════ */
-#vertical-intro {
-  height: 380vh;
-  position: relative;
-}
+#vertical-intro { height: 44800vh; position: relative; }
 
 #vi-sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  position: sticky; top: 0; height: 100vh;
   overflow: hidden;
-  background: #060c14;
-  display: flex;
-  align-items: center;
+  background: #03080f;
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+#vi-sticky::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 40% at 30% 50%, rgba(0,40,90,0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 60%, rgba(0,20,60,0.25) 0%, transparent 70%);
 }
 
-/* 중앙 바다 스트립 */
-#vi-ocean-strip {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 240px;
-  height: 100%;
-  background: #0a1220;
-  overflow: hidden;
+/* 스크롤 전환 그라데이션 */
+#vi-trans-grad {
+  position: absolute; inset: 0; z-index: 10; pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to bottom,
+    rgba(0,0,10,0) 0%, rgba(10,20,80,0.4) 20%,
+    rgba(20,60,180,0.75) 50%, rgba(60,140,220,0.85) 75%,
+    rgba(140,210,255,0.9) 100%);
 }
 
-/* 점선 중앙선 */
-#vi-center-line {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 200%;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,0.12) 0px,
-    rgba(255,255,255,0.12) 36px,
-    transparent 36px,
-    transparent 56px
-  );
-  animation: vi-line-scroll 1.4s linear infinite;
-}
-@keyframes vi-line-scroll {
-  from { top: 0; }
-  to   { top: -92px; }
+/* 물빛 광선 */
+.vi-light-ray {
+  position: absolute; top: -20%; left: 25%;
+  width: 2px; height: 140%;
+  background: linear-gradient(to bottom, transparent, rgba(80,180,255,0.06), transparent);
+  transform: rotate(var(--r, 0deg)); transform-origin: top center;
+  pointer-events: none; z-index: 2;
 }
 
-/* 소개 펭귄 */
+/* 버블 */
+.vi-bubble {
+  position: absolute; z-index: 2; pointer-events: none;
+  border-radius: 50%;
+  border: 1px solid rgba(150,220,255,0.35);
+  background: rgba(100,200,255,0.05);
+  animation: vi-bubble-rise linear infinite;
+}
+@keyframes vi-bubble-rise {
+  0%   { transform: translateY(110vh); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* 공통 블록 fade-in */
+.vi-block { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.vi-block.vi-visible { opacity: 1; transform: translateY(0); }
+
+/* 텍스트 스타일 */
+.vi-label { font-family: 'Pretendard', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; color: rgba(255,255,255,0.38); margin-bottom: 8px; }
+.vi-name  { font-family: 'Pretendard', sans-serif; font-size: clamp(36px, 4.5vw, 68px); font-weight: 800; color: #fff; line-height: 1.05; letter-spacing: -0.02em; }
+.vi-body  { font-family: 'Pretendard', sans-serif; font-size: clamp(13px, 1.3vw, 16px); font-weight: 300; color: rgba(255,255,255,0.65); line-height: 1.9; }
+
+/* 왼쪽 텍스트 패널 */
+#vi-text-panel {
+  display: flex; flex-direction: column; justify-content: center; gap: 36px;
+  padding: 60px 52px 60px 80px; color: #fff; position: relative; z-index: 3;
+}
+
+/* 스크롤 등장 펭귄 (intro section) */
 #vi-penguin {
   position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%) translateY(-40%) rotate(90deg);
-  width: 190px;
-  height: auto;
-  will-change: transform;
-  filter: drop-shadow(0 0 24px rgba(80, 160, 255, 0.35));
-}
-
-/* 좌우 텍스트 영역 */
-.vi-left,
-.vi-right {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  padding: 8vh 48px;
-  color: #fff;
-}
-.vi-left  { left: 0;                  right: calc(50% + 120px); text-align: left; }
-.vi-right { left: calc(50% + 120px); right: 0;                  text-align: left; }
-
-/* 텍스트 블록 페이드인 */
-.vi-block {
+  left: 50%; bottom: -160px;
+  transform: translateX(-50%);
+  width: 220px; height: auto;
+  z-index: 5; will-change: transform, opacity;
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.65s ease, transform 0.65s ease;
-}
-.vi-block.vi-visible {
-  opacity: 1;
-  transform: translateY(0);
+  filter: drop-shadow(0 0 32px rgba(80,180,255,0.5));
+  pointer-events: none;
 }
 
-.vi-label {
-  font-family: 'Pretendard', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.38);
-  margin-bottom: 10px;
+/* 오른쪽 이미지 패널 */
+#vi-image-panel {
+  position: relative; overflow: hidden; z-index: 3;
+  background: radial-gradient(ellipse at center, #061520 0%, #020c18 100%);
+  display: flex; align-items: center; justify-content: center;
 }
-.vi-name {
-  font-family: 'Pretendard', sans-serif;
-  font-size: clamp(38px, 5.5vw, 76px);
-  font-weight: 800;
-  color: #fff;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-}
-.vi-body {
-  font-family: 'Pretendard', sans-serif;
-  font-size: clamp(13px, 1.4vw, 17px);
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.68);
-  line-height: 1.85;
+#vi-image-panel img {
+  width: 80%; max-width: 320px; height: auto; object-fit: contain; display: block;
+  border-radius: 4px; filter: drop-shadow(0 0 24px rgba(0,150,220,0.35));
 }
 
-/* 속도계 */
-#vi-speed {
+/* ══════════════════════════════════════
+   About 섹션 (United Carriers style) — 소개 섹션 아래 추가
+   ══════════════════════════════════════ */
+#about-section { height: 1200vh; position: relative; }
+
+#about-sticky {
+  position: sticky; top: 0; height: 100vh;
+  overflow: hidden;
+  background-image: url('../img/img9.png');
+  background-size: cover; background-position: center;
+}
+
+/* 어두운 오버레이 */
+#ab-bg-overlay {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,10,30,0.62) 0%,
+    rgba(0,15,40,0.45) 40%,
+    rgba(0,10,30,0.55) 70%,
+    rgba(0,5,20,0.75) 100%
+  );
+}
+
+/* 상단 그라데이션 — vi-intro 전환과 자연스럽게 연결 */
+#ab-top-grad {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 55%; z-index: 3; pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(20, 55, 160, 0.82) 0%,
+    rgba(10, 30, 90, 0.55) 30%,
+    rgba(0, 10, 30, 0.25) 65%,
+    transparent 100%
+  );
+}
+
+/* about 섹션 펭귄 */
+#ab-penguin {
   position: absolute;
-  top: 28px;
-  left: 28px;
-  font-family: 'Pretendard', monospace;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.28);
-  z-index: 2;
+  left: 50%; bottom: -200px;
+  transform: translateX(-50%);
+  width: clamp(180px, 22vw, 340px); height: auto;
+  z-index: 6; will-change: transform, opacity;
+  opacity: 0;
+  filter: drop-shadow(0 8px 40px rgba(0,100,200,0.45));
+  pointer-events: none;
 }
-#vi-speed-num {
-  font-size: 16px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
+
+/* 하단 피처 그리드 */
+#ab-features {
+  position: absolute; bottom: 52px; left: 0; right: 0;
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 0; z-index: 5;
+  padding: 0 6vw;
+}
+.ab-feat { padding: 0 32px; text-align: center; opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.ab-feat.ab-visible { opacity: 1; transform: translateY(0); }
+.ab-feat-title {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(15px, 1.6vw, 20px); font-weight: 700;
+  color: #fff; margin-bottom: 12px; letter-spacing: -0.01em;
+}
+.ab-feat-body {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(12px, 1.1vw, 14px); font-weight: 300;
+  color: rgba(255,255,255,0.6); line-height: 1.8;
+}
+
+/* 이름 카드 */
+#ab-namecard {
+  position: absolute; bottom: 24px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px;
+  z-index: 5; opacity: 0; transition: opacity 0.8s ease;
+}
+#ab-namecard.ab-visible { opacity: 1; }
+.ab-nc-name {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.75); letter-spacing: 0.06em;
+}
+.ab-nc-sep { color: rgba(255,255,255,0.3); font-size: 12px; }
+.ab-nc-email {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px; font-weight: 300;
+  color: rgba(255,255,255,0.5); letter-spacing: 0.04em;
 }
 
 /* ══ home1 – 수중 사진 섹션 ══ */

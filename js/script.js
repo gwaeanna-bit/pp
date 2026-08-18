@@ -501,10 +501,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const section_count = h_sections.length;
 
-  // 트랙 높이 = 섹션 수 × 뷰포트 높이 × 1.5 (스크롤 여유)
+  // 트랙 높이 = 섹션 수 × 뷰포트 높이 × 6 (스크롤 여유 — 패널당 600vh)
   const setup_h_track = () => {
     if (!h_track || !h_rail) return;
-    h_track.style.height = `${section_count * window.innerHeight * 1.5}px`;
+    h_track.style.height = `${section_count * window.innerHeight * 6}px`;
     h_rail.style.width   = `${section_count * window.innerWidth}px`;
   };
 
@@ -531,9 +531,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const last_video = document.querySelector(".h-section:last-child video");
 
+  // ── 커스텀 이징 스크롤 (페이지드 네비게이션용) ──
+  const smooth_scroll_to = (target, duration) => {
+    const start = window.scrollY;
+    const dist  = target - start;
+    const t0    = performance.now();
+    const ease  = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const step  = (now) => {
+      const t = Math.min(1, (now - t0) / duration);
+      window.scrollTo(0, start + dist * ease(t));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
   // ── 페이지드 휠 네비게이션 ──
   let pg_nav_lock  = false;
-  const PG_DELAY   = 650;
+  const PG_DELAY   = 1200;
 
   const go_to_section = (idx) => {
     idx = Math.max(0, Math.min(section_count - 1, idx));
@@ -586,7 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (next < 0 || pg_nav_lock) return;
     pg_nav_lock = true;
-    window.scrollTo({ top: section_scroll_target(next), behavior: "smooth" });
+    smooth_scroll_to(section_scroll_target(next), 1200);
     setTimeout(() => { pg_nav_lock = false; }, PG_DELAY);
   };
 
@@ -623,6 +637,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const idx = Math.min(section_count - 1, Math.floor(progress * section_count));
     if (idx !== current_section_idx) show_section(idx);
     update_penguin();
+
+    // 스토리 텍스트 스크롤 기반 fade-in + slide-up
+    h_sections.forEach((sec, i) => {
+      const stEl = sec.querySelector('.story-text');
+      if (!stEl) return;
+      const sec_start = i / section_count;
+      const sec_local = Math.max(0, (progress - sec_start) * section_count);
+      const fade      = Math.min(1, sec_local / 0.18);
+      stEl.style.opacity   = fade.toFixed(3);
+      stEl.style.transform = `translateX(-50%) translateY(${(24 * (1 - fade)).toFixed(1)}px)`;
+    });
   };
 
   /* ── 섹션 번호로 직접 이동 (헤더 nav용) ── */
@@ -641,43 +666,131 @@ document.addEventListener("DOMContentLoaded", () => {
   // 초기 실행
   show_section(0);
   setup_h_track();
-  window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); });
-  window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); });
-  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); }, { passive: true });
+  window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_nav_history(); });
+  window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); update_ab_scroll(); });
+  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_nav_history(); }, { passive: true });
 
   /* ══════════════════════════════════════
-     세로 스크롤 소개 섹션 (vertical intro)
+     소개 세로 스크롤 섹션 — 스크롤 트래킹
      ══════════════════════════════════════ */
-  const vi_section   = document.getElementById("vertical-intro");
-  const vi_penguin_el= document.getElementById("vi-penguin");
-  const vi_speed_num = document.getElementById("vi-speed-num");
-  const vi_blocks    = vi_section ? Array.from(vi_section.querySelectorAll(".vi-block")) : [];
+  const vi_section    = document.getElementById("vertical-intro");
+  const vi_penguin_el = document.getElementById("vi-penguin");
+  const vi_trans_grad = document.getElementById("vi-trans-grad");
+  const vi_blocks     = vi_section
+    ? Array.from(vi_section.querySelectorAll(".vi-block")) : [];
+  const vi_shown          = new Set();
+  const vi_text_panel_el  = document.getElementById("vi-text-panel");
+  const vi_image_panel_el = document.getElementById("vi-image-panel");
 
   const update_vi_scroll = () => {
     if (!vi_section || !vi_penguin_el) return;
-    const rect     = vi_section.getBoundingClientRect();
-    const total    = vi_section.offsetHeight - window.innerHeight;
-    const scrolled = Math.max(0, -rect.top);
-    const progress = total > 0 ? Math.min(1, scrolled / total) : 0;
+    const sectionTop = vi_section.offsetTop;
+    const total      = vi_section.offsetHeight - window.innerHeight;
+    const scrolled   = Math.max(0, window.scrollY - sectionTop);
+    const p          = total > 0 ? Math.min(1, scrolled / total) : 0;
 
-    // 펭귄 Y: 화면 위 바깥(-50%) → 화면 아래 바깥(+150%)
-    const startPct = -50;
-    const endPct   = 155;
-    const py = startPct + progress * (endPct - startPct);
-    vi_penguin_el.style.transform = `translateX(-50%) translateY(${py.toFixed(1)}%) rotate(90deg)`;
+    // 패럴랙스: 글씨는 빠르게, 사진은 느리게 위로 이동
+    if (vi_text_panel_el)  vi_text_panel_el.style.transform  = `translateY(${(-p * 100).toFixed(1)}px)`;
+    if (vi_image_panel_el) vi_image_panel_el.style.transform = `translateY(${(-p *  50).toFixed(1)}px)`;
 
-    // 속도계: 0 → 120 → 0 (중간에서 최고속)
-    const spd = Math.floor(Math.sin(progress * Math.PI) * 120);
-    if (vi_speed_num) vi_speed_num.textContent = String(spd).padStart(2, "0");
+    // 펭귄: p=0.1부터 등장, 아래에서 화면 중앙 쪽으로 떠오름
+    const pa = Math.max(0, Math.min(1, (p - 0.1) / 0.3));
+    vi_penguin_el.style.opacity   = pa.toFixed(3);
+    vi_penguin_el.style.transform = `translateX(-50%) translateY(${((1 - pa) * 200).toFixed(1)}px)`;
 
-    // 텍스트 블록 페이드인
+    // 스크롤 75% 이후 전환 그라데이션
+    if (vi_trans_grad) {
+      const t = Math.max(0, Math.min(1, (p - 0.75) / 0.25));
+      vi_trans_grad.style.opacity = t.toFixed(3);
+    }
+
     vi_blocks.forEach(block => {
+      if (vi_shown.has(block)) return;
       const at = parseFloat(block.dataset.at || 0);
-      if (progress >= at) block.classList.add("vi-visible");
-      else block.classList.remove("vi-visible");
+      if (p >= at) { vi_shown.add(block); block.classList.add("vi-visible"); }
     });
   };
   update_vi_scroll();
+
+  /* ══════════════════════════════════════
+     About 섹션 — 스크롤 트래킹
+     ══════════════════════════════════════ */
+  const ab_section    = document.getElementById("about-section");
+  const ab_penguin_el = document.getElementById("ab-penguin");
+  const ab_feats      = ab_section ? Array.from(ab_section.querySelectorAll(".ab-feat")) : [];
+  const ab_namecard_el= document.getElementById("ab-namecard");
+  const ab_shown      = new Set();
+
+  const update_ab_scroll = () => {
+    if (!ab_section || !ab_penguin_el) return;
+    const sectionTop = ab_section.offsetTop;
+    const total      = ab_section.offsetHeight - window.innerHeight;
+    const scrolled   = Math.max(0, window.scrollY - sectionTop);
+    const p          = total > 0 ? Math.min(1, scrolled / total) : 0;
+
+    // 펭귄: p=0.05부터 등장, 천천히 떠오름
+    const pa = Math.max(0, Math.min(1, (p - 0.05) / 0.25));
+    ab_penguin_el.style.opacity   = pa.toFixed(3);
+    ab_penguin_el.style.transform = `translateX(-50%) translateY(${((1 - pa) * 220).toFixed(1)}px)`;
+
+    // 피처 블록: p=0.15부터 순차 등장
+    ab_feats.forEach((feat, i) => {
+      if (ab_shown.has(feat)) return;
+      if (p >= 0.15 + i * 0.08) { ab_shown.add(feat); feat.classList.add('ab-visible'); }
+    });
+
+    // 이름 카드: p=0.40부터 등장
+    if (p >= 0.40 && ab_namecard_el && !ab_shown.has('namecard')) {
+      ab_shown.add('namecard'); ab_namecard_el.classList.add('ab-visible');
+    }
+
+    // About 배경 이미지 패럴랙스 (배경이 콘텐츠보다 느리게 이동)
+    const ab_sticky_el = document.getElementById("about-sticky");
+    if (ab_sticky_el) ab_sticky_el.style.backgroundPositionY = `${50 + p * 25}%`;
+  };
+  update_ab_scroll();
+
+  /* ══════════════════════════════════════
+     뒤로가기 내비게이션 (History API)
+     ══════════════════════════════════════ */
+  let _nav_key          = 'intro';
+  let _nav_programmatic = false; // 프로그래밍 스크롤 중 push 억제
+  history.replaceState({ nav: 'intro' }, '');
+
+  const push_nav = (key) => {
+    if (_nav_programmatic) return; // 자동 스크롤 중에는 push 안 함
+    if (_nav_key === key) return;
+    _nav_key = key;
+    history.pushState({ nav: key }, '');
+  };
+
+  const update_nav_history = () => {
+    if (_nav_programmatic) return;
+    const sy        = window.scrollY;
+    const aboutTop  = ab_section ? ab_section.offsetTop  : Infinity;
+    const hTrackTop = h_track    ? h_track.offsetTop     : Infinity;
+    if      (sy < aboutTop)   push_nav('intro');
+    else if (sy < hTrackTop)  push_nav('about');
+    else                      push_nav('h-' + current_section_idx);
+  };
+
+  window.addEventListener('popstate', (e) => {
+    const key = e.state?.nav || 'intro';
+    _nav_key          = key;    // 목표 섹션으로 즉시 설정 (중복 push 방지)
+    _nav_programmatic = true;   // 스크롤 중 push 억제
+
+    if (key === 'intro') {
+      window.scrollTo({ top: vi_section ? vi_section.offsetTop : 0, behavior: 'smooth' });
+    } else if (key === 'about') {
+      window.scrollTo({ top: ab_section ? ab_section.offsetTop : 0, behavior: 'smooth' });
+    } else if (key.startsWith('h-')) {
+      const idx = parseInt(key.slice(2));
+      if (!isNaN(idx)) window.scrollTo({ top: section_scroll_target(idx), behavior: 'smooth' });
+    }
+
+    // 스크롤 완료 후 억제 해제 (smooth scroll 여유 시간)
+    setTimeout(() => { _nav_programmatic = false; }, 1600);
+  });
 
   /* ══════════════════════════════════════
      바닥 걷는 펭귄 캐릭터

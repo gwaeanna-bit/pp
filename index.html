@@ -155,44 +155,95 @@
   <section id="vertical-intro">
     <div id="vi-sticky">
 
-      <!-- 속도계 -->
-      <div id="vi-speed"><span id="vi-speed-num">00</span> KM/H</div>
+      <!-- 스크롤 전환 그라데이션 -->
+      <div id="vi-trans-grad"></div>
 
-      <!-- 중앙 바다 스트립 -->
-      <div id="vi-ocean-strip">
-        <div id="vi-center-line"></div>
-        <img id="vi-penguin" src="img/img10.png" alt="소개 펭귄" draggable="false" />
-      </div>
+      <!-- 물빛 광선 -->
+      <div class="vi-light-ray" style="--r:-8deg"></div>
+      <div class="vi-light-ray" style="--r:4deg"></div>
+      <div class="vi-light-ray" style="--r:-5deg"></div>
+      <div class="vi-light-ray" style="--r:7deg"></div>
+
+      <!-- 버블 -->
+      <div class="vi-bubble" style="left:8%;width:6px;height:6px;animation-duration:7s;animation-delay:0s;"></div>
+      <div class="vi-bubble" style="left:18%;width:4px;height:4px;animation-duration:9s;animation-delay:1.2s;"></div>
+      <div class="vi-bubble" style="left:28%;width:8px;height:8px;animation-duration:11s;animation-delay:0.5s;"></div>
+      <div class="vi-bubble" style="left:42%;width:5px;height:5px;animation-duration:8s;animation-delay:2.8s;"></div>
+      <div class="vi-bubble" style="left:55%;width:3px;height:3px;animation-duration:10s;animation-delay:0.9s;"></div>
+      <div class="vi-bubble" style="left:65%;width:7px;height:7px;animation-duration:12s;animation-delay:1.7s;"></div>
+      <div class="vi-bubble" style="left:75%;width:4px;height:4px;animation-duration:6.5s;animation-delay:3.5s;"></div>
+      <div class="vi-bubble" style="left:85%;width:6px;height:6px;animation-duration:9.5s;animation-delay:0.3s;"></div>
+      <div class="vi-bubble" style="left:92%;width:5px;height:5px;animation-duration:8.5s;animation-delay:2.1s;"></div>
+      <div class="vi-bubble" style="left:12%;width:3px;height:3px;animation-duration:13s;animation-delay:4s;"></div>
 
       <!-- 왼쪽 텍스트 -->
-      <div class="vi-left">
-        <div class="vi-block" data-at="0.08">
+      <div id="vi-text-panel">
+        <div class="vi-block" data-at="0">
           <p class="vi-label">DESIGNER</p>
           <h2 class="vi-name">김다연</h2>
         </div>
-        <div class="vi-block" data-at="0.32">
+        <div class="vi-block" data-at="0.18">
           <p class="vi-body">두려움보다 설렘으로<br>첫 번째 펭귄이 되는<br>디자이너입니다.</p>
         </div>
+        <div class="vi-block" data-at="0.38">
+          <p class="vi-label">SKILLS</p>
+          <p class="vi-body">UI/UX Design<br>Brand Identity<br>Interaction Design</p>
+        </div>
         <div class="vi-block" data-at="0.58">
+          <p class="vi-label">TOOLS</p>
+          <p class="vi-body">Figma · Framer<br>Illustrator · Photoshop<br>After Effects</p>
+        </div>
+        <div class="vi-block" data-at="0.78">
           <p class="vi-label">CONTACT</p>
           <p class="vi-body">gwaeanna@gmail.com</p>
         </div>
       </div>
 
-      <!-- 오른쪽 텍스트 -->
-      <div class="vi-right">
-        <div class="vi-block" data-at="0.18">
-          <p class="vi-label">SKILLS</p>
-          <p class="vi-body">UI/UX Design<br>Brand Identity<br>Interaction Design</p>
+      <!-- 스크롤 등장 펭귄 -->
+      <img id="vi-penguin" src="img/img10.png" alt="소개 펭귄" draggable="false" />
+
+      <!-- 오른쪽: 프로필 사진 -->
+      <div id="vi-image-panel">
+        <img src="img/img16.png" alt="프로필 사진" />
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ About 섹션 (United Carriers style) ══ -->
+  <section id="about-section">
+    <div id="about-sticky">
+
+      <!-- 어두운 오버레이 -->
+      <div id="ab-bg-overlay"></div>
+
+      <!-- 상단 그라데이션 (vi-intro 전환 연결) -->
+      <div id="ab-top-grad"></div>
+
+      <!-- 중앙 펭귄 -->
+      <img id="ab-penguin" src="img/img10.png" alt="어바웃 펭귄" draggable="false" />
+
+      <!-- 하단 피처 그리드 -->
+      <div id="ab-features">
+        <div class="ab-feat">
+          <p class="ab-feat-title">사용자 중심 설계</p>
+          <p class="ab-feat-body">사람이 먼저입니다.<br>보이지 않는 곳까지<br>경험을 디자인합니다.</p>
         </div>
-        <div class="vi-block" data-at="0.44">
-          <p class="vi-label">TOOLS</p>
-          <p class="vi-body">Figma · Framer<br>Illustrator · Photoshop<br>After Effects</p>
+        <div class="ab-feat">
+          <p class="ab-feat-title">첫 번째 펭귄</p>
+          <p class="ab-feat-body">두려움보다 설렘으로<br>먼저 뛰어드는<br>도전하는 디자이너입니다.</p>
         </div>
-        <div class="vi-block" data-at="0.70">
-          <p class="vi-label">FIRST PENGUIN</p>
-          <p class="vi-body">첫 발자국<br>용감한 시도<br>성장하는 디자인</p>
+        <div class="ab-feat">
+          <p class="ab-feat-title">브랜드의 언어</p>
+          <p class="ab-feat-body">브랜드가 가진 이야기를<br>시각적 언어로<br>번역합니다.</p>
         </div>
+      </div>
+
+      <!-- 이름 카드 -->
+      <div id="ab-namecard">
+        <span class="ab-nc-name">김다연</span>
+        <span class="ab-nc-sep">·</span>
+        <span class="ab-nc-email">gwaeanna@gmail.com</span>
       </div>
 
     </div>
@@ -206,27 +257,7 @@
     <div id="h-stage">
       <div id="h-rail">
 
-        <!-- 패널 0: home1 – 스크롤 드리븐 펭귄 횡단 -->
-        <section class="h-section" id="home1-panel">
-          <img class="bg-img" src="0819img/home1.png" alt="수중 펭귄 배경" />
-          <img id="story-penguin" src="img/img10.png" alt="횡단하는 펭귄" />
-          <div class="story-text home1-text">
-            <p class="story-body">디자인 바다를 자유롭게 헤엄치다</p>
-          </div>
-        </section>
-
-        <!-- 패널 1: 홈 – 오로라 -->
-        <section class="h-section" id="home">
-          <img class="bg-img" src="img/img1.png" alt="남극 홈 배경" />
-          <div class="home-title-wrap">
-            <h2 class="home-brush-title">
-              <span class="home-title-small">시작합니다</span>
-              <span class="home-title-big">황제펭귄 성장 Story</span>
-            </h2>
-          </div>
-        </section>
-
-        <!-- 패널 1: section01 -->
+        <!-- 패널 0: section01 -->
         <section class="h-section">
           <img class="bg-img" src="images/section01.png" alt="아기펭귄들" />
           <div class="story-text">
