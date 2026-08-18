@@ -1325,6 +1325,28 @@ body.splash-active .sp-ice {
   z-index: 10001;
 }
 
+/* ══ 수중 패널 (h-section 내) ══ */
+#uw-panel { position: relative; overflow: hidden; }
+.uw-panel-penguin {
+  position: absolute;
+  left: 50%; top: 52%;
+  transform: translate(-50%, -50%);
+  width: auto; height: 42%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 2;
+  animation: uw-penguin-float 4s ease-in-out infinite;
+  filter: drop-shadow(0 8px 30px rgba(0,20,60,0.45));
+}
+.uw-panel-tools {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+#uw-panel .uw-jelly { z-index: 3; }
+#uw-panel .story-text { z-index: 4; }
+
 .uw-jelly {
   position: absolute;
   display: flex;
