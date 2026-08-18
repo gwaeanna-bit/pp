@@ -119,7 +119,7 @@
 
   <!-- ══ 고정 헤더 ══ -->
   <header class="header">
-    <div class="logo" onclick="if(typeof restore_splash==='function') restore_splash();" style="cursor:pointer;">🐧 FIRST PENGUIN</div>
+    <div class="logo" onclick="scrollToSection(0); return false;" style="cursor:pointer;">🐧 FIRST PENGUIN</div>
     <nav class="nav">
       <a href="#" onclick="scrollToSection(0); return false;">Home</a>
       <a href="#" onclick="scrollToSection(5); return false;">About</a>
@@ -190,9 +190,6 @@
         <!-- 패널 9: 프로필 + 취미 갤러리 -->
         <section class="h-section" id="pp-section">
           <img class="bg-img" src="img/img19.png" alt="프로필 배경" />
-
-          <!-- pp-section 반짝이 버튼 -->
-          <button id="pp-star-btn" aria-label="클릭해서 취미 보기" title="Click!"></button>
 
           <!-- 취미 갤러리 (종이 아래) -->
           <div class="hobby-gallery">

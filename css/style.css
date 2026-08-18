@@ -1788,13 +1788,7 @@ body.splash-active .sp-ice {
 
 /* ══ 마지막 섹션 호버 이미지 (img14) ══ */
 #video-section .video-hover-img {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  z-index: 2;
-  object-fit: cover;
-}
-#video-section:hover .video-hover-img {
-  opacity: 1;
+  display: none;
 }
 
 /* ══ 영상 스킵 버튼 (fixed — 항상 최상위) ══ */
