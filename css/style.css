@@ -79,19 +79,6 @@ body {
   background: linear-gradient(to bottom, rgba(0,5,20,0.55) 0%, transparent 100%);
 }
 
-/* Torn-paper bottom edge feel */
-.header::after {
-  content: '';
-  position: absolute;
-  bottom: -6px; left: 0;
-  width: 100%; height: 6px;
-  background: linear-gradient(
-    to bottom,
-    rgba(232, 220, 200, 0.6),
-    transparent
-  );
-  pointer-events: none;
-}
 
 .logo {
   font-family: 'Caveat', cursive;
@@ -160,32 +147,22 @@ body {
 }
 
 #h-rail {
-  position: relative;
-  width: 100%;
+  display: flex;
   height: 100%;
+  will-change: transform;
 }
 
-/* 개별 섹션: 페이드 + 미세 스케일 */
+/* 개별 섹션: 수평 슬라이드 */
 .h-section {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  opacity: 0;
-  transform: scale(1.04);
-  transition: opacity 0.72s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.72s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  position: relative;
+  width: 100vw;
+  height: 100%;
+  opacity: 1;
   overflow: hidden;
 }
-/* 현재 섹션: 선명하게 */
-.h-section.active {
-  opacity: 1;
-  transform: scale(1);
-}
-/* 지나간 섹션: 살짝 축소 후 사라짐 */
-.h-section.past {
-  opacity: 0;
-  transform: scale(0.96);
-}
+.h-section.active { opacity: 1; }
+.h-section.past   { opacity: 1; }
 
 /* 배경 이미지/비디오 */
 .h-section > .bg-img,
@@ -1324,6 +1301,137 @@ body.splash-active .sp-ice {
   transform: scale(1.1);
 }
 
+/* ══════════════════════════════════════
+   세로 스크롤 소개 섹션 (United Carriers style)
+   ══════════════════════════════════════ */
+#vertical-intro {
+  height: 380vh;
+  position: relative;
+}
+
+#vi-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #060c14;
+  display: flex;
+  align-items: center;
+}
+
+/* 중앙 바다 스트립 */
+#vi-ocean-strip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 100%;
+  background: #0a1220;
+  overflow: hidden;
+}
+
+/* 점선 중앙선 */
+#vi-center-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 200%;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,0.12) 0px,
+    rgba(255,255,255,0.12) 36px,
+    transparent 36px,
+    transparent 56px
+  );
+  animation: vi-line-scroll 1.4s linear infinite;
+}
+@keyframes vi-line-scroll {
+  from { top: 0; }
+  to   { top: -92px; }
+}
+
+/* 소개 펭귄 */
+#vi-penguin {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) translateY(-40%) rotate(90deg);
+  width: 190px;
+  height: auto;
+  will-change: transform;
+  filter: drop-shadow(0 0 24px rgba(80, 160, 255, 0.35));
+}
+
+/* 좌우 텍스트 영역 */
+.vi-left,
+.vi-right {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 8vh 48px;
+  color: #fff;
+}
+.vi-left  { left: 0;                  right: calc(50% + 120px); text-align: left; }
+.vi-right { left: calc(50% + 120px); right: 0;                  text-align: left; }
+
+/* 텍스트 블록 페이드인 */
+.vi-block {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.vi-block.vi-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vi-label {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.38);
+  margin-bottom: 10px;
+}
+.vi-name {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(38px, 5.5vw, 76px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.vi-body {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(13px, 1.4vw, 17px);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.85;
+}
+
+/* 속도계 */
+#vi-speed {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  font-family: 'Pretendard', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.28);
+  z-index: 2;
+}
+#vi-speed-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 /* ══ home1 – 수중 사진 섹션 ══ */
 #home1-panel {
   position: relative;
@@ -1767,9 +1875,12 @@ body.splash-active .sp-ice {
   inset: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 3; /* 오버레이(1) 위, 텍스트(4) 아래 */
+  z-index: 3;
   opacity: 1;
   transition: opacity 1s ease;
+}
+#splash.fade-out #snow-canvas {
+  opacity: 0;
 }
 #splash.fade-out #snow-canvas {
   opacity: 0;
@@ -1832,17 +1943,7 @@ body.splash-active .sp-ice {
 
 /* ══ 메인 눈보라 캔버스 ══ */
 #main-snow-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-#main-snow-canvas.visible {
-  opacity: 1;
+  display: none;
 }
 
 /* ══ 마지막 섹션 호버 이미지 (img14) ══ */

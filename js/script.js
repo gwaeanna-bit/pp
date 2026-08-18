@@ -501,10 +501,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const section_count = h_sections.length;
 
-  // 트랙 높이 = 섹션 수 × 뷰포트 높이 × 1.8 (스크롤 여유)
+  // 트랙 높이 = 섹션 수 × 뷰포트 높이 × 1.5 (스크롤 여유)
   const setup_h_track = () => {
-    if (!h_track) return;
-    h_track.style.height = `${section_count * window.innerHeight * 1.8}px`;
+    if (!h_track || !h_rail) return;
+    h_track.style.height = `${section_count * window.innerHeight * 1.5}px`;
+    h_rail.style.width   = `${section_count * window.innerWidth}px`;
   };
 
   const pp_sec_idx = h_sections.findIndex(s => s.id === "pp-section");
@@ -550,18 +551,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const section_scroll_target = (idx) => {
+    const trackTop = h_track ? h_track.offsetTop : 0;
+    const trackScrollable = h_track ? (h_track.offsetHeight - window.innerHeight) : 0;
+    return trackTop + (idx / Math.max(1, section_count - 1)) * trackScrollable;
+  };
+
   const page_nav = (dir) => {
     const next = current_section_idx + dir;
 
-    // 마지막 섹션에서 아래로 → 수중화면 (lock이 풀린 후에만 전환)
+    // 마지막 섹션에서 아래로 → 수중화면
     if (next >= section_count) {
       if (!uw_end_shown && !pg_nav_lock) {
         uw_end_shown = true;
-        // show_uw_screen 함수 직접 호출 또는 uw_el_global로 직접 처리
         if (show_uw_screen) {
           show_uw_screen();
         } else {
-          // fallback: 직접 수중화면 활성화
           const _uw = document.getElementById("underwater");
           const _pg = document.getElementById("uw-penguin");
           if (_uw) {
@@ -581,7 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (next < 0 || pg_nav_lock) return;
     pg_nav_lock = true;
-    go_to_section(next);
+    window.scrollTo({ top: section_scroll_target(next), behavior: "smooth" });
     setTimeout(() => { pg_nav_lock = false; }, PG_DELAY);
   };
 
@@ -606,28 +611,73 @@ document.addEventListener("DOMContentLoaded", () => {
     if (Math.abs(dy) > 40) page_nav(dy > 0 ? 1 : -1);
   }, { passive: true });
 
-  const update_h_scroll = () => {}; // 레거시 호환용 빈 함수
+  const update_h_scroll = () => {
+    if (!h_track || !h_rail) return;
+    const trackTop        = h_track.offsetTop;
+    const trackScrollable = h_track.offsetHeight - window.innerHeight;
+    const scrolled        = Math.max(0, window.scrollY - trackTop);
+    const progress        = trackScrollable > 0 ? Math.min(1, scrolled / trackScrollable) : 0;
+    const maxX            = (section_count - 1) * window.innerWidth;
+    h_rail.style.transform = `translateX(${-(progress * maxX).toFixed(1)}px)`;
+    h_scroll_progress     = progress;
+    const idx = Math.min(section_count - 1, Math.floor(progress * section_count));
+    if (idx !== current_section_idx) show_section(idx);
+    update_penguin();
+  };
 
   /* ── 섹션 번호로 직접 이동 (헤더 nav용) ── */
   window.scrollToSection = (index) => {
     if (uw_el_global && uw_el_global.classList.contains("active")) {
-      // 수중화면 닫기
       uw_el_global.classList.remove("active");
       uw_el_global.classList.add("fade-out");
       const hdr = document.querySelector(".header");
       if (hdr) hdr.classList.remove("uw-visible");
-      setTimeout(() => go_to_section(index), 150);
+      setTimeout(() => window.scrollTo({ top: section_scroll_target(index), behavior: "smooth" }), 150);
       return;
     }
-    go_to_section(index);
+    window.scrollTo({ top: section_scroll_target(index), behavior: "smooth" });
   };
 
   // 초기 실행
   show_section(0);
   setup_h_track();
-  window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); });
-  window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); });
-  window.addEventListener("scroll", update_h_scroll, { passive: true });
+  window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); });
+  window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); });
+  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); }, { passive: true });
+
+  /* ══════════════════════════════════════
+     세로 스크롤 소개 섹션 (vertical intro)
+     ══════════════════════════════════════ */
+  const vi_section   = document.getElementById("vertical-intro");
+  const vi_penguin_el= document.getElementById("vi-penguin");
+  const vi_speed_num = document.getElementById("vi-speed-num");
+  const vi_blocks    = vi_section ? Array.from(vi_section.querySelectorAll(".vi-block")) : [];
+
+  const update_vi_scroll = () => {
+    if (!vi_section || !vi_penguin_el) return;
+    const rect     = vi_section.getBoundingClientRect();
+    const total    = vi_section.offsetHeight - window.innerHeight;
+    const scrolled = Math.max(0, -rect.top);
+    const progress = total > 0 ? Math.min(1, scrolled / total) : 0;
+
+    // 펭귄 Y: 화면 위 바깥(-50%) → 화면 아래 바깥(+150%)
+    const startPct = -50;
+    const endPct   = 155;
+    const py = startPct + progress * (endPct - startPct);
+    vi_penguin_el.style.transform = `translateX(-50%) translateY(${py.toFixed(1)}%) rotate(90deg)`;
+
+    // 속도계: 0 → 120 → 0 (중간에서 최고속)
+    const spd = Math.floor(Math.sin(progress * Math.PI) * 120);
+    if (vi_speed_num) vi_speed_num.textContent = String(spd).padStart(2, "0");
+
+    // 텍스트 블록 페이드인
+    vi_blocks.forEach(block => {
+      const at = parseFloat(block.dataset.at || 0);
+      if (progress >= at) block.classList.add("vi-visible");
+      else block.classList.remove("vi-visible");
+    });
+  };
+  update_vi_scroll();
 
   /* ══════════════════════════════════════
      바닥 걷는 펭귄 캐릭터
@@ -683,9 +733,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // 수평 이동만 — Y, 회전 없음
     penguin_el.style.transform = `translateX(${x.toFixed(1)}px)`;
 
-    if (!p_shown) {
-      p_shown = true;
+    // home1-panel(섹션 0)에서는 숨기고, 다음 섹션부터 등장
+    if (current_section_idx >= 1) {
+      if (!p_shown) p_shown = true;
       penguin_el.classList.add("visible");
+    } else {
+      penguin_el.classList.remove("visible");
     }
 
     // 섹션 기반 변신: 0~5→어린펭귄 / 6~→황제펭귄

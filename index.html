@@ -151,6 +151,53 @@
     </nav>
   </header>
 
+  <!-- ══ 세로 스크롤 소개 섹션 ══ -->
+  <section id="vertical-intro">
+    <div id="vi-sticky">
+
+      <!-- 속도계 -->
+      <div id="vi-speed"><span id="vi-speed-num">00</span> KM/H</div>
+
+      <!-- 중앙 바다 스트립 -->
+      <div id="vi-ocean-strip">
+        <div id="vi-center-line"></div>
+        <img id="vi-penguin" src="img/img10.png" alt="소개 펭귄" draggable="false" />
+      </div>
+
+      <!-- 왼쪽 텍스트 -->
+      <div class="vi-left">
+        <div class="vi-block" data-at="0.08">
+          <p class="vi-label">DESIGNER</p>
+          <h2 class="vi-name">김다연</h2>
+        </div>
+        <div class="vi-block" data-at="0.32">
+          <p class="vi-body">두려움보다 설렘으로<br>첫 번째 펭귄이 되는<br>디자이너입니다.</p>
+        </div>
+        <div class="vi-block" data-at="0.58">
+          <p class="vi-label">CONTACT</p>
+          <p class="vi-body">gwaeanna@gmail.com</p>
+        </div>
+      </div>
+
+      <!-- 오른쪽 텍스트 -->
+      <div class="vi-right">
+        <div class="vi-block" data-at="0.18">
+          <p class="vi-label">SKILLS</p>
+          <p class="vi-body">UI/UX Design<br>Brand Identity<br>Interaction Design</p>
+        </div>
+        <div class="vi-block" data-at="0.44">
+          <p class="vi-label">TOOLS</p>
+          <p class="vi-body">Figma · Framer<br>Illustrator · Photoshop<br>After Effects</p>
+        </div>
+        <div class="vi-block" data-at="0.70">
+          <p class="vi-label">FIRST PENGUIN</p>
+          <p class="vi-body">첫 발자국<br>용감한 시도<br>성장하는 디자인</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- 가로 진행 표시바 (washi tape) -->
   <div id="h-progress-bar"></div>
 
@@ -159,9 +206,10 @@
     <div id="h-stage">
       <div id="h-rail">
 
-        <!-- 패널 0: home1 – 수중 자유 수영 -->
+        <!-- 패널 0: home1 – 스크롤 드리븐 펭귄 횡단 -->
         <section class="h-section" id="home1-panel">
           <img class="bg-img" src="0819img/home1.png" alt="수중 펭귄 배경" />
+          <img id="story-penguin" src="img/img10.png" alt="횡단하는 펭귄" />
           <div class="story-text home1-text">
             <p class="story-body">디자인 바다를 자유롭게 헤엄치다</p>
           </div>
