@@ -318,11 +318,18 @@ document.addEventListener("DOMContentLoaded", () => {
       if (sp) { sp.style.transform = ""; }
 
       // 수중 화면 초기화
-      uw_accum = 0;
-      uw_done  = false;
+      uw_accum    = 0;
+      uw_done     = false;
+      uw_surfaced = false;
+      uw_end_shown = false;
       if (uw_el) {
         uw_el.classList.remove("active", "fade-out");
         uw_el.style.visibility = "";
+      }
+      // surface-reveal 초기화
+      const sr_reset = document.getElementById("surface-reveal");
+      if (sr_reset) {
+        sr_reset.classList.remove("active", "fade-out");
       }
 
       splash.style.visibility = "";
@@ -770,6 +777,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // update_penguin 호출 안 함 → 펭귄 현재 위치 유지
       }, 300);
     });
+
   }
 
   window.addEventListener("scroll", update_penguin, { passive: true });
