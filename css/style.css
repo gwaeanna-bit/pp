@@ -104,9 +104,10 @@ body {
 
 .nav { display: flex; gap: 32px; }
 .nav a {
-  font-family: 'Caveat', cursive;
-  font-size: 22px;
-  font-weight: 600;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   color: rgba(255,255,255,0.85);
   text-decoration: none;
   transition: color 0.2s;
