@@ -1291,10 +1291,10 @@ body.splash-active .sp-ice {
 
 /* surface-reveal 닫기(X) 버튼 */
 #surface-close-btn {
-  position: absolute;
+  position: fixed;
   top: 32px;
   right: 40px;
-  z-index: 20;
+  z-index: 10020;
   background: rgba(255,255,255,0.15);
   border: 2px solid rgba(255,255,255,0.6);
   color: #fff;
@@ -1307,13 +1307,9 @@ body.splash-active .sp-ice {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, transform 0.2s;
+  transition: background 0.2s, transform 0.2s, opacity 0.3s;
   opacity: 0;
   pointer-events: none;
-}
-#surface-reveal.active #surface-close-btn {
-  opacity: 1;
-  pointer-events: auto;
 }
 #surface-close-btn:hover {
   background: rgba(255,255,255,0.32);
