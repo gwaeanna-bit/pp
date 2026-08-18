@@ -1208,7 +1208,7 @@ body.splash-active .sp-ice {
   -webkit-user-drag: none;
   object-fit: unset !important;
   filter: drop-shadow(0 8px 30px rgba(0,20,60,0.45));
-  animation: uw-penguin-float 4s ease-in-out infinite;
+  animation: uw-penguin-float 13s ease-in-out infinite;
   transition: filter 0.2s ease;
 }
 #uw-penguin:active { cursor: grabbing; }
@@ -1218,8 +1218,15 @@ body.splash-active .sp-ice {
 }
 
 @keyframes uw-penguin-float {
-  0%, 100% { transform: translate(-50%, -50%) rotate(-3deg) scale(1); }
-  50%       { transform: translate(-50%, calc(-50% - 20px)) rotate(3deg) scale(1.04); }
+  0%   { transform: translate(-50%, -50%) rotate(-5deg); }
+  12%  { transform: translate(calc(-50% + 18vw), calc(-50% - 10vh)) rotate(4deg); }
+  25%  { transform: translate(calc(-50% + 6vw),  calc(-50% + 9vh))  rotate(-4deg); }
+  38%  { transform: translate(calc(-50% - 14vw), calc(-50% - 8vh))  rotate(5deg); }
+  50%  { transform: translate(calc(-50% - 20vw), calc(-50% + 6vh))  rotate(-5deg); }
+  62%  { transform: translate(calc(-50% - 5vw),  calc(-50% + 13vh)) rotate(3deg); }
+  75%  { transform: translate(calc(-50% + 17vw), calc(-50% - 7vh))  rotate(-3deg); }
+  88%  { transform: translate(calc(-50% + 3vw),  calc(-50% + 4vh))  rotate(4deg); }
+  100% { transform: translate(-50%, -50%) rotate(-5deg); }
 }
 
 /* img11 수면 전환 오버레이 */
@@ -1315,6 +1322,22 @@ body.splash-active .sp-ice {
 #surface-close-btn:hover {
   background: rgba(255,255,255,0.32);
   transform: scale(1.1);
+}
+
+/* ══ home1 – 수중 사진 섹션 ══ */
+#home1-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.home1-text {
+  position: absolute;
+  bottom: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 3;
+  text-shadow: 0 2px 12px rgba(0, 10, 40, 0.7);
 }
 
 /* ══ 수중 디자인툴 해파리 ══ */
