@@ -345,6 +345,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.restore_splash = restore_splash;
 
+    // 로고 클릭용 — splash_dismissed 체크 없이 강제 복원
+    window.goto_main = () => {
+      // 플래그 강제 초기화
+      splash_dismissed = true; // restore_splash 조건 통과용
+      uw_done     = false;
+      uw_accum    = 0;
+      uw_surfaced = false;
+      uw_end_shown = false;
+      // 오버레이 정리
+      const _sr = document.getElementById("surface-reveal");
+      if (_sr) _sr.classList.remove("active", "fade-out");
+      if (uw_el) { uw_el.classList.remove("active", "fade-out"); uw_el.style.visibility = ""; }
+      // 스플래시 복원
+      restore_splash();
+    };
+
     window.addEventListener("scroll", () => {
       // uw_done(수중 완료) 이후에는 스플래시 복원 안 함
       if (window.scrollY === 0 && splash_dismissed && !uw_done) {
