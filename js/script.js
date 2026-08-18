@@ -531,23 +531,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const last_video = document.querySelector(".h-section:last-child video");
 
-  // ── 커스텀 이징 스크롤 (페이지드 네비게이션용) ──
-  const smooth_scroll_to = (target, duration) => {
-    const start = window.scrollY;
-    const dist  = target - start;
-    const t0    = performance.now();
-    const ease  = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    const step  = (now) => {
-      const t = Math.min(1, (now - t0) / duration);
-      window.scrollTo(0, start + dist * ease(t));
-      if (t < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
-
   // ── 페이지드 휠 네비게이션 ──
   let pg_nav_lock  = false;
-  const PG_DELAY   = 1200;
+  const PG_DELAY   = 1700;
 
   const go_to_section = (idx) => {
     idx = Math.max(0, Math.min(section_count - 1, idx));
@@ -600,8 +586,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (next < 0 || pg_nav_lock) return;
     pg_nav_lock = true;
-    smooth_scroll_to(section_scroll_target(next), 1200);
-    setTimeout(() => { pg_nav_lock = false; }, PG_DELAY);
+    // CSS 트랜지션으로 레일 직접 이동 (page scroll과 분리)
+    const target_x = next * window.innerWidth;
+    if (h_rail) {
+      h_rail.style.transition = 'transform 1.8s cubic-bezier(0.77, 0, 0.175, 1)';
+      h_rail.style.transform  = `translateX(${-target_x}px)`;
+    }
+    go_to_section(next);
+    // 페이지 스크롤을 즉시 동기화해서 update_h_scroll 기준점 맞춤
+    window.scrollTo(0, section_scroll_target(next));
+    setTimeout(() => {
+      if (h_rail) h_rail.style.transition = '';
+      pg_nav_lock = false;
+    }, PG_DELAY);
   };
 
   // 휠 이벤트 — 1회 = 1섹션
@@ -627,6 +624,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const update_h_scroll = () => {
     if (!h_track || !h_rail) return;
+    // 레일 애니메이션 중에는 page scroll이 transform을 덮어쓰지 않도록 차단
+    if (pg_nav_lock) return;
     const trackTop        = h_track.offsetTop;
     const trackScrollable = h_track.offsetHeight - window.innerHeight;
     const scrolled        = Math.max(0, window.scrollY - trackTop);
@@ -637,17 +636,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const idx = Math.min(section_count - 1, Math.floor(progress * section_count));
     if (idx !== current_section_idx) show_section(idx);
     update_penguin();
-
-    // 스토리 텍스트 스크롤 기반 fade-in + slide-up
-    h_sections.forEach((sec, i) => {
-      const stEl = sec.querySelector('.story-text');
-      if (!stEl) return;
-      const sec_start = i / section_count;
-      const sec_local = Math.max(0, (progress - sec_start) * section_count);
-      const fade      = Math.min(1, sec_local / 0.18);
-      stEl.style.opacity   = fade.toFixed(3);
-      stEl.style.transform = `translateX(-50%) translateY(${(24 * (1 - fade)).toFixed(1)}px)`;
-    });
   };
 
   /* ── 섹션 번호로 직접 이동 (헤더 nav용) ── */
