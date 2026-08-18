@@ -76,7 +76,7 @@
     <p id="surface-thanks">Thanks for visiting.</p>
   </div>
   <!-- surface-reveal 닫기 버튼 (surface-reveal 밖에 fixed로) -->
-  <button id="surface-close-btn" onclick="if(typeof goto_main==='function') goto_main();" aria-label="닫기">×</button>
+  <button id="surface-close-btn" onclick="location.reload();" aria-label="닫기">×</button>
   <script>
     (function(){
       var _sr_obs = new MutationObserver(function(){
