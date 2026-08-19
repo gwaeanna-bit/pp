@@ -788,7 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pf_penguin_el) {
       const py     = -VH * 0.25 + ease(p) * VH * 1.3;
       const op_in  = Math.min(1, p / 0.08);
-      const op_out = Math.max(0, 1 - (p - 0.88) / 0.12);
+      const op_out = Math.max(0, 1 - (p - 0.82) / 0.10);
       pf_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
       pf_penguin_el.style.transform = `translateX(-50%) translateY(${py.toFixed(1)}px)`;
     }
@@ -902,7 +902,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 수평 이동만 — Y, 회전 없음
     penguin_el.style.transform = `translateX(${x.toFixed(1)}px)`;
 
-    // 모든 h-section에서 펭귄 표시 (섹션 0 포함)
+    // 세상에 나온 첫날(섹션 0)부터 펭귄 등장 — 낙하→워킹 전환
     if (current_section_idx >= 0) {
       if (!p_shown) p_shown = true;
       penguin_el.classList.add("visible");
