@@ -902,8 +902,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 수평 이동만 — Y, 회전 없음
     penguin_el.style.transform = `translateX(${x.toFixed(1)}px)`;
 
-    // 세상에 나온 첫날(섹션 0)부터 펭귄 등장 — 낙하→워킹 전환
-    if (current_section_idx >= 0) {
+    // h-track 진입 후에만 표시 (세로 스크롤 섹션에서는 숨김)
+    const in_h_track = h_track && window.scrollY >= h_track.offsetTop - window.innerHeight * 0.3;
+    if (in_h_track && current_section_idx >= 0) {
       if (!p_shown) p_shown = true;
       penguin_el.classList.add("visible");
     } else {
