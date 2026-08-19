@@ -1303,7 +1303,7 @@ body.splash-active .sp-ice {
 }
 
 /* ══════════════════════════════════════
-   소개 세로 스크롤 섹션 (2-column dark grid)
+   소개 세로 스크롤 섹션 — 검정 배경 + 중앙 펭귄
    ══════════════════════════════════════ */
 #vertical-intro { height: 800vh; position: relative; }
 
@@ -1311,80 +1311,48 @@ body.splash-active .sp-ice {
   position: sticky; top: 0; height: 100vh;
   overflow: hidden;
   background: #000;
-  display: grid; grid-template-columns: 1fr 1fr;
+  display: flex; align-items: center; justify-content: center;
 }
 
-/* 스크롤 전환 그라데이션 */
-#vi-trans-grad {
-  position: absolute; inset: 0; z-index: 10; pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(to bottom,
-    rgba(0,0,10,0) 0%, rgba(10,20,80,0.4) 20%,
-    rgba(20,60,180,0.75) 50%, rgba(60,140,220,0.85) 75%,
-    rgba(140,210,255,0.9) 100%);
-}
+/* 불필요한 효과 숨기기 */
+.vi-light-ray,
+.vi-bubble,
+#vi-trans-grad { display: none; }
 
-/* 물빛 광선 */
-.vi-light-ray {
-  position: absolute; top: -20%; left: 25%;
-  width: 2px; height: 140%;
-  background: linear-gradient(to bottom, transparent, rgba(80,180,255,0.06), transparent);
-  transform: rotate(var(--r, 0deg)); transform-origin: top center;
-  pointer-events: none; z-index: 2;
-}
-
-/* 버블 */
-.vi-bubble {
-  position: absolute; z-index: 2; pointer-events: none;
-  border-radius: 50%;
-  border: 1px solid rgba(150,220,255,0.35);
-  background: rgba(100,200,255,0.05);
-  animation: vi-bubble-rise linear infinite;
-}
-@keyframes vi-bubble-rise {
-  0%   { transform: translateY(110vh); opacity: 0; }
-  10%  { opacity: 0.7; }
-  90%  { opacity: 0.4; }
-  100% { transform: translateY(-10vh); opacity: 0; }
-}
-
-/* 공통 블록 fade-in */
-.vi-block { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
-.vi-block.vi-visible { opacity: 1; transform: translateY(0); }
-
-/* 텍스트 스타일 */
-.vi-label { font-family: 'Pretendard', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; color: rgba(255,255,255,0.38); margin-bottom: 8px; }
-.vi-name  { font-family: 'Pretendard', sans-serif; font-size: clamp(36px, 4.5vw, 68px); font-weight: 800; color: #fff; line-height: 1.05; letter-spacing: -0.02em; }
-.vi-body  { font-family: 'Pretendard', sans-serif; font-size: clamp(13px, 1.3vw, 16px); font-weight: 300; color: rgba(255,255,255,0.65); line-height: 1.9; }
-
-/* 왼쪽 텍스트 패널 */
-#vi-text-panel {
-  display: flex; flex-direction: column; justify-content: center; gap: 36px;
-  padding: 60px 52px 60px 80px; color: #fff; position: relative; z-index: 3;
-}
-
-/* 스크롤 등장 펭귄 (intro section) */
+/* 중앙 펭귄 */
 #vi-penguin {
   position: absolute;
-  left: 50%; bottom: -160px;
-  transform: translateX(-50%);
-  width: 220px; height: auto;
+  left: 50%; top: 50%;
+  margin-top: -160px;          /* 이미지 절반 높이 */
+  transform: translateX(-50%) translateY(-280px);
+  width: 280px; height: auto;
   z-index: 5; will-change: transform, opacity;
   opacity: 0;
-  filter: drop-shadow(0 0 32px rgba(80,180,255,0.5));
   pointer-events: none;
 }
 
-/* 오른쪽 이미지 패널 */
-#vi-image-panel {
-  position: relative; overflow: hidden; z-index: 3;
-  background: radial-gradient(ellipse at center, #061520 0%, #020c18 100%);
-  display: flex; align-items: center; justify-content: center;
+/* 텍스트 패널 — 중앙 하단 */
+#vi-text-panel {
+  position: absolute;
+  bottom: 12%; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  text-align: center;
+  color: #fff; z-index: 6;
+  width: 80%; max-width: 600px;
 }
-#vi-image-panel img {
-  width: 80%; max-width: 320px; height: auto; object-fit: contain; display: block;
-  border-radius: 4px; filter: drop-shadow(0 0 24px rgba(0,150,220,0.35));
-}
+
+/* 오른쪽 프로필 사진 패널 숨김 */
+#vi-image-panel { display: none; }
+
+/* 공통 블록 fade-in */
+.vi-block { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.vi-block.vi-visible { opacity: 1; transform: translateY(0); }
+
+/* 텍스트 스타일 */
+.vi-label { font-family: 'Pretendard', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; color: rgba(255,255,255,0.38); margin-bottom: 6px; }
+.vi-name  { font-family: 'Pretendard', sans-serif; font-size: clamp(28px, 3.5vw, 52px); font-weight: 800; color: #fff; line-height: 1.05; letter-spacing: -0.02em; }
+.vi-body  { font-family: 'Pretendard', sans-serif; font-size: clamp(12px, 1.2vw, 15px); font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.9; }
 
 /* ══════════════════════════════════════
    About 섹션 (United Carriers style) — 소개 섹션 아래 추가
