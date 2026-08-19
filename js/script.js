@@ -902,8 +902,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // 수평 이동만 — Y, 회전 없음
     penguin_el.style.transform = `translateX(${x.toFixed(1)}px)`;
 
-    // home1-panel(섹션 0)에서는 숨기고, 다음 섹션부터 등장
-    if (current_section_idx >= 1) {
+    // 모든 h-section에서 펭귄 표시 (섹션 0 포함)
+    if (current_section_idx >= 0) {
       if (!p_shown) p_shown = true;
       penguin_el.classList.add("visible");
     } else {
