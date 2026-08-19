@@ -1313,6 +1313,18 @@ body.splash-active .sp-ice {
   background: #000;
   display: grid; grid-template-columns: 1fr 1fr;
 }
+/* 하단 전환 — 검정에서 심해 네이비로 자연스럽게 */
+#vi-sticky::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 35%; z-index: 10; pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 5, 18, 0.6) 40%,
+    rgba(0, 8, 28, 0.88) 70%,
+    rgba(0, 10, 32, 1) 100%
+  );
+}
 
 /* 장식 효과 숨기기 */
 .vi-light-ray,
@@ -1387,9 +1399,9 @@ body.splash-active .sp-ice {
   height: 55%; z-index: 3; pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(20, 55, 160, 0.82) 0%,
-    rgba(10, 30, 90, 0.55) 30%,
-    rgba(0, 10, 30, 0.25) 65%,
+    rgba(0, 10, 32, 1) 0%,
+    rgba(0, 12, 40, 0.85) 20%,
+    rgba(5, 20, 70, 0.55) 50%,
     transparent 100%
   );
 }
