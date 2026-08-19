@@ -682,18 +682,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const scrolled   = Math.max(0, window.scrollY - sectionTop);
     const p          = total > 0 ? Math.min(1, scrolled / total) : 0;
 
-    // 펭귄: p=0 부터 위에서 아래로 내려오는 효과 (0 ~ 35% 구간)
+    // 패럴랙스: 글씨는 빠르게, 사진은 느리게 위로 이동
+    if (vi_text_panel_el)  vi_text_panel_el.style.transform  = `translateY(${(-p * 100).toFixed(1)}px)`;
+    if (vi_image_panel_el) vi_image_panel_el.style.transform = `translateY(${(-p *  50).toFixed(1)}px)`;
+
+    // 펭귄: 위에서 아래로 내려오는 효과 (0 ~ 35% 구간)
     const pa = Math.max(0, Math.min(1, p / 0.35));
     vi_penguin_el.style.opacity   = pa.toFixed(3);
-    // 위쪽 -280px에서 시작 → 0(중앙)으로 내려옴
     vi_penguin_el.style.transform = `translateX(-50%) translateY(${(-280 * (1 - pa)).toFixed(1)}px)`;
-
-    // 텍스트: 스크롤 중반부(35%+)부터 페이드인
-    if (vi_text_panel_el) {
-      const pt = Math.max(0, Math.min(1, (p - 0.35) / 0.25));
-      vi_text_panel_el.style.opacity   = pt.toFixed(3);
-      vi_text_panel_el.style.transform = `translateX(-50%) translateY(${(20 * (1 - pt)).toFixed(1)}px)`;
-    }
 
     // 스크롤 75% 이후 전환 그라데이션
     if (vi_trans_grad) {
