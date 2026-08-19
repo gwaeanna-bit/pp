@@ -601,10 +601,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }, PG_DELAY);
   };
 
-  // 휠 이벤트 — 1회 = 1섹션
+  // 휠 이벤트 — h-track 영역 안에서만 page_nav 작동
   window.addEventListener("wheel", (e) => {
     if (!penguin_ready) return;
     if (uw_el_global && uw_el_global.classList.contains("active")) return;
+    if (!h_track) return;
+    const hTop    = h_track.offsetTop;
+    const hBottom = hTop + h_track.offsetHeight;
+    // h-track 범위 밖이면 일반 스크롤 허용
+    if (window.scrollY < hTop || window.scrollY >= hBottom) return;
     e.preventDefault();
     page_nav(e.deltaY > 0 ? 1 : -1);
   }, { passive: false });

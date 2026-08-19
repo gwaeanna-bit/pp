@@ -1305,19 +1305,13 @@ body.splash-active .sp-ice {
 /* ══════════════════════════════════════
    소개 세로 스크롤 섹션 (2-column dark grid)
    ══════════════════════════════════════ */
-#vertical-intro { height: 44800vh; position: relative; }
+#vertical-intro { height: 800vh; position: relative; }
 
 #vi-sticky {
   position: sticky; top: 0; height: 100vh;
   overflow: hidden;
-  background: #03080f;
+  background: #000;
   display: grid; grid-template-columns: 1fr 1fr;
-}
-#vi-sticky::before {
-  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 40% at 30% 50%, rgba(0,40,90,0.35) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 60% at 80% 60%, rgba(0,20,60,0.25) 0%, transparent 70%);
 }
 
 /* 스크롤 전환 그라데이션 */
