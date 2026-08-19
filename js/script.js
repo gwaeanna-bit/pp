@@ -689,8 +689,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const penguin_y   = -360 + p * 900;                          // 위(-360px) → 아래(540px)
     const op_in       = Math.min(1, p / 0.10);                   // 0~10% 페이드인
     const op_out      = Math.max(0, 1 - (p - 0.80) / 0.15);     // 80~95% 페이드아웃
+    const swim_x = Math.sin(p * Math.PI * 6) * 22;   // 좌우 흔들림
+    const swim_r = Math.sin(p * Math.PI * 6) * 10;   // 기울기
     vi_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
-    vi_penguin_el.style.transform = `translateX(-50%) translateY(${penguin_y.toFixed(1)}px)`;
+    vi_penguin_el.style.transform = `translateX(calc(-50% + ${swim_x.toFixed(1)}px)) translateY(${penguin_y.toFixed(1)}px) rotate(${swim_r.toFixed(1)}deg)`;
 
     // 스크롤 75% 이후 전환 그라데이션
     if (vi_trans_grad) {
@@ -789,8 +791,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const py     = -VH * 0.25 + ease(p) * VH * 1.3;
       const op_in  = Math.min(1, p / 0.08);
       const op_out = Math.max(0, 1 - (p - 0.82) / 0.10);
+      const pf_swim_x = Math.sin(p * Math.PI * 6) * 22;
+      const pf_swim_r = Math.sin(p * Math.PI * 6) * 10;
       pf_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
-      pf_penguin_el.style.transform = `translateX(-50%) translateY(${py.toFixed(1)}px)`;
+      pf_penguin_el.style.transform = `translateX(calc(-50% + ${pf_swim_x.toFixed(1)}px)) translateY(${py.toFixed(1)}px) rotate(${pf_swim_r.toFixed(1)}deg)`;
     }
 
     pf_cards.forEach((card, i) => {

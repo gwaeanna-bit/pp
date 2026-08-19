@@ -2515,6 +2515,26 @@ body.splash-active .sp-ice {
   background: linear-gradient(to bottom, rgba(0,10,32,1) 0%, transparent 100%);
 }
 
+/* 포트폴리오 → h-track 전환: 하단 페이드아웃 */
+#pf-sticky::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 35%;
+  background: linear-gradient(to bottom, transparent 0%, #000510 100%);
+  z-index: 8; pointer-events: none;
+}
+
+/* h-track 첫 패널 상단: 포트폴리오 색상에서 자연스럽게 진입 */
+#h-rail .h-section:first-child::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(to bottom, #000510 0%, transparent 100%);
+  z-index: 5; pointer-events: none;
+}
+
 #pf-penguin {
   position: absolute;
   left: 50%; top: 50%;
