@@ -671,7 +671,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const vi_trans_grad = document.getElementById("vi-trans-grad");
   const vi_blocks     = vi_section
     ? Array.from(vi_section.querySelectorAll(".vi-block")) : [];
-  const vi_shown          = new Set();
   const vi_text_panel_el  = document.getElementById("vi-text-panel");
   const vi_image_panel_el = document.getElementById("vi-image-panel");
 
@@ -699,10 +698,21 @@ document.addEventListener("DOMContentLoaded", () => {
       vi_trans_grad.style.opacity = t.toFixed(3);
     }
 
-    vi_blocks.forEach(block => {
-      if (vi_shown.has(block)) return;
-      const at = parseFloat(block.dataset.at || 0);
-      if (p >= at) { vi_shown.add(block); block.classList.add("vi-visible"); }
+    // 텍스트 블록: 스크롤에 따라 하나씩 넘어가는 인터렉션
+    const thresholds  = vi_blocks.map(b => parseFloat(b.dataset.at || 0));
+    const next_thresh = [...thresholds.slice(1), 1.05];
+    vi_blocks.forEach((block, i) => {
+      const start = thresholds[i];
+      const end   = next_thresh[i];
+      if (p >= start && p < end) {
+        block.classList.add('vi-visible');
+        block.classList.remove('vi-leaving');
+      } else if (p >= end) {
+        block.classList.remove('vi-visible');
+        block.classList.add('vi-leaving');
+      } else {
+        block.classList.remove('vi-visible', 'vi-leaving');
+      }
     });
   };
   update_vi_scroll();

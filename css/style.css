@@ -1331,15 +1331,32 @@ body.splash-active .sp-ice {
 .vi-bubble,
 #vi-trans-grad { display: none; }
 
-/* 왼쪽 텍스트 패널 */
+/* 왼쪽 텍스트 패널 — 블록들이 겹치도록 relative 컨테이너 */
 #vi-text-panel {
-  display: flex; flex-direction: column; justify-content: center; gap: 36px;
-  padding: 60px 52px 60px 80px; color: #fff; position: relative; z-index: 3;
+  position: relative;
+  color: #fff; z-index: 3;
 }
 
-/* 공통 블록 fade-in */
-.vi-block { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
-.vi-block.vi-visible { opacity: 1; transform: translateY(0); }
+/* 텍스트 블록 — 스크롤에 따라 하나씩 넘어가는 인터렉션 */
+.vi-block {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center; gap: 14px;
+  padding: 60px 52px 60px 80px;
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none;
+}
+.vi-block.vi-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.vi-block.vi-leaving {
+  opacity: 0;
+  transform: translateY(-28px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
 
 /* 텍스트 스타일 */
 .vi-label { font-family: 'Pretendard', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; color: rgba(255,255,255,0.38); margin-bottom: 8px; }
