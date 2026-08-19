@@ -689,10 +689,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const penguin_y   = -360 + p * 900;                          // 위(-360px) → 아래(540px)
     const op_in       = Math.min(1, p / 0.10);                   // 0~10% 페이드인
     const op_out      = Math.max(0, 1 - (p - 0.80) / 0.15);     // 80~95% 페이드아웃
-    const swim_x = Math.sin(p * Math.PI * 6) * 22;   // 좌우 흔들림
-    const swim_r = Math.sin(p * Math.PI * 6) * 10;   // 기울기
+    const swim_x  = Math.sin(p * Math.PI * 6) * 22;   // 좌우 흔들림
+    const swim_r  = Math.sin(p * Math.PI * 6) * 10;   // 기울기
+    const scale   = 0.55 + p * 0.9;                    // 멀리서(0.55) → 가까이(1.45) 커짐
     vi_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
-    vi_penguin_el.style.transform = `translateX(calc(-50% + ${swim_x.toFixed(1)}px)) translateY(${penguin_y.toFixed(1)}px) rotate(${swim_r.toFixed(1)}deg)`;
+    vi_penguin_el.style.transform = `translateX(calc(-50% + ${swim_x.toFixed(1)}px)) translateY(${penguin_y.toFixed(1)}px) rotate(${swim_r.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
 
     // 스크롤 75% 이후 전환 그라데이션
     if (vi_trans_grad) {
@@ -733,10 +734,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const scrolled = Math.max(0, -rect.top);
     const p        = total > 0 ? Math.min(1, scrolled / total) : 0;
 
-    // 펭귄: p=0.05부터 등장, 천천히 떠오름
-    const pa = Math.max(0, Math.min(1, (p - 0.05) / 0.25));
-    ab_penguin_el.style.opacity   = pa.toFixed(3);
-    ab_penguin_el.style.transform = `translateX(-50%) translateY(${((1 - pa) * 220).toFixed(1)}px)`;
+    // 펭귄: vi-section 이어서 위→아래 수영하며 내려옴
+    const ease_ab = t => 1 - Math.pow(1 - t, 3);
+    const VH_ab   = window.innerHeight;
+    const ab_py   = -VH_ab * 0.4 + ease_ab(p) * VH_ab * 1.2;
+    const ab_sx   = Math.sin(p * Math.PI * 6) * 22;
+    const ab_sr   = Math.sin(p * Math.PI * 6) * 10;
+    const ab_sc   = 0.75 + p * 0.55;
+    const ab_op_in  = Math.min(1, p / 0.08);
+    const ab_op_out = Math.max(0, 1 - (p - 0.88) / 0.10);
+    ab_penguin_el.style.opacity   = Math.min(ab_op_in, ab_op_out).toFixed(3);
+    ab_penguin_el.style.transform = `translateX(calc(-50% + ${ab_sx.toFixed(1)}px)) translateY(${ab_py.toFixed(1)}px) rotate(${ab_sr.toFixed(1)}deg) scale(${ab_sc.toFixed(3)})`;
 
     // 피처 블록: 하나씩 아래→위 전체 화면 이동 (vi-block 방식)
     const ease = t => 1 - Math.pow(1 - t, 3);
