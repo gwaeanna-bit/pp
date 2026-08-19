@@ -734,22 +734,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const scrolled = Math.max(0, -rect.top);
     const p        = total > 0 ? Math.min(1, scrolled / total) : 0;
 
-    // 펭귄: vi-section 이어서 위→아래 수영하며 내려옴
-    const ease_ab = t => 1 - Math.pow(1 - t, 3);
-    const VH_ab   = window.innerHeight;
-    const ab_py   = -VH_ab * 0.4 + ease_ab(p) * VH_ab * 1.2;
-    const ab_sx   = Math.sin(p * Math.PI * 6) * 22;
-    const ab_sr   = Math.sin(p * Math.PI * 6) * 10;
-    const ab_sc   = 0.75 + p * 0.55;
-    const ab_op_in  = Math.min(1, p / 0.08);
-    const ab_op_out = Math.max(0, 1 - (p - 0.88) / 0.10);
-    ab_penguin_el.style.opacity   = Math.min(ab_op_in, ab_op_out).toFixed(3);
-    ab_penguin_el.style.transform = `translateX(calc(-50% + ${ab_sx.toFixed(1)}px)) translateY(${ab_py.toFixed(1)}px) rotate(${ab_sr.toFixed(1)}deg) scale(${ab_sc.toFixed(3)})`;
-
     // 피처 블록: 하나씩 아래→위 전체 화면 이동 (vi-block 방식)
     const ease = t => 1 - Math.pow(1 - t, 3);
     const N   = ab_feats.length;
     const VH  = window.innerHeight;
+
+    // 펭귄: 전체 ab-section에 걸쳐 아래→위로 끊김 없이 물결치며 헤엄
+    const ab_py  = VH * 0.55 - ease(p) * VH * 1.15;  // 화면 하단 → 상단 한 번에 이동
+    // 물결무늬: 큰 좌우 진동 + 회전 (sin 파형, 전체 구간 5회 왕복)
+    const wave   = Math.sin(p * Math.PI * 10);
+    const ab_sx  = wave * 30;   // 좌우 ±30px
+    const ab_sr  = wave * 14;   // 회전 ±14°
+    const ab_sc  = 0.65 + p * 0.55;  // 0.65 → 1.2 (점점 가까워지는 느낌)
+    const ab_op_in  = Math.min(1, p / 0.04);
+    const ab_op_out = Math.max(0, 1 - (p - 0.92) / 0.06);
+    ab_penguin_el.style.opacity   = Math.min(ab_op_in, ab_op_out).toFixed(3);
+    ab_penguin_el.style.transform = `translateX(calc(-50% + ${ab_sx.toFixed(1)}px)) translateY(${ab_py.toFixed(1)}px) rotate(${ab_sr.toFixed(1)}deg) scale(${ab_sc.toFixed(3)})`;
     ab_feats.forEach((feat, i) => {
       const seg_start = i / N;          // 0 / 0.33 / 0.67
       const seg_end   = (i + 1) / N;    // 0.33 / 0.67 / 1.0
@@ -923,9 +923,9 @@ document.addEventListener("DOMContentLoaded", () => {
       penguin_el.classList.remove("visible");
     }
 
-    // 섹션 기반 변신: 0~5→어린펭귄 / 6~→황제펭귄
+    // 섹션 기반 변신: 0~3→어린펭귄 / 4~→황제펭귄 ("나는 내 바다를 찾아낸다"부터)
     const idx = current_section_idx;
-    const target_stage = idx < 6 ? 0 : 2;
+    const target_stage = idx >= 4 ? 2 : 0;
     if (target_stage !== penguin_stage) spin_to_stage(target_stage);
 
     penguin_el.classList.add("walking");
@@ -941,9 +941,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const idx    = Math.min(section_count - 1, Math.floor(prog * section_count));
     if (idx !== current_section_idx) show_section(idx);
 
-    // 섹션 기반 변신: 0~5→어린펭귄 / 6~→황제펭귄
+    // 섹션 기반 변신: 0~3→어린펭귄 / 4~→황제펭귄 ("나는 내 바다를 찾아낸다"부터)
     const drag_idx = Math.min(section_count - 1, Math.floor(prog * section_count));
-    const target_stage = drag_idx < 6 ? 0 : 2;
+    const target_stage = drag_idx >= 4 ? 2 : 0;
     if (target_stage !== penguin_stage) spin_to_stage(target_stage);
   };
 
