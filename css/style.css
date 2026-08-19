@@ -1442,8 +1442,12 @@ body.splash-active .sp-ice {
   gap: 0; z-index: 5;
   padding: 0 6vw;
 }
-.ab-feat { padding: 0 32px; text-align: center; opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
-.ab-feat.ab-visible { opacity: 1; transform: translateY(0); }
+.ab-feat {
+  padding: 0 32px; text-align: center;
+  opacity: 0;
+  transform: translateY(60px);
+  will-change: opacity, transform;
+}
 .ab-feat-title {
   font-family: 'Pretendard', sans-serif;
   font-size: clamp(15px, 1.6vw, 20px); font-weight: 700;
@@ -2415,3 +2419,188 @@ body.splash-active .sp-ice {
 }
 
 
+
+/* ══ 포트폴리오 패널 ══ */
+.pf-section { position: relative; }
+.pf-bg { position: absolute; inset: 0; z-index: 0; }
+.pf-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 100%; padding: 0 7vw;
+  gap: 4vw;
+}
+.pf-left { flex: 1; max-width: 520px; }
+.pf-num {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(48px, 6vw, 80px); font-weight: 900;
+  color: rgba(255,255,255,0.06); line-height: 1; margin-bottom: 8px;
+}
+.pf-cat {
+  font-size: clamp(11px, 1vw, 13px); font-weight: 600;
+  color: rgba(255,255,255,0.45); letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.pf-title {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(28px, 3.8vw, 52px); font-weight: 900;
+  color: #fff; line-height: 1.1; letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.pf-title em {
+  font-style: italic; color: var(--c, #fff);
+  font-family: 'DM Serif Display', serif;
+}
+.pf-desc {
+  font-size: clamp(13px, 1.2vw, 15px); color: rgba(255,255,255,0.55);
+  line-height: 1.8; margin-bottom: 22px;
+}
+.pf-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
+.pf-tags span {
+  padding: 5px 13px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50px; font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.6);
+}
+.pf-btn {
+  display: inline-block;
+  padding: 13px 28px;
+  background: var(--c, #fff); color: #fff;
+  border-radius: 50px; font-size: 14px; font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.pf-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+.pf-soon { opacity: 0.5; cursor: default; color: rgba(255,255,255,0.7); background: transparent !important; border: 1.5px solid rgba(255,255,255,0.3); }
+.pf-right { flex: 1; display: flex; justify-content: center; align-items: center; }
+
+/* 브라우저 목업 */
+.pf-mockup {
+  width: min(420px, 40vw);
+  background: #fff; border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08);
+}
+.pm-bar {
+  background: #f0f0f0; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.pm-dots { display: flex; gap: 5px; }
+.pm-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.pm-url {
+  flex: 1; background: #e0e0e0; border-radius: 5px;
+  padding: 4px 10px; font-size: 11px; color: #666; font-family: monospace;
+}
+.pm-body { padding: 24px 22px; min-height: 200px; }
+
+/* 폰 목업 */
+.pf-phone {
+  width: min(240px, 22vw); border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+  background: #111;
+}
+.pp-screen { padding: 20px 16px; min-height: 280px; border-radius: 28px; }
+.pp-chat { display: flex; flex-direction: column; gap: 7px; }
+.pp-bubble {
+  max-width: 85%; padding: 7px 11px;
+  border-radius: 14px; font-size: 10px; line-height: 1.5; color: #fff;
+}
+.pp-bubble.ai { background: rgba(255,255,255,0.12); align-self: flex-start; }
+.pp-bubble.user { background: var(--c, #6D59F8); align-self: flex-end; }
+
+/* ══════════════════════════════════════
+   포트폴리오 세로 스크롤 섹션
+   ══════════════════════════════════════ */
+#portfolio-section { height: 900vh; position: relative; }
+
+#pf-sticky {
+  position: sticky; top: 0; height: 100vh;
+  overflow: hidden;
+  background: #00040f;
+}
+
+#pf-bg-grad {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 40%; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,10,32,1) 0%, transparent 100%);
+}
+
+/* 카드 공통 */
+.pf-card {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  z-index: 2;
+  will-change: opacity, transform;
+}
+
+.pfc-inner {
+  display: flex; align-items: center;
+  width: 100%; padding: 0 8vw;
+  gap: 5vw;
+}
+
+/* 왼쪽 텍스트 */
+.pfc-left { flex: 1; max-width: 500px; }
+
+.pfc-num {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(52px, 7vw, 96px); font-weight: 900;
+  color: rgba(255,255,255,0.05); line-height: 1;
+  margin-bottom: 4px;
+}
+.pfc-cat {
+  font-size: clamp(11px, 1vw, 13px); font-weight: 600;
+  color: rgba(255,255,255,0.4); letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 18px;
+}
+.pfc-title {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(30px, 4vw, 56px); font-weight: 900;
+  color: #fff; line-height: 1.1; letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.pfc-title em { font-style: italic; font-family: 'DM Serif Display', serif; }
+
+.pfc-desc {
+  font-size: clamp(13px, 1.1vw, 15px);
+  color: rgba(255,255,255,0.5); line-height: 1.85;
+  margin-bottom: 22px;
+}
+.pfc-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.pfc-tags span {
+  padding: 5px 13px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50px; font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.5);
+}
+.pfc-btn {
+  display: inline-block; padding: 13px 28px;
+  border-radius: 50px; font-size: 14px; font-weight: 700;
+  text-decoration: none; color: #fff;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.pfc-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+.pfc-soon {
+  opacity: 0.45; cursor: default;
+  background: transparent !important;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.6);
+}
+
+/* 오른쪽 비주얼 */
+.pfc-right { flex: 1; display: flex; justify-content: center; align-items: center; }
+
+.pfc-mockup-browser {
+  width: min(440px, 38vw);
+  background: #fff; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
+}
+.pfc-mockup-phone {
+  width: min(220px, 20vw);
+  border-radius: 30px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6);
+  background: #0a0a16;
+}
+.pfc-mockup-phone .pp-screen { padding: 20px 16px; min-height: 300px; border-radius: 30px; }

@@ -145,8 +145,8 @@
     <div class="logo" onclick="if(typeof goto_main==='function') goto_main();" style="cursor:pointer;">🐧 FIRST PENGUIN</div>
     <nav class="nav">
       <a href="#" onclick="scrollToSection(0); return false;">Home</a>
-      <a href="#" onclick="scrollToSection(5); return false;">About</a>
-      <a href="#" onclick="scrollToSection(11); return false;">Portfolio</a>
+      <a href="#" onclick="window.scrollTo({top: document.getElementById('about-section').offsetTop, behavior:'smooth'}); return false;">About</a>
+      <a href="#" onclick="window.scrollTo({top: document.getElementById('portfolio-section').offsetTop, behavior:'smooth'}); return false;">Portfolio</a>
       <a href="#" onclick="scrollToSection(2); return false;">Story</a>
     </nav>
   </header>
@@ -250,6 +250,109 @@
   </section>
 
   <!-- 가로 진행 표시바 (washi tape) -->
+
+  <!-- ══ 포트폴리오 섹션 (세로 스크롤) ══ -->
+  <section id="portfolio-section">
+    <div id="pf-sticky">
+      <!-- 배경 -->
+      <div id="pf-bg-grad"></div>
+
+      <!-- 카드 1: romand -->
+      <div class="pf-card" id="pf-card-0">
+        <div class="pfc-inner">
+          <div class="pfc-left">
+            <div class="pfc-num">01</div>
+            <div class="pfc-cat">Web UX/UI · 2026</div>
+            <h2 class="pfc-title">rom&amp;nd<br/><em style="color:#EF749B;">Global</em><br/>Website</h2>
+            <p class="pfc-desc">글로벌 뷰티 브랜드 공식 웹사이트 UX/UI 개선.<br/>65명 리서치 기반 퍼스널컬러 진단·핑크오피스 페이지 신설.</p>
+            <div class="pfc-tags">
+              <span>UX Research</span><span>Web UI</span><span>HTML/CSS/JS</span><span>K-Beauty</span>
+            </div>
+            <a href="romand.html" class="pfc-btn" style="background:#EF749B;">케이스 스터디 보기 →</a>
+          </div>
+          <div class="pfc-right">
+            <div class="pfc-mockup-browser">
+              <div class="pm-bar"><div class="pm-dots"><span style="background:#FF5F57"></span><span style="background:#FFBD2E"></span><span style="background:#28C840"></span></div><div class="pm-url">en.romand.co.kr</div></div>
+              <div class="pm-body" style="background:linear-gradient(160deg,#FEE3EC,#FAFCFF);">
+                <div style="font-weight:900;font-size:13px;margin-bottom:10px;color:#353535;">rom&nd</div>
+                <div style="font-size:16px;font-weight:800;line-height:1.2;color:#353535;margin-bottom:10px;">A New Color.<br/>That Will Wake You Up.</div>
+                <div style="display:flex;gap:5px;margin-bottom:12px;">
+                  <div style="width:22px;height:22px;border-radius:50%;background:#C94073;"></div>
+                  <div style="width:22px;height:22px;border-radius:50%;background:#E8748A;"></div>
+                  <div style="width:22px;height:22px;border-radius:50%;background:#F9A8C0;"></div>
+                  <div style="width:22px;height:22px;border-radius:50%;background:#F5D0A0;"></div>
+                  <div style="width:22px;height:22px;border-radius:50%;background:#D4789A;"></div>
+                </div>
+                <div style="background:#EF749B;color:#fff;display:inline-block;padding:5px 14px;border-radius:50px;font-size:10px;font-weight:700;">✨ 퍼스널컬러 진단</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카드 2: 집사인생 -->
+      <div class="pf-card" id="pf-card-1">
+        <div class="pfc-inner">
+          <div class="pfc-left">
+            <div class="pfc-num">02</div>
+            <div class="pfc-cat">App UX/UI · 2026</div>
+            <h2 class="pfc-title">집사인생<br/><em style="color:#6D59F8;">Jibsa Life</em></h2>
+            <p class="pfc-desc">반려동물 AI 챗봇으로 건강상태를 체크하는 앱.<br/>보호자와 반려동물을 잇는 스마트 헬스케어 서비스.</p>
+            <div class="pfc-tags">
+              <span>App Design</span><span>AI Chatbot</span><span>Healthcare</span><span>Figma</span>
+            </div>
+            <a href="jibsalife.html" class="pfc-btn" style="background:#6D59F8;">케이스 스터디 보기 →</a>
+          </div>
+          <div class="pfc-right">
+            <div class="pfc-mockup-phone" style="border-color:#6D59F822;">
+              <div class="pp-screen" style="background:linear-gradient(160deg,#6D59F811,#04021a);">
+                <div style="color:#6D59F8;font-weight:800;font-size:13px;margin-bottom:8px;">집사인생 🐾</div>
+                <div class="pp-chat">
+                  <div class="pp-bubble ai">오늘 우리 아이 밥은 잘 먹었나요?</div>
+                  <div class="pp-bubble user" style="background:#6D59F8;">조금 적게 먹은 것 같아요</div>
+                  <div class="pp-bubble ai">식욕 저하가 감지됐어요. 체온도 체크해볼까요?</div>
+                </div>
+                <div style="margin-top:12px;background:#6D59F8;border-radius:10px;padding:8px 12px;color:#fff;font-size:10px;text-align:center;font-weight:700;">AI 건강 진단 시작하기</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카드 3: 스파이 요가 -->
+      <div class="pf-card" id="pf-card-2">
+        <div class="pfc-inner">
+          <div class="pfc-left">
+            <div class="pfc-num">03</div>
+            <div class="pfc-cat">App UX/UI · 2026</div>
+            <h2 class="pfc-title">스파이 요가<br/><em style="color:#4CAF8A;">Spy Yoga</em></h2>
+            <p class="pfc-desc">스파이 컨셉의 요가 앱.<br/>미션처럼 하루 루틴을 완성하는 독특한 UX 경험.</p>
+            <div class="pfc-tags">
+              <span>App Design</span><span>Fitness</span><span>UX/UI</span><span>Figma</span>
+            </div>
+            <span class="pfc-btn pfc-soon">케이스 스터디 준비 중</span>
+          </div>
+          <div class="pfc-right">
+            <div class="pfc-mockup-phone" style="border-color:#4CAF8A22;">
+              <div class="pp-screen" style="background:linear-gradient(160deg,#4CAF8A11,#020f0a);">
+                <div style="color:#4CAF8A;font-weight:800;font-size:13px;margin-bottom:8px;">SPY YOGA 🕵️</div>
+                <div style="background:rgba(76,175,138,0.15);border:1px solid rgba(76,175,138,0.3);border-radius:10px;padding:10px;margin-bottom:8px;">
+                  <div style="color:#4CAF8A;font-size:10px;font-weight:700;">MISSION 01</div>
+                  <div style="color:#fff;font-size:12px;font-weight:600;margin-top:3px;">태양 경배 자세 × 5세트</div>
+                </div>
+                <div style="background:rgba(76,175,138,0.08);border:1px solid rgba(76,175,138,0.15);border-radius:10px;padding:10px;">
+                  <div style="color:#4CAF8A;font-size:10px;font-weight:700;">MISSION 02</div>
+                  <div style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;margin-top:3px;">전사 자세 × 3세트</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <div id="h-progress-bar"></div>
 
   <!-- ══ 가로 스크롤 트랙 ══ -->
@@ -297,7 +400,8 @@
           </div>
         </section>
 
-        <!-- 패널 9: 프로필 + 취미 갤러리 -->
+
+                <!-- 패널 9: 프로필 + 취미 갤러리 -->
         <section class="h-section" id="pp-section">
           <img class="bg-img" src="img/img19.png" alt="프로필 배경" />
 

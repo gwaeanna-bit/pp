@@ -661,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setup_h_track();
   window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_nav_history(); });
   window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); update_ab_scroll(); });
-  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_nav_history(); }, { passive: true });
+  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_pf_scroll(); update_nav_history(); }, { passive: true });
 
   /* ══════════════════════════════════════
      소개 세로 스크롤 섹션 — 스크롤 트래킹
@@ -676,10 +676,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const update_vi_scroll = () => {
     if (!vi_section || !vi_penguin_el) return;
-    const sectionTop = vi_section.offsetTop;
-    const total      = vi_section.offsetHeight - window.innerHeight;
-    const scrolled   = Math.max(0, window.scrollY - sectionTop);
-    const p          = total > 0 ? Math.min(1, scrolled / total) : 0;
+    const rect     = vi_section.getBoundingClientRect();
+    const total    = vi_section.offsetHeight - window.innerHeight;
+    const scrolled = Math.max(0, -rect.top);
+    const p        = total > 0 ? Math.min(1, scrolled / total) : 0;
 
     // 패럴랙스: 글씨는 빠르게, 사진은 느리게 위로 이동
     if (vi_text_panel_el)  vi_text_panel_el.style.transform  = `translateY(${(-p * 100).toFixed(1)}px)`;
@@ -728,25 +728,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const update_ab_scroll = () => {
     if (!ab_section || !ab_penguin_el) return;
-    const sectionTop = ab_section.offsetTop;
-    const total      = ab_section.offsetHeight - window.innerHeight;
-    const scrolled   = Math.max(0, window.scrollY - sectionTop);
-    const p          = total > 0 ? Math.min(1, scrolled / total) : 0;
+    const rect    = ab_section.getBoundingClientRect();
+    const total   = ab_section.offsetHeight - window.innerHeight;
+    const scrolled = Math.max(0, -rect.top);
+    const p        = total > 0 ? Math.min(1, scrolled / total) : 0;
 
     // 펭귄: p=0.05부터 등장, 천천히 떠오름
     const pa = Math.max(0, Math.min(1, (p - 0.05) / 0.25));
     ab_penguin_el.style.opacity   = pa.toFixed(3);
     ab_penguin_el.style.transform = `translateX(-50%) translateY(${((1 - pa) * 220).toFixed(1)}px)`;
 
-    // 피처 블록: p=0.15부터 순차 등장
+    // 피처 블록: 하나씩 아래→위 전체 화면 이동 (vi-block 방식)
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    const N   = ab_feats.length;
+    const VH  = window.innerHeight;
     ab_feats.forEach((feat, i) => {
-      if (ab_shown.has(feat)) return;
-      if (p >= 0.15 + i * 0.08) { ab_shown.add(feat); feat.classList.add('ab-visible'); }
+      const seg_start = i / N;          // 0 / 0.33 / 0.67
+      const seg_end   = (i + 1) / N;    // 0.33 / 0.67 / 1.0
+      const fp = Math.max(0, Math.min(1, (p - seg_start) / (seg_end - seg_start)));
+      // 아래(+VH*0.6)에서 위(-VH*0.5) 로 이동
+      const ty = VH * 0.6 - ease(fp) * VH * 1.1;
+      // 입장 페이드인(0~15%), 퇴장 페이드아웃(85~100%)
+      const op = fp < 0.15 ? fp / 0.15 : (fp > 0.85 ? (1 - fp) / 0.15 : 1);
+      feat.style.opacity   = Math.max(0, op).toFixed(3);
+      feat.style.transform = `translateY(${ty.toFixed(1)}px)`;
     });
 
-    // 이름 카드: p=0.40부터 등장
-    if (p >= 0.40 && ab_namecard_el && !ab_shown.has('namecard')) {
-      ab_shown.add('namecard'); ab_namecard_el.classList.add('ab-visible');
+    // 이름 카드: p=0.90부터 등장
+    if (ab_namecard_el) {
+      const np = ease(Math.max(0, Math.min(1, (p - 0.90) / 0.08)));
+      ab_namecard_el.style.opacity   = np.toFixed(3);
+      ab_namecard_el.style.transform = `translateX(-50%) translateY(${(40 * (1 - np)).toFixed(1)}px)`;
     }
 
     // About 배경 이미지 패럴랙스 (배경이 콘텐츠보다 느리게 이동)
@@ -754,6 +766,37 @@ document.addEventListener("DOMContentLoaded", () => {
     if (ab_sticky_el) ab_sticky_el.style.backgroundPositionY = `${50 + p * 25}%`;
   };
   update_ab_scroll();
+
+  /* ══════════════════════════════════════
+     포트폴리오 섹션 — 스크롤 트래킹
+     ══════════════════════════════════════ */
+  const pf_section_el = document.getElementById("portfolio-section");
+  const pf_cards      = pf_section_el
+    ? Array.from(pf_section_el.querySelectorAll(".pf-card")) : [];
+
+  const update_pf_scroll = () => {
+    if (!pf_section_el || pf_cards.length === 0) return;
+    const rect     = pf_section_el.getBoundingClientRect();
+    const total    = pf_section_el.offsetHeight - window.innerHeight;
+    const scrolled = Math.max(0, -rect.top);
+    const p        = total > 0 ? Math.min(1, scrolled / total) : 0;
+
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    const N  = pf_cards.length;
+    const VH = window.innerHeight;
+
+    pf_cards.forEach((card, i) => {
+      const seg_start = i / N;
+      const seg_end   = (i + 1) / N;
+      const fp = Math.max(0, Math.min(1, (p - seg_start) / (seg_end - seg_start)));
+      const ty = VH * 0.65 - ease(fp) * VH * 1.15;
+      const op = fp < 0.12 ? fp / 0.12 : (fp > 0.88 ? (1 - fp) / 0.12 : 1);
+      card.style.opacity   = Math.max(0, op).toFixed(3);
+      card.style.transform = `translateY(${ty.toFixed(1)}px)`;
+    });
+  };
+  update_pf_scroll();
+
 
   /* ══════════════════════════════════════
      뒤로가기 내비게이션 (History API)
