@@ -698,21 +698,19 @@ document.addEventListener("DOMContentLoaded", () => {
       vi_trans_grad.style.opacity = t.toFixed(3);
     }
 
-    // 텍스트 블록: 스크롤에 따라 하나씩 넘어가는 인터렉션
+    // 텍스트 블록: ab-feats 방식 — 아래(+VH*0.6)에서 위(-VH*0.5)로 전체 화면 이동
+    const ease_vi     = t => 1 - Math.pow(1 - t, 3);
+    const VH_vi       = window.innerHeight;
     const thresholds  = vi_blocks.map(b => parseFloat(b.dataset.at || 0));
     const next_thresh = [...thresholds.slice(1), 1.05];
     vi_blocks.forEach((block, i) => {
-      const start = thresholds[i];
-      const end   = next_thresh[i];
-      if (p >= start && p < end) {
-        block.classList.add('vi-visible');
-        block.classList.remove('vi-leaving');
-      } else if (p >= end) {
-        block.classList.remove('vi-visible');
-        block.classList.add('vi-leaving');
-      } else {
-        block.classList.remove('vi-visible', 'vi-leaving');
-      }
+      const seg_start = thresholds[i];
+      const seg_end   = next_thresh[i];
+      const fp = Math.max(0, Math.min(1, (p - seg_start) / (seg_end - seg_start)));
+      const ty = VH_vi * 0.6 - ease_vi(fp) * VH_vi * 1.1;
+      const op = fp < 0.15 ? fp / 0.15 : (fp > 0.85 ? (1 - fp) / 0.15 : 1);
+      block.style.opacity   = Math.max(0, op).toFixed(3);
+      block.style.transform = `translateY(${ty.toFixed(1)}px)`;
     });
   };
   update_vi_scroll();
@@ -773,6 +771,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const pf_section_el = document.getElementById("portfolio-section");
   const pf_cards      = pf_section_el
     ? Array.from(pf_section_el.querySelectorAll(".pf-card")) : [];
+  const pf_penguin_el = document.getElementById("pf-penguin");
 
   const update_pf_scroll = () => {
     if (!pf_section_el || pf_cards.length === 0) return;
@@ -784,6 +783,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const ease = t => 1 - Math.pow(1 - t, 3);
     const N  = pf_cards.length;
     const VH = window.innerHeight;
+
+    // 펭귄: 화면 위쪽(-VH*0.25)에서 아래로 계속 내려가며 h-track 직전 페이드아웃
+    if (pf_penguin_el) {
+      const py     = -VH * 0.25 + ease(p) * VH * 1.3;
+      const op_in  = Math.min(1, p / 0.08);
+      const op_out = Math.max(0, 1 - (p - 0.88) / 0.12);
+      pf_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
+      pf_penguin_el.style.transform = `translateX(-50%) translateY(${py.toFixed(1)}px)`;
+    }
 
     pf_cards.forEach((card, i) => {
       const seg_start = i / N;

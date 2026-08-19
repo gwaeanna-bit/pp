@@ -1343,19 +1343,9 @@ body.splash-active .sp-ice {
   display: flex; flex-direction: column; justify-content: center; gap: 14px;
   padding: 60px 52px 60px 80px;
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1);
-  pointer-events: none;
-}
-.vi-block.vi-visible {
-  opacity: 1;
   transform: translateY(0);
-  pointer-events: auto;
-}
-.vi-block.vi-leaving {
-  opacity: 0;
-  transform: translateY(-28px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  will-change: opacity, transform;
+  pointer-events: none;
 }
 
 /* 텍스트 스타일 */
@@ -2523,6 +2513,17 @@ body.splash-active .sp-ice {
   position: absolute; top: 0; left: 0; right: 0;
   height: 40%; z-index: 1; pointer-events: none;
   background: linear-gradient(to bottom, rgba(0,10,32,1) 0%, transparent 100%);
+}
+
+#pf-penguin {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  width: clamp(180px, 22vw, 340px); height: auto;
+  z-index: 6; will-change: transform, opacity;
+  opacity: 0;
+  filter: drop-shadow(0 8px 40px rgba(0,100,200,0.45));
+  pointer-events: none;
 }
 
 /* 카드 공통 */
