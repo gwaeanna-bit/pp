@@ -686,10 +686,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (vi_text_panel_el)  vi_text_panel_el.style.transform  = `translateY(${(-p * 100).toFixed(1)}px)`;
     if (vi_image_panel_el) vi_image_panel_el.style.transform = `translateY(${(-p *  50).toFixed(1)}px)`;
 
-    // 펭귄: 위에서 아래로 내려오는 효과 (0 ~ 35% 구간)
-    const pa = Math.max(0, Math.min(1, p / 0.35));
-    vi_penguin_el.style.opacity   = pa.toFixed(3);
-    vi_penguin_el.style.transform = `translateX(-50%) translateY(${(-280 * (1 - pa)).toFixed(1)}px)`;
+    // 펭귄: 화면 위에서 아래로 계속 내려가는 인터렉션
+    const penguin_y   = -360 + p * 900;                          // 위(-360px) → 아래(540px)
+    const op_in       = Math.min(1, p / 0.10);                   // 0~10% 페이드인
+    const op_out      = Math.max(0, 1 - (p - 0.80) / 0.15);     // 80~95% 페이드아웃
+    vi_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
+    vi_penguin_el.style.transform = `translateX(-50%) translateY(${penguin_y.toFixed(1)}px)`;
 
     // 스크롤 75% 이후 전환 그라데이션
     if (vi_trans_grad) {
