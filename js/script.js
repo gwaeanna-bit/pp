@@ -739,13 +739,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const N   = ab_feats.length;
     const VH  = window.innerHeight;
 
-    // 펭귄: 전체 ab-section에 걸쳐 아래→위로 끊김 없이 물결치며 헤엄
-    const ab_py  = VH * 0.55 - ease(p) * VH * 1.15;  // 화면 하단 → 상단 한 번에 이동
-    // 물결무늬: 큰 좌우 진동 + 회전 (sin 파형, 전체 구간 5회 왕복)
-    const wave   = Math.sin(p * Math.PI * 10);
-    const ab_sx  = wave * 30;   // 좌우 ±30px
-    const ab_sr  = wave * 14;   // 회전 ±14°
-    const ab_sc  = 0.65 + p * 0.55;  // 0.65 → 1.2 (점점 가까워지는 느낌)
+    // 펭귄: 좌→우로 드리프트하며 물결치며 헤엄 (아래→위)
+    const VW     = window.innerWidth;
+    const ab_py  = VH * 0.55 - ease(p) * VH * 1.15;    // 화면 하단 → 상단
+    const drift  = -VW * 0.28 + p * VW * 0.56;          // 좌(-28vw) → 우(+28vw) 선형 이동
+    const wave   = Math.sin(p * Math.PI * 10);           // 물결 sin파 (5회 왕복)
+    const ab_sx  = drift + wave * 22;                    // 드리프트 + 물결 진동
+    const ab_sr  = wave * 13;                            // 회전 ±13°
+    const ab_sc  = 0.65 + p * 0.55;                     // 0.65 → 1.2
     const ab_op_in  = Math.min(1, p / 0.04);
     const ab_op_out = Math.max(0, 1 - (p - 0.92) / 0.06);
     ab_penguin_el.style.opacity   = Math.min(ab_op_in, ab_op_out).toFixed(3);
@@ -811,8 +812,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const fp = Math.max(0, Math.min(1, (p - seg_start) / (seg_end - seg_start)));
       const ty = VH * 0.65 - ease(fp) * VH * 1.15;
       const op = fp < 0.12 ? fp / 0.12 : (fp > 0.88 ? (1 - fp) / 0.12 : 1);
-      card.style.opacity   = Math.max(0, op).toFixed(3);
-      card.style.transform = `translateY(${ty.toFixed(1)}px)`;
+      card.style.opacity       = Math.max(0, op).toFixed(3);
+      card.style.transform     = `translateY(${ty.toFixed(1)}px)`;
+      card.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
     });
   };
   update_pf_scroll();
@@ -1033,6 +1035,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("scroll", update_penguin, { passive: true });
   window.addEventListener("resize", update_penguin);
+
+  /* ── 세로 스크롤 동반 펭귄: 스플래시 이후 ~ h-track 진입 전 항상 표시 ── */
+  const companion_el = document.getElementById("scroll-companion");
+  const update_companion = () => {
+    if (!companion_el) return;
+    const in_h = h_track && window.scrollY >= h_track.offsetTop - window.innerHeight * 0.3;
+    const past_splash = window.scrollY > window.innerHeight * 0.4;
+    if (past_splash && !in_h) {
+      companion_el.classList.add("visible");
+    } else {
+      companion_el.classList.remove("visible");
+    }
+  };
+  window.addEventListener("scroll", update_companion, { passive: true });
+  window.addEventListener("load",   update_companion);
+  update_companion();
 
   /* ── 영상 스킵 버튼: 누르면 수중화면(img9/10/11)으로 ── */
   const video_skip_btn = document.getElementById("video-skip-btn");
