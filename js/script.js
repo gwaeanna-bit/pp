@@ -661,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setup_h_track();
   window.addEventListener("load",   () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_nav_history(); });
   window.addEventListener("resize", () => { setup_h_track(); update_h_scroll(); update_vi_scroll(); update_ab_scroll(); });
-  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_pf_scroll(); update_nav_history(); }, { passive: true });
+  window.addEventListener("scroll", () => { update_h_scroll(); update_vi_scroll(); update_ab_scroll(); update_nav_history(); }, { passive: true });
 
   /* ══════════════════════════════════════
      소개 세로 스크롤 섹션 — 스크롤 트래킹
@@ -779,45 +779,79 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ══════════════════════════════════════
      포트폴리오 섹션 — 스크롤 트래킹
      ══════════════════════════════════════ */
-  const pf_section_el = document.getElementById("portfolio-section");
-  const pf_cards      = pf_section_el
-    ? Array.from(pf_section_el.querySelectorAll(".pf-card")) : [];
-  const pf_penguin_el = document.getElementById("pf-penguin");
+  /* ══════════════════════════════════════
+     포트폴리오 덱 — 탭 클릭 인터랙션
+     ══════════════════════════════════════ */
+  const pf_cards_data = [
+    { num:'01', cat:'Web UX/UI · 2026',  title:'rom&nd',   subtitle:'Global Website', color:'#EF749B', tags:['UX Research','Web UI','HTML/CSS/JS'] },
+    { num:'02', cat:'App UX/UI · 2026',  title:'집사인생', subtitle:'Jibsa Life',     color:'#6D59F8', tags:['App Design','AI Chatbot','Figma'] },
+    { num:'03', cat:'Web UX/UI · 2025',  title:'삼양식품', subtitle:'SAMYANG Website',color:'#E8001B', tags:['Web UI','Brand Design','HTML/CSS/JS'] },
+    { num:'04', cat:'App UX/UI · 2026',  title:'스파이 요가', subtitle:'Spy Yoga',    color:'#4CAF8A', tags:['App Design','Fitness','Figma'] },
+  ];
 
-  const update_pf_scroll = () => {
-    if (!pf_section_el || pf_cards.length === 0) return;
-    const rect     = pf_section_el.getBoundingClientRect();
-    const total    = pf_section_el.offsetHeight - window.innerHeight;
-    const scrolled = Math.max(0, -rect.top);
-    const p        = total > 0 ? Math.min(1, scrolled / total) : 0;
+  let pf_active_idx = 0;
 
-    const ease = t => 1 - Math.pow(1 - t, 3);
-    const N  = pf_cards.length;
-    const VH = window.innerHeight;
+  const pf_mc_els    = Array.from(document.querySelectorAll('.pf-main-card'));
+  const pf_tab_els   = Array.from(document.querySelectorAll('.pf-tab'));
+  const pf_deck_bg   = document.getElementById('pf-deck-bg');
+  const pf_ghost1_el = document.getElementById('pf-ghost-1');
+  const pf_ghost2_el = document.getElementById('pf-ghost-2');
+  const pf_fl_left   = document.getElementById('pf-float-left');
+  const pf_fl_right  = document.getElementById('pf-float-right');
 
-    // 펭귄: 화면 위쪽(-VH*0.25)에서 아래로 계속 내려가며 h-track 직전 페이드아웃
-    if (pf_penguin_el) {
-      const py     = -VH * 0.25 + ease(p) * VH * 1.3;
-      const op_in  = Math.min(1, p / 0.08);
-      const op_out = Math.max(0, 1 - (p - 0.82) / 0.10);
-      const pf_swim_x = Math.sin(p * Math.PI * 6) * 22;
-      const pf_swim_r = Math.sin(p * Math.PI * 6) * 10;
-      pf_penguin_el.style.opacity   = Math.min(op_in, op_out).toFixed(3);
-      pf_penguin_el.style.transform = `translateX(calc(-50% + ${pf_swim_x.toFixed(1)}px)) translateY(${py.toFixed(1)}px) rotate(${pf_swim_r.toFixed(1)}deg)`;
-    }
-
-    pf_cards.forEach((card, i) => {
-      const seg_start = i / N;
-      const seg_end   = (i + 1) / N;
-      const fp = Math.max(0, Math.min(1, (p - seg_start) / (seg_end - seg_start)));
-      const ty = VH * 0.65 - ease(fp) * VH * 1.15;
-      const op = fp < 0.12 ? fp / 0.12 : (fp > 0.88 ? (1 - fp) / 0.12 : 1);
-      card.style.opacity       = Math.max(0, op).toFixed(3);
-      card.style.transform     = `translateY(${ty.toFixed(1)}px)`;
-      card.style.pointerEvents = op > 0.5 ? 'auto' : 'none';
-    });
+  const pf_build_float = (el, idx) => {
+    if (!el) return;
+    const d = pf_cards_data[idx];
+    if (!d) { el.style.visibility = 'hidden'; return; }
+    el.style.visibility = '';
+    el.innerHTML =
+      `<div class="pf-float-num">${d.num}</div>` +
+      `<div class="pf-float-title">${d.title}<br/><span style="font-style:italic;font-family:'DM Serif Display',serif;color:${d.color};font-size:10px;">${d.subtitle}</span></div>` +
+      `<div class="pf-float-tags">${d.tags.map(t => `<span>${t}</span>`).join('')}</div>` +
+      `<div class="pf-float-dot" style="background:${d.color};"></div>`;
   };
-  update_pf_scroll();
+
+  const pf_apply_color = (c) => {
+    if (pf_ghost1_el) pf_ghost1_el.style.background = `${c}12`;
+    if (pf_ghost2_el) pf_ghost2_el.style.background = `${c}07`;
+    if (pf_deck_bg)   pf_deck_bg.style.background =
+      `radial-gradient(ellipse 65% 65% at 50% 38%, ${c}1E, transparent 72%)`;
+  };
+
+  const pf_switch = (next_idx) => {
+    if (next_idx === pf_active_idx) return;
+    const cur_el = pf_mc_els[pf_active_idx];
+    const nxt_el = pf_mc_els[next_idx];
+    if (!cur_el || !nxt_el) return;
+
+    cur_el.classList.remove('active');
+    cur_el.classList.add('exit-up');
+    setTimeout(() => cur_el.classList.remove('exit-up'), 500);
+
+    pf_tab_els[pf_active_idx] && pf_tab_els[pf_active_idx].classList.remove('active');
+    pf_tab_els[next_idx]      && pf_tab_els[next_idx].classList.add('active');
+
+    pf_active_idx = next_idx;
+    nxt_el.classList.add('active');
+    pf_apply_color(pf_cards_data[next_idx].color);
+
+    const N = pf_cards_data.length;
+    pf_build_float(pf_fl_left,  (next_idx - 1 + N) % N);
+    pf_build_float(pf_fl_right, (next_idx + 1) % N);
+  };
+
+  const init_pf_deck = () => {
+    if (pf_mc_els[0]) pf_mc_els[0].classList.add('active');
+    pf_apply_color(pf_cards_data[0].color);
+    const N = pf_cards_data.length;
+    pf_build_float(pf_fl_left,  N - 1);
+    pf_build_float(pf_fl_right, 1);
+
+    if (pf_fl_left)  pf_fl_left.addEventListener('click',  () => pf_switch((pf_active_idx - 1 + N) % N));
+    if (pf_fl_right) pf_fl_right.addEventListener('click', () => pf_switch((pf_active_idx + 1) % N));
+    pf_tab_els.forEach((tab, i) => tab.addEventListener('click', () => pf_switch(i)));
+  };
+  init_pf_deck();
 
 
   /* ══════════════════════════════════════

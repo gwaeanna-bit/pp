@@ -253,134 +253,123 @@
 
   <!-- ══ 포트폴리오 섹션 (세로 스크롤) ══ -->
   <section id="portfolio-section">
-    <div id="pf-sticky">
-      <!-- 배경 -->
-      <div id="pf-bg-grad"></div>
-      <img id="pf-penguin" src="img/img10.png" alt="포트폴리오 펭귄" draggable="false" />
+    <div id="pf-deck-wrap">
+      <!-- 배경 그라디언트 (JS로 색상 변경) -->
+      <div id="pf-deck-bg"></div>
 
-      <!-- 카드 1: romand -->
-      <div class="pf-card" id="pf-card-0">
-        <div class="pfc-inner">
-          <div class="pfc-left">
-            <div class="pfc-num">01</div>
-            <div class="pfc-cat">Web UX/UI · 2026</div>
-            <h2 class="pfc-title">rom&amp;nd<br/><em style="color:#EF749B;">Global</em><br/>Website</h2>
-            <p class="pfc-desc">글로벌 뷰티 브랜드 공식 웹사이트 UX/UI 개선.<br/>65명 리서치 기반 퍼스널컬러 진단·핑크오피스 페이지 신설.</p>
-            <div class="pfc-tags">
-              <span>UX Research</span><span>Web UI</span><span>HTML/CSS/JS</span><span>K-Beauty</span>
+      <!-- 고스트 카드 (깊이감) -->
+      <div class="pf-ghost pf-ghost-2" id="pf-ghost-2"></div>
+      <div class="pf-ghost pf-ghost-1" id="pf-ghost-1"></div>
+
+      <!-- 메인 카드 1: rom&nd -->
+      <div class="pf-main-card" id="pf-mc-0" data-color="#EF749B">
+        <div class="pmc-num">01</div>
+        <div class="pmc-cat">Web UX/UI · 2026</div>
+        <h2 class="pmc-title">rom&amp;nd<br/><em style="color:#EF749B;">Global Website</em></h2>
+        <div class="pmc-visual">
+          <div class="pmc-browser">
+            <div class="pm-bar"><div class="pm-dots"><span style="background:#FF5F57"></span><span style="background:#FFBD2E"></span><span style="background:#28C840"></span></div><div class="pm-url">en.romand.co.kr</div></div>
+            <div class="pm-body" style="background:linear-gradient(160deg,#FEE3EC,#FAFCFF);">
+              <div style="font-weight:900;font-size:12px;color:#353535;margin-bottom:6px;">rom&nd</div>
+              <div style="font-size:14px;font-weight:800;color:#353535;line-height:1.3;margin-bottom:10px;">A New Color.<br/>That Will Wake You Up.</div>
+              <div style="display:flex;gap:5px;margin-bottom:10px;">
+                <div style="width:20px;height:20px;border-radius:50%;background:#C94073;"></div>
+                <div style="width:20px;height:20px;border-radius:50%;background:#E8748A;"></div>
+                <div style="width:20px;height:20px;border-radius:50%;background:#F9A8C0;"></div>
+                <div style="width:20px;height:20px;border-radius:50%;background:#D4789A;"></div>
+              </div>
+              <div style="background:#EF749B;color:#fff;display:inline-block;padding:4px 12px;border-radius:50px;font-size:10px;font-weight:700;">✨ 퍼스널컬러 진단</div>
             </div>
-            <a href="romand.html" class="pfc-btn" style="background:#EF749B;">케이스 스터디 보기 →</a>
           </div>
-          <div class="pfc-right">
-            <div class="pfc-mockup-browser">
-              <div class="pm-bar"><div class="pm-dots"><span style="background:#FF5F57"></span><span style="background:#FFBD2E"></span><span style="background:#28C840"></span></div><div class="pm-url">en.romand.co.kr</div></div>
-              <div class="pm-body" style="background:linear-gradient(160deg,#FEE3EC,#FAFCFF);">
-                <div style="font-weight:900;font-size:13px;margin-bottom:10px;color:#353535;">rom&nd</div>
-                <div style="font-size:16px;font-weight:800;line-height:1.2;color:#353535;margin-bottom:10px;">A New Color.<br/>That Will Wake You Up.</div>
-                <div style="display:flex;gap:5px;margin-bottom:12px;">
-                  <div style="width:22px;height:22px;border-radius:50%;background:#C94073;"></div>
-                  <div style="width:22px;height:22px;border-radius:50%;background:#E8748A;"></div>
-                  <div style="width:22px;height:22px;border-radius:50%;background:#F9A8C0;"></div>
-                  <div style="width:22px;height:22px;border-radius:50%;background:#F5D0A0;"></div>
-                  <div style="width:22px;height:22px;border-radius:50%;background:#D4789A;"></div>
-                </div>
-                <div style="background:#EF749B;color:#fff;display:inline-block;padding:5px 14px;border-radius:50px;font-size:10px;font-weight:700;">✨ 퍼스널컬러 진단</div>
+        </div>
+        <div class="pmc-tags"><span>UX Research</span><span>Web UI</span><span>HTML/CSS/JS</span></div>
+        <a href="romand.html" class="pmc-btn" style="background:#EF749B;">케이스 스터디 보기 →</a>
+      </div>
+
+      <!-- 메인 카드 2: 집사인생 -->
+      <div class="pf-main-card" id="pf-mc-1" data-color="#6D59F8">
+        <div class="pmc-num">02</div>
+        <div class="pmc-cat">App UX/UI · 2026</div>
+        <h2 class="pmc-title">집사인생<br/><em style="color:#6D59F8;">Jibsa Life</em></h2>
+        <div class="pmc-visual">
+          <div class="pmc-phone">
+            <div class="pp-screen" style="background:linear-gradient(160deg,#6D59F811,#04021a);">
+              <div style="color:#6D59F8;font-weight:800;font-size:12px;margin-bottom:8px;">집사인생 🐾</div>
+              <div class="pp-chat">
+                <div class="pp-bubble ai">오늘 우리 아이 밥은 잘 먹었나요?</div>
+                <div class="pp-bubble user" style="background:#6D59F8;">조금 적게 먹은 것 같아요</div>
+                <div class="pp-bubble ai">식욕 저하가 감지됐어요!</div>
+              </div>
+              <div style="margin-top:10px;background:#6D59F8;border-radius:8px;padding:7px 10px;color:#fff;font-size:10px;text-align:center;font-weight:700;">AI 건강 진단 시작하기</div>
+            </div>
+          </div>
+        </div>
+        <div class="pmc-tags"><span>App Design</span><span>AI Chatbot</span><span>Figma</span></div>
+        <a href="jibsalife.html" class="pmc-btn" style="background:#6D59F8;">케이스 스터디 보기 →</a>
+      </div>
+
+      <!-- 메인 카드 3: 삼양식품 -->
+      <div class="pf-main-card" id="pf-mc-2" data-color="#E8001B">
+        <div class="pmc-num">03</div>
+        <div class="pmc-cat">Web UX/UI · 2025</div>
+        <h2 class="pmc-title">삼양식품<br/><em style="color:#E8001B;">SAMYANG Website</em></h2>
+        <div class="pmc-visual">
+          <div class="pmc-browser">
+            <div class="pm-bar"><div class="pm-dots"><span style="background:#FF5F57"></span><span style="background:#FFBD2E"></span><span style="background:#28C840"></span></div><div class="pm-url">samyangfood.com</div></div>
+            <div class="pm-body" style="background:linear-gradient(160deg,#1a0000,#3d0000);">
+              <div style="font-weight:900;font-size:10px;letter-spacing:2px;color:#E8001B;margin-bottom:5px;">SAMYANG FOODS</div>
+              <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:10px;">🔥 불닭볶음면<br/>세계를 달구다</div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <div style="background:#E8001B;color:#fff;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;">🌶 불닭</div>
+                <div style="background:rgba(232,0,27,0.2);color:#ff8888;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;border:1px solid #E8001B44;">까르보</div>
               </div>
             </div>
           </div>
         </div>
+        <div class="pmc-tags"><span>Web UI</span><span>Brand Design</span><span>HTML/CSS/JS</span></div>
+        <a href="samyang.html" class="pmc-btn" style="background:#E8001B;">케이스 스터디 보기 →</a>
       </div>
 
-      <!-- 카드 2: 집사인생 -->
-      <div class="pf-card" id="pf-card-1">
-        <div class="pfc-inner">
-          <div class="pfc-left">
-            <div class="pfc-num">02</div>
-            <div class="pfc-cat">App UX/UI · 2026</div>
-            <h2 class="pfc-title">집사인생<br/><em style="color:#6D59F8;">Jibsa Life</em></h2>
-            <p class="pfc-desc">반려동물 AI 챗봇으로 건강상태를 체크하는 앱.<br/>보호자와 반려동물을 잇는 스마트 헬스케어 서비스.</p>
-            <div class="pfc-tags">
-              <span>App Design</span><span>AI Chatbot</span><span>Healthcare</span><span>Figma</span>
-            </div>
-            <a href="jibsalife.html" class="pfc-btn" style="background:#6D59F8;">케이스 스터디 보기 →</a>
-          </div>
-          <div class="pfc-right">
-            <div class="pfc-mockup-phone" style="border-color:#6D59F822;">
-              <div class="pp-screen" style="background:linear-gradient(160deg,#6D59F811,#04021a);">
-                <div style="color:#6D59F8;font-weight:800;font-size:13px;margin-bottom:8px;">집사인생 🐾</div>
-                <div class="pp-chat">
-                  <div class="pp-bubble ai">오늘 우리 아이 밥은 잘 먹었나요?</div>
-                  <div class="pp-bubble user" style="background:#6D59F8;">조금 적게 먹은 것 같아요</div>
-                  <div class="pp-bubble ai">식욕 저하가 감지됐어요. 체온도 체크해볼까요?</div>
-                </div>
-                <div style="margin-top:12px;background:#6D59F8;border-radius:10px;padding:8px 12px;color:#fff;font-size:10px;text-align:center;font-weight:700;">AI 건강 진단 시작하기</div>
+      <!-- 메인 카드 4: 스파이 요가 -->
+      <div class="pf-main-card" id="pf-mc-3" data-color="#4CAF8A">
+        <div class="pmc-num">04</div>
+        <div class="pmc-cat">App UX/UI · 2026</div>
+        <h2 class="pmc-title">스파이 요가<br/><em style="color:#4CAF8A;">Spy Yoga</em></h2>
+        <div class="pmc-visual">
+          <div class="pmc-phone">
+            <div class="pp-screen" style="background:linear-gradient(160deg,#4CAF8A11,#020f0a);">
+              <div style="color:#4CAF8A;font-weight:800;font-size:12px;margin-bottom:8px;">SPY YOGA 🕵️</div>
+              <div style="background:rgba(76,175,138,0.15);border:1px solid rgba(76,175,138,0.3);border-radius:9px;padding:9px;margin-bottom:7px;">
+                <div style="color:#4CAF8A;font-size:9px;font-weight:700;margin-bottom:3px;">MISSION 01</div>
+                <div style="color:#fff;font-size:11px;font-weight:600;">태양 경배 자세 × 5세트</div>
+              </div>
+              <div style="background:rgba(76,175,138,0.07);border:1px solid rgba(76,175,138,0.15);border-radius:9px;padding:9px;">
+                <div style="color:#4CAF8A;font-size:9px;font-weight:700;margin-bottom:3px;">MISSION 02</div>
+                <div style="color:rgba(255,255,255,0.45);font-size:11px;font-weight:600;">전사 자세 × 3세트</div>
               </div>
             </div>
           </div>
         </div>
+        <div class="pmc-tags"><span>App Design</span><span>Fitness</span><span>Figma</span></div>
+        <span class="pmc-btn pmc-soon">케이스 스터디 준비 중</span>
       </div>
 
-      <!-- 카드 3: 삼양식품 -->
-      <div class="pf-card" id="pf-card-2">
-        <div class="pfc-inner">
-          <div class="pfc-left">
-            <div class="pfc-num">03</div>
-            <div class="pfc-cat">Web UX/UI · 2025</div>
-            <h2 class="pfc-title">삼양식품<br/><em style="color:#E8001B;">SAMYANG</em><br/>Website</h2>
-            <p class="pfc-desc">불닭 시리즈로 글로벌 팬덤을 보유한 삼양식품의<br/>브랜드 웹사이트 리디자인 프로젝트.</p>
-            <div class="pfc-tags">
-              <span>Web UI</span><span>Brand Design</span><span>HTML/CSS/JS</span><span>Food</span>
-            </div>
-            <a href="https://gwaeanna-bit.github.io/samyangfood.com/" target="_blank" class="pfc-btn" style="background:#E8001B;">사이트 보기 →</a>
-          </div>
-          <div class="pfc-right">
-            <div class="pfc-mockup-browser">
-              <div class="pm-bar"><div class="pm-dots"><span style="background:#FF5F57"></span><span style="background:#FFBD2E"></span><span style="background:#28C840"></span></div><div class="pm-url">samyangfood.com</div></div>
-              <div class="pm-body" style="background:linear-gradient(160deg,#1a0000,#3d0000);">
-                <div style="font-weight:900;font-size:11px;letter-spacing:2px;color:#E8001B;margin-bottom:6px;">SAMYANG FOODS</div>
-                <div style="font-size:15px;font-weight:800;line-height:1.3;color:#fff;margin-bottom:10px;">🔥 불닭볶음면<br/>세계를 달구다</div>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                  <div style="background:#E8001B;color:#fff;padding:4px 10px;border-radius:20px;font-size:9px;font-weight:700;">🌶 불닭</div>
-                  <div style="background:rgba(232,0,27,0.2);color:#ff6666;padding:4px 10px;border-radius:20px;font-size:9px;font-weight:700;border:1px solid #E8001B44;">까르보</div>
-                  <div style="background:rgba(232,0,27,0.2);color:#ff6666;padding:4px 10px;border-radius:20px;font-size:9px;font-weight:700;border:1px solid #E8001B44;">마라</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- 플로팅 사이드 카드 -->
+      <div class="pf-float-card" id="pf-float-left"></div>
+      <div class="pf-float-card" id="pf-float-right"></div>
+
+      <!-- 섹션 레이블 -->
+      <div id="pf-header">
+        <div class="pf-header-label">Portfolio</div>
       </div>
 
-      <!-- 카드 4: 스파이 요가 -->
-      <div class="pf-card" id="pf-card-3">
-        <div class="pfc-inner">
-          <div class="pfc-left">
-            <div class="pfc-num">04</div>
-            <div class="pfc-cat">App UX/UI · 2026</div>
-            <h2 class="pfc-title">스파이 요가<br/><em style="color:#4CAF8A;">Spy Yoga</em></h2>
-            <p class="pfc-desc">스파이 컨셉의 요가 앱.<br/>미션처럼 하루 루틴을 완성하는 독특한 UX 경험.</p>
-            <div class="pfc-tags">
-              <span>App Design</span><span>Fitness</span><span>UX/UI</span><span>Figma</span>
-            </div>
-            <span class="pfc-btn pfc-soon">케이스 스터디 준비 중</span>
-          </div>
-          <div class="pfc-right">
-            <div class="pfc-mockup-phone" style="border-color:#4CAF8A22;">
-              <div class="pp-screen" style="background:linear-gradient(160deg,#4CAF8A11,#020f0a);">
-                <div style="color:#4CAF8A;font-weight:800;font-size:13px;margin-bottom:8px;">SPY YOGA 🕵️</div>
-                <div style="background:rgba(76,175,138,0.15);border:1px solid rgba(76,175,138,0.3);border-radius:10px;padding:10px;margin-bottom:8px;">
-                  <div style="color:#4CAF8A;font-size:10px;font-weight:700;">MISSION 01</div>
-                  <div style="color:#fff;font-size:12px;font-weight:600;margin-top:3px;">태양 경배 자세 × 5세트</div>
-                </div>
-                <div style="background:rgba(76,175,138,0.08);border:1px solid rgba(76,175,138,0.15);border-radius:10px;padding:10px;">
-                  <div style="color:#4CAF8A;font-size:10px;font-weight:700;">MISSION 02</div>
-                  <div style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;margin-top:3px;">전사 자세 × 3세트</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- 하단 탭 네비게이션 -->
+      <div id="pf-tabs">
+        <button class="pf-tab active" data-idx="0">rom&amp;nd</button>
+        <button class="pf-tab" data-idx="1">집사인생</button>
+        <button class="pf-tab" data-idx="2">삼양식품</button>
+        <button class="pf-tab" data-idx="3">스파이 요가</button>
       </div>
-
     </div>
   </section>
 
