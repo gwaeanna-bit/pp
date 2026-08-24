@@ -224,19 +224,37 @@
     .ba-section { background: var(--bg-dark); }
     .ba-section .section-title { color: #fff; }
     .ba-section .section-desc { color: rgba(255,255,255,0.5); }
-    .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 56px; }
-    .ba-card { border-radius: var(--radius); padding: 32px; }
-    .ba-card.before { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-    .ba-card.after  { background: rgba(232,0,27,0.1);   border: 1px solid rgba(232,0,27,0.3); }
-    .ba-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; }
-    .ba-card.before .ba-label { color: rgba(255,255,255,0.35); }
+    .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 56px; align-items: start; }
+    .ba-card { border-radius: var(--radius); overflow: hidden; }
+    .ba-card.before { border: 1px solid rgba(255,255,255,0.1); }
+    .ba-card.after  { border: 1px solid rgba(232,0,27,0.4); box-shadow: 0 0 40px rgba(232,0,27,0.15); }
+    .ba-label-bar { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .ba-card.before .ba-label-bar { background: rgba(255,255,255,0.05); }
+    .ba-card.after  .ba-label-bar { background: rgba(232,0,27,0.15); }
+    .ba-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+    .ba-card.before .ba-label { color: rgba(255,255,255,0.4); }
     .ba-card.after  .ba-label { color: var(--red-main); }
-    .ba-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-    .ba-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; line-height: 1.5; }
-    .ba-card.before .ba-list li { color: rgba(255,255,255,0.45); }
-    .ba-card.after  .ba-list li { color: rgba(255,255,255,0.85); }
-    .ba-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
-    .ba-card.before .ba-icon { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+    .ba-link { font-size: 11px; text-decoration: none; padding: 5px 12px; border-radius: 20px; font-weight: 600; transition: all 0.2s; }
+    .ba-card.before .ba-link { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+    .ba-card.before .ba-link:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .ba-card.after  .ba-link { background: var(--red-main); color: #fff; }
+    .ba-card.after  .ba-link:hover { background: var(--red-light); }
+    /* 브라우저 목업 */
+    .ba-browser { background: #111; }
+    .ba-browser-bar { padding: 8px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .ba-dots { display: flex; gap: 5px; }
+    .ba-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .ba-url-bar { flex: 1; background: rgba(255,255,255,0.06); border-radius: 5px; padding: 4px 10px; font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ba-screen { width: 100%; aspect-ratio: 16/10; overflow: hidden; display: flex; align-items: flex-start; }
+    .ba-screen-before { background: linear-gradient(180deg, #f5f5f5 0%, #ececec 100%); padding: 20px; flex-direction: column; gap: 10px; display: flex; }
+    .ba-screen-after  { background: linear-gradient(160deg, #1a0000, #0d0000); padding: 20px; flex-direction: column; gap: 10px; display: flex; }
+    /* 항목 목록 */
+    .ba-points { padding: 24px; background: rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 10px; }
+    .ba-point { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.5; }
+    .ba-card.before .ba-point { color: rgba(255,255,255,0.4); }
+    .ba-card.after  .ba-point { color: rgba(255,255,255,0.85); }
+    .ba-icon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; margin-top: 2px; }
+    .ba-card.before .ba-icon { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.3); }
     .ba-card.after  .ba-icon { background: var(--red-main); color: #fff; }
 
     /* ── CTA ── */
@@ -518,28 +536,108 @@
   <div class="section-inner">
     <div class="section-label" style="color:rgba(232,0,27,0.7);">Before / After</div>
     <h2 class="section-title" style="color:#fff;">무엇이 <em style="color:var(--red-main);font-family:'DM Serif Display',serif;font-style:italic;">달라졌나</em></h2>
-    <p class="section-desc">리뉴얼 전후를 비교해 핵심 변화를 확인하세요.</p>
+    <p class="section-desc">리뉴얼 전후를 직접 비교해보세요.</p>
     <div class="ba-grid">
+
+      <!-- BEFORE -->
       <div class="ba-card before">
-        <div class="ba-label">✗ Before — 기존 사이트</div>
-        <ul class="ba-list">
-          <li><div class="ba-icon">✕</div>브랜드 에너지가 느껴지지 않는 밋밋한 비주얼</li>
-          <li><div class="ba-icon">✕</div>글로벌 감각이 부족한 레이아웃과 타이포그래피</li>
-          <li><div class="ba-icon">✕</div>제품 라인업 탐색이 불편한 구조</li>
-          <li><div class="ba-icon">✕</div>브랜드 스토리가 부재한 정적인 페이지</li>
-          <li><div class="ba-icon">✕</div>인터랙션 없는 일방향적 정보 전달</li>
-        </ul>
+        <div class="ba-label-bar">
+          <span class="ba-label">✗ Before — 리뉴얼 전</span>
+          <a href="https://www.samyangfoods.com/kor/index.do" target="_blank" class="ba-link">원본 보기 ↗</a>
+        </div>
+        <div class="ba-browser">
+          <div class="ba-browser-bar">
+            <div class="ba-dots">
+              <span style="background:#FF5F57"></span>
+              <span style="background:#FFBD2E"></span>
+              <span style="background:#28C840"></span>
+            </div>
+            <div class="ba-url-bar">https://www.samyangfoods.com/kor/index.do</div>
+          </div>
+          <div class="ba-screen ba-screen-before" style="background:linear-gradient(180deg,#f5f4f0,#e8e6df);">
+            <!-- 구 사이트 느낌: 흰/회색 배경, 작은 로고, 메뉴 텍스트 나열 -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:2px solid #c00;">
+              <div style="font-size:13px;font-weight:900;color:#c00;letter-spacing:1px;">SAMYANG</div>
+              <div style="display:flex;gap:12px;">
+                <span style="font-size:9px;color:#555;">회사소개</span>
+                <span style="font-size:9px;color:#555;">제품</span>
+                <span style="font-size:9px;color:#555;">뉴스</span>
+                <span style="font-size:9px;color:#555;">IR</span>
+              </div>
+            </div>
+            <div style="text-align:center;padding:20px 0 12px;">
+              <div style="font-size:9px;color:#888;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;">Samyang Foods Co., Ltd.</div>
+              <div style="font-size:14px;font-weight:700;color:#333;line-height:1.4;">글로벌 식품기업<br/>삼양식품</div>
+              <div style="width:50px;height:2px;background:#c00;margin:10px auto;"></div>
+              <div style="font-size:9px;color:#999;line-height:1.7;">제품소개 · 브랜드 · 뉴스 · 채용</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px;">
+              <div style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:8px;text-align:center;">
+                <div style="font-size:18px;">🍜</div>
+                <div style="font-size:8px;color:#666;margin-top:4px;">불닭볶음면</div>
+              </div>
+              <div style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:8px;text-align:center;">
+                <div style="font-size:18px;">🥘</div>
+                <div style="font-size:8px;color:#666;margin-top:4px;">삼양라면</div>
+              </div>
+              <div style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:8px;text-align:center;">
+                <div style="font-size:18px;">🧀</div>
+                <div style="font-size:8px;color:#666;margin-top:4px;">까르보불닭</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ba-points">
+          <div class="ba-point"><div class="ba-icon">✕</div>브랜드 에너지가 느껴지지 않는 밋밋한 비주얼</div>
+          <div class="ba-point"><div class="ba-icon">✕</div>글로벌 감각이 부족한 레이아웃과 타이포그래피</div>
+          <div class="ba-point"><div class="ba-icon">✕</div>제품 라인업 탐색이 불편한 구조</div>
+          <div class="ba-point"><div class="ba-icon">✕</div>정적인 페이지, 인터랙션 없음</div>
+        </div>
       </div>
+
+      <!-- AFTER -->
       <div class="ba-card after">
-        <div class="ba-label">✓ After — 리뉴얼 사이트</div>
-        <ul class="ba-list">
-          <li><div class="ba-icon">✓</div>불닭 레드 기반 강렬한 브랜드 비주얼 시스템</li>
-          <li><div class="ba-icon">✓</div>글로벌 스탠다드 타이포그래피와 레이아웃</li>
-          <li><div class="ba-icon">✓</div>직관적인 제품 카테고리 및 탐색 UX</li>
-          <li><div class="ba-icon">✓</div>창립부터 글로벌까지 브랜드 스토리텔링</li>
-          <li><div class="ba-icon">✓</div>스크롤 애니메이션과 인터랙티브 경험</li>
-        </ul>
+        <div class="ba-label-bar">
+          <span class="ba-label">✓ After — 리뉴얼 후</span>
+          <a href="https://gwaeanna-bit.github.io/samyangfood.com/" target="_blank" class="ba-link">사이트 보기 ↗</a>
+        </div>
+        <div class="ba-browser">
+          <div class="ba-browser-bar">
+            <div class="ba-dots">
+              <span style="background:#FF5F57"></span>
+              <span style="background:#FFBD2E"></span>
+              <span style="background:#28C840"></span>
+            </div>
+            <div class="ba-url-bar">gwaeanna-bit.github.io/samyangfood.com/</div>
+          </div>
+          <div class="ba-screen ba-screen-after">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:12px;font-weight:900;color:#fff;letter-spacing:2px;">SAMYANG<span style="color:#E8001B;">.</span></div>
+              <div style="display:flex;gap:12px;">
+                <span style="font-size:9px;color:rgba(255,255,255,0.5);">Brand</span>
+                <span style="font-size:9px;color:rgba(255,255,255,0.5);">Products</span>
+                <span style="font-size:9px;color:rgba(255,255,255,0.5);">Story</span>
+              </div>
+            </div>
+            <div style="margin-top:14px;">
+              <div style="font-size:9px;color:#E8001B;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">🔥 Global Spicy Brand</div>
+              <div style="font-size:18px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:-0.5px;">불닭이<br/>세계를<br/>달군다</div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;">
+              <div style="background:#E8001B;color:#fff;padding:4px 10px;border-radius:20px;font-size:8px;font-weight:700;">🌶 불닭</div>
+              <div style="background:rgba(232,0,27,0.2);color:#FF8C8C;padding:4px 10px;border-radius:20px;font-size:8px;font-weight:700;border:1px solid rgba(232,0,27,0.4);">까르보</div>
+              <div style="background:rgba(232,0,27,0.2);color:#FF8C8C;padding:4px 10px;border-radius:20px;font-size:8px;font-weight:700;border:1px solid rgba(232,0,27,0.4);">마라</div>
+            </div>
+          </div>
+        </div>
+        <div class="ba-points">
+          <div class="ba-point"><div class="ba-icon">✓</div>불닭 레드 기반 강렬한 브랜드 비주얼 시스템</div>
+          <div class="ba-point"><div class="ba-icon">✓</div>글로벌 스탠다드 타이포그래피와 레이아웃</div>
+          <div class="ba-point"><div class="ba-icon">✓</div>직관적인 제품 탐색 UX와 스토리텔링</div>
+          <div class="ba-point"><div class="ba-icon">✓</div>스크롤 애니메이션과 인터랙티브 경험</div>
+        </div>
       </div>
+
     </div>
   </div>
 </section>
