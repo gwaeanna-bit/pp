@@ -1355,6 +1355,7 @@ body.splash-active .sp-ice {
 
 /* 스크롤 등장 펭귄 (중앙 — 그리드 경계) */
 #vi-penguin {
+  display: none; /* scroll-companion으로 통합 */
   position: absolute;
   left: 50%; top: 50%;
   margin-top: -140px;
@@ -1415,6 +1416,7 @@ body.splash-active .sp-ice {
 
 /* about 섹션 펭귄 */
 #ab-penguin {
+  display: none; /* scroll-companion으로 통합 */
   position: absolute;
   left: 50%; bottom: -200px;
   transform: translateX(-50%);
@@ -2536,6 +2538,7 @@ body.splash-active .sp-ice {
 }
 
 #pf-penguin {
+  display: none; /* scroll-companion으로 통합 */
   position: absolute;
   left: 50%; top: 50%;
   transform: translateX(-50%) translateY(-100px);
@@ -2625,3 +2628,26 @@ body.splash-active .sp-ice {
   background: #0a0a16;
 }
 .pfc-mockup-phone .pp-screen { padding: 20px 16px; min-height: 300px; border-radius: 30px; }
+
+/* ══ 세로 스크롤 고정 동반 펭귄 ══ */
+#scroll-companion {
+  position: fixed;
+  right: 3.5vw;
+  bottom: 6vh;
+  width: clamp(55px, 7vw, 110px);
+  height: auto;
+  opacity: 0;
+  z-index: 90;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 4px 22px rgba(0,80,200,0.4));
+  transition: opacity 0.8s ease;
+  animation: companion-bob 2.4s ease-in-out infinite;
+}
+#scroll-companion.visible {
+  opacity: 0.85;
+}
+@keyframes companion-bob {
+  0%, 100% { transform: translateY(0px)   rotate(-6deg); }
+  50%       { transform: translateY(-14px) rotate(6deg);  }
+}
