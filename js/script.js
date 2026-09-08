@@ -780,78 +780,108 @@ document.addEventListener("DOMContentLoaded", () => {
      포트폴리오 섹션 — 스크롤 트래킹
      ══════════════════════════════════════ */
   /* ══════════════════════════════════════
-     포트폴리오 덱 — 탭 클릭 인터랙션
+     WORKS 섹션 — 드래그 스크롤 + 3D 틸트
      ══════════════════════════════════════ */
-  const pf_cards_data = [
-    { num:'01', cat:'Web UX/UI · 2026',  title:'rom&nd',   subtitle:'Global Website', color:'#EF749B', tags:['UX Research','Web UI','HTML/CSS/JS'] },
-    { num:'02', cat:'App UX/UI · 2026',  title:'집사인생', subtitle:'Jibsa Life',     color:'#6D59F8', tags:['App Design','AI Chatbot','Figma'] },
-    { num:'03', cat:'Web UX/UI · 2025',  title:'삼양식품', subtitle:'SAMYANG Website',color:'#E8001B', tags:['Web UI','Brand Design','HTML/CSS/JS'] },
-    { num:'04', cat:'App UX/UI · 2026',  title:'스파이 요가', subtitle:'Spy Yoga',    color:'#4CAF8A', tags:['App Design','Fitness','Figma'] },
-  ];
+  (function() {
+    const wrap  = document.getElementById('pf-track-wrap');
+    const track = document.getElementById('pf-track');
+    const bgGlow = document.getElementById('pf-bg-glow');
+    if (!wrap || !track) return;
 
-  let pf_active_idx = 0;
+    // 카드 색상 CSS 변수 적용
+    document.querySelectorAll('.pf-xcard').forEach(card => {
+      card.style.setProperty('--card-color', card.dataset.color || '#fff');
+    });
 
-  const pf_mc_els    = Array.from(document.querySelectorAll('.pf-main-card'));
-  const pf_tab_els   = Array.from(document.querySelectorAll('.pf-tab'));
-  const pf_deck_bg   = document.getElementById('pf-deck-bg');
-  const pf_ghost1_el = document.getElementById('pf-ghost-1');
-  const pf_ghost2_el = document.getElementById('pf-ghost-2');
-  const pf_fl_left   = document.getElementById('pf-float-left');
-  const pf_fl_right  = document.getElementById('pf-float-right');
+    // 틸트 + glow 업데이트
+    const updateTilt = () => {
+      const cards = track.querySelectorAll('.pf-xcard');
+      const wrapCx = wrap.getBoundingClientRect().left + wrap.offsetWidth / 2;
+      let closestCard = null, closestDist = Infinity;
 
-  const pf_build_float = (el, idx) => {
-    if (!el) return;
-    const d = pf_cards_data[idx];
-    if (!d) { el.style.visibility = 'hidden'; return; }
-    el.style.visibility = '';
-    el.innerHTML =
-      `<div class="pf-float-num">${d.num}</div>` +
-      `<div class="pf-float-title">${d.title}<br/><span style="font-style:italic;font-family:'DM Serif Display',serif;color:${d.color};font-size:10px;">${d.subtitle}</span></div>` +
-      `<div class="pf-float-tags">${d.tags.map(t => `<span>${t}</span>`).join('')}</div>` +
-      `<div class="pf-float-dot" style="background:${d.color};"></div>`;
-  };
+      cards.forEach(card => {
+        const rect   = card.getBoundingClientRect();
+        const cardCx = rect.left + rect.width / 2;
+        const dist   = cardCx - wrapCx;
+        const maxD   = wrap.offsetWidth * 0.52;
+        const ratio  = Math.max(-1, Math.min(1, dist / maxD));
+        const tiltY  = ratio * -20;
+        const scale  = 1 - Math.abs(ratio) * 0.07;
+        card.style.transform = `rotateY(${tiltY}deg) scale(${scale})`;
+        const absDist = Math.abs(dist);
+        if (absDist < closestDist) { closestDist = absDist; closestCard = card; }
+      });
 
-  const pf_apply_color = (c) => {
-    if (pf_ghost1_el) pf_ghost1_el.style.background = `${c}12`;
-    if (pf_ghost2_el) pf_ghost2_el.style.background = `${c}07`;
-    if (pf_deck_bg)   pf_deck_bg.style.background =
-      `radial-gradient(ellipse 65% 65% at 50% 38%, ${c}1E, transparent 72%)`;
-  };
+      if (closestCard && bgGlow) {
+        const c = closestCard.dataset.color || '#ffffff';
+        bgGlow.style.background = `radial-gradient(ellipse 60% 50% at 50% 50%, ${c}1A, transparent 70%)`;
+      }
+    };
 
-  const pf_switch = (next_idx) => {
-    if (next_idx === pf_active_idx) return;
-    const cur_el = pf_mc_els[pf_active_idx];
-    const nxt_el = pf_mc_els[next_idx];
-    if (!cur_el || !nxt_el) return;
+    // 초기 스크롤 위치 (첫 카드 중앙)
+    const centerFirst = () => {
+      const firstCard = track.querySelector('.pf-xcard');
+      if (!firstCard) return;
+      const cardCx = firstCard.offsetLeft + firstCard.offsetWidth / 2;
+      wrap.scrollLeft = cardCx - wrap.offsetWidth / 2;
+    };
 
-    cur_el.classList.remove('active');
-    cur_el.classList.add('exit-up');
-    setTimeout(() => cur_el.classList.remove('exit-up'), 500);
+    // 드래그
+    let isDown = false, startX = 0, scrollStart = 0, velX = 0, lastX = 0, rafId = null;
 
-    pf_tab_els[pf_active_idx] && pf_tab_els[pf_active_idx].classList.remove('active');
-    pf_tab_els[next_idx]      && pf_tab_els[next_idx].classList.add('active');
+    wrap.addEventListener('mousedown', e => {
+      isDown = true;
+      wrap.classList.add('is-dragging');
+      startX = e.pageX; scrollStart = wrap.scrollLeft;
+      velX = 0; lastX = e.pageX;
+      cancelAnimationFrame(rafId);
+    });
+    window.addEventListener('mouseup', () => {
+      if (!isDown) return;
+      isDown = false;
+      wrap.classList.remove('is-dragging');
+      const inertia = () => {
+        velX *= 0.91;
+        if (Math.abs(velX) < 0.4) return;
+        wrap.scrollLeft -= velX;
+        updateTilt();
+        rafId = requestAnimationFrame(inertia);
+      };
+      rafId = requestAnimationFrame(inertia);
+    });
+    window.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      e.preventDefault();
+      velX = lastX - e.pageX; lastX = e.pageX;
+      wrap.scrollLeft = scrollStart - (e.pageX - startX) * 1.2;
+      updateTilt();
+    });
 
-    pf_active_idx = next_idx;
-    nxt_el.classList.add('active');
-    pf_apply_color(pf_cards_data[next_idx].color);
+    // 터치
+    let tStartX = 0, tScrollStart = 0;
+    wrap.addEventListener('touchstart', e => {
+      tStartX = e.touches[0].pageX; tScrollStart = wrap.scrollLeft;
+      cancelAnimationFrame(rafId);
+    }, { passive: true });
+    wrap.addEventListener('touchmove', e => {
+      wrap.scrollLeft = tScrollStart - (e.touches[0].pageX - tStartX) * 1.2;
+      updateTilt();
+    }, { passive: true });
 
-    const N = pf_cards_data.length;
-    pf_build_float(pf_fl_left,  (next_idx - 1 + N) % N);
-    pf_build_float(pf_fl_right, (next_idx + 1) % N);
-  };
+    // 클릭 이동
+    track.querySelectorAll('.pf-xcard').forEach(card => {
+      card.addEventListener('click', () => {
+        if (Math.abs(wrap.scrollLeft - scrollStart) > 6) return;
+        const href = card.dataset.href;
+        if (href) window.location.href = href;
+      });
+    });
 
-  const init_pf_deck = () => {
-    if (pf_mc_els[0]) pf_mc_els[0].classList.add('active');
-    pf_apply_color(pf_cards_data[0].color);
-    const N = pf_cards_data.length;
-    pf_build_float(pf_fl_left,  N - 1);
-    pf_build_float(pf_fl_right, 1);
+    wrap.addEventListener('scroll', updateTilt);
 
-    if (pf_fl_left)  pf_fl_left.addEventListener('click',  () => pf_switch((pf_active_idx - 1 + N) % N));
-    if (pf_fl_right) pf_fl_right.addEventListener('click', () => pf_switch((pf_active_idx + 1) % N));
-    pf_tab_els.forEach((tab, i) => tab.addEventListener('click', () => pf_switch(i)));
-  };
-  init_pf_deck();
+    setTimeout(() => { centerFirst(); updateTilt(); }, 60);
+    window.addEventListener('resize', () => { centerFirst(); updateTilt(); });
+  })();
 
 
   /* ══════════════════════════════════════
