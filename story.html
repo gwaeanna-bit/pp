@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>황제펭귄 이야기 — First Penguin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Nanum+Brush+Script&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/script.js"></script>
+</head>
+<body class="splash-active">
+
+  <!-- ══ 스플래시 화면 ══ -->
+  <div id="splash">
+    <!-- 떠다니는 얼음 조각들 (img3 툴 사진) -->
+    <div id="splash-ice">
+      <div class="sp-ice" data-s="md" style="--sx:78%;--sy:66%">
+        <img class="ice-tool-icon" src="img3/image%20647.png" alt="툴1">
+      </div>
+      <div class="sp-ice" data-s="lg" style="--sx:82%;--sy:60%">
+        <img class="ice-tool-icon" src="img3/image%20662.png" alt="툴2">
+      </div>
+      <div class="sp-ice" data-s="sm" style="--sx:86%;--sy:68%">
+        <img class="ice-tool-icon" src="img3/image%20664.png" alt="툴3">
+      </div>
+      <div class="sp-ice" data-s="md" style="--sx:80%;--sy:74%">
+        <img class="ice-tool-icon" src="img3/image%20665.png" alt="툴4">
+      </div>
+      <div class="sp-ice" data-s="lg" style="--sx:86%;--sy:74%">
+        <img class="ice-tool-icon" src="img3/image%20666.png" alt="툴5">
+      </div>
+      <div class="sp-ice" data-s="sm" style="--sx:74%;--sy:70%">
+        <img class="ice-tool-icon" src="img3/image%20668.png" alt="툴6">
+      </div>
+      <div class="sp-ice" data-s="md" style="--sx:92%;--sy:64%">
+        <img class="ice-tool-icon" src="img3/image%20671.png" alt="툴7">
+      </div>
+    </div>
+
+    <!-- 오로라 배경 (패럴랙스) -->
+    <div id="splash-bg">
+      <img src="img/img7.png" alt="남극 배경" />
+    </div>
+    <div id="splash-overlay"></div>
+
+    <!-- 눈보라 캔버스 -->
+    <canvas id="snow-canvas"></canvas>
+
+    <!-- 좌상단 타이틀 -->
+    <div id="splash-text">
+      <p class="splash-sub">FIRST PENGUIN PORTFOLIO</p>
+      <h1 class="splash-title">
+        <span class="title-small">남극의 귀염둥이</span><br>
+        <span class="title-big">황제펭귄 이야기</span>
+      </h1>
+    </div>
+
+    <!-- 중앙 펭귄 + START 버튼 -->
+    <div id="splash-center">
+      <div id="splash-penguin-wrap">
+        <img id="splash-penguin-spin" src="img/img5.png" alt="얼음 위 아기펭귄" draggable="false" />
+      </div>
+      <p id="splash-hint">저를 잡아서 디자인 바다에 빠뜨려주세요</p>
+      <div id="splash-swipe-arrow">→</div>
+    </div>
+  </div>
+
+  <!-- ══ 수면 전환 화면 ══ -->
+  <div id="surface-reveal">
+    <img class="surface-base-img" src="img/img11.png" alt="수면 위" />
+    <img class="surface-hover-img" src="img/img14.png" alt="점프하는 펭귄" />
+    <p id="surface-thanks">Thanks for visiting.</p>
+  </div>
+  <!-- surface-reveal 닫기 버튼 -->
+  <button id="surface-close-btn" onclick="location.reload();" aria-label="닫기">×</button>
+  <script>
+    (function(){
+      var _sr_obs = new MutationObserver(function(){
+        var sr = document.getElementById('surface-reveal');
+        var btn = document.getElementById('surface-close-btn');
+        if (!btn) return;
+        if (sr && sr.classList.contains('active')) {
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        } else {
+          btn.style.opacity = '0';
+          btn.style.pointerEvents = 'none';
+        }
+      });
+      document.addEventListener('DOMContentLoaded', function(){
+        var sr = document.getElementById('surface-reveal');
+        if (sr) _sr_obs.observe(sr, { attributes: true, attributeFilter: ['class'] });
+      });
+    })();
+  </script>
+
+  <!-- ══ 수중 전환 화면 ══ -->
+  <div id="underwater">
+    <img src="img/img9.png" alt="수중 배경" />
+    <div id="underwater-overlay"></div>
+    <img id="uw-penguin" src="img/img10.png" alt="헤엄치는 펭귄" draggable="false" />
+    <p id="uw-instruction">디자인 바다에서 저를 위로 건져주실 분 계신가요?</p>
+    <p id="underwater-hint">✦ scroll to explore</p>
+
+    <!-- 디자인툴 해파리 -->
+    <div id="uw-tools">
+      <div class="uw-jelly" style="left:7%;top:14%;--jd:0.1s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20647.png" alt="툴1"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:15%;top:50%;--jd:0.6s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20662.png" alt="툴2"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:3%;top:68%;--jd:1.2s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20664.png" alt="툴3"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:38%;top:5%;--jd:0.4s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20665.png" alt="툴4"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:62%;top:66%;--jd:1.0s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20666.png" alt="툴5"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:70%;top:8%;--jd:0.3s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20668.png" alt="툴6"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="uw-jelly" style="left:84%;top:42%;--jd:0.7s;--jr:180,200,230">
+        <div class="jelly-head"><img src="img3/image%20671.png" alt="툴7"></div>
+        <div class="jelly-tail"><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 고정 헤더 ══ -->
+  <header class="header">
+    <div class="logo" style="cursor:pointer;" onclick="window.location.href='index.html'">🐧 FIRST PENGUIN</div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="index.html#about-section">About</a>
+      <a href="index.html">Portfolio</a>
+      <a href="#" class="nav-active">Story</a>
+    </nav>
+  </header>
+
+  <div id="h-progress-bar"></div>
+
+  <!-- ══ 가로 스크롤 트랙 ══ -->
+  <div id="h-track">
+    <div id="h-stage">
+      <div id="h-rail">
+
+        <!-- 패널 0: section01 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section01.png" alt="아기펭귄들" />
+          <div class="story-text">
+            <p class="story-body">세상에 나온 첫날, 나는 아직 아무것도 모른다.<br>하지만 함께라면, 두렵지 않다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 2: section02 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section02.png" alt="도약" />
+          <div class="story-text">
+            <p class="story-body">두려움보다 설렘이 더 크다.<br>완벽한 확신보다 실패를 통해 배우는 태도가 나를 앞으로 이끈다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 6: section06 -->
+        <section class="h-section" id="section06-glitch">
+          <img class="bg-img" src="images/section06.png" alt="도약2" />
+          <div class="story-text">
+            <p class="story-body">방향은 손끝에서부터 전체를 시작한다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 7: section07 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section07.png" alt="수중" />
+          <div class="story-text">
+            <p class="story-body">두려움은 결국 나를 더 유연하고 단단하게 한다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 8: section08 -->
+        <section class="h-section">
+          <img class="bg-img" src="images/section08.png" alt="심해" />
+          <div class="story-text">
+            <p class="story-body">결국, 나는 내 바다를 찾아낸다.</p>
+          </div>
+        </section>
+
+        <!-- 패널 9: 프로필 + 취미 갤러리 -->
+        <section class="h-section" id="pp-section">
+          <img class="bg-img" src="img/img19.png" alt="프로필 배경" />
+
+          <div class="hobby-gallery">
+            <p class="hobby-label">Hobbies &amp; Daily Life</p>
+            <div class="hobby-strip">
+              <div class="hobby-item hobby-tall">
+                <img src="hobby/z1.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-wide">
+                <img src="hobby/z2.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-mid">
+                <img src="hobby/z3.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-wide">
+                <img src="hobby/z4.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-tall">
+                <img src="hobby/z5.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-mid">
+                <img src="hobby/z7.jpg" alt="hobby">
+              </div>
+              <div class="hobby-item hobby-wide">
+                <img src="hobby/z8.jpg" alt="hobby">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 패널 11: 비디오 (마지막) -->
+        <section class="h-section" id="video-section">
+          <video class="bg-img" autoplay muted loop playsinline style="opacity:0;transition:opacity 0.5s ease;" oncanplay="this.style.opacity='1'">
+            <source src="vidieos/main.mp4" type="video/mp4" />
+          </video>
+          <img class="bg-img video-hover-img" src="img/img14.png" alt="황제펭귄" />
+        </section>
+
+      </div><!-- /#h-rail -->
+    </div><!-- /#h-stage -->
+  </div><!-- /#h-track -->
+
+  <!-- 영상 스킵 버튼 -->
+  <button id="video-skip-btn" aria-label="Skip">
+    Skip <span class="skip-arrow">→</span>
+  </button>
+
+  <!-- 메인 눈보라 캔버스 -->
+  <canvas id="main-snow-canvas"></canvas>
+
+  <!-- 증명사진 팝업 -->
+  <div id="id-photo-modal" aria-hidden="true">
+    <div id="id-photo-inner">
+      <img src="img/img16.png" alt="증명사진" />
+      <button id="id-photo-close" aria-label="닫기">×</button>
+    </div>
+  </div>
+
+  <!-- 종이 바닥선 -->
+  <div id="ground"></div>
+
+  <!-- 세로 스크롤 따라오는 고정 펭귄 -->
+  <img id="scroll-companion" src="img/img10.png" alt="따라오는 펭귄" draggable="false" />
+
+  <!-- 걷는 펭귄 캐릭터 -->
+  <div id="penguin">
+    <div class="p-inner">
+      <img class="penguin-img penguin-young"   src="images/section12.png" alt="어린 펭귄" />
+      <img class="penguin-img penguin-adult"   src="images/section19.png" alt="황제펭귄" />
+      <img class="penguin-img penguin-emperor" src="images/section19.png" alt="황제펭귄" />
+      <img class="penguin-img penguin-hobby"   src="img/img18.png"        alt="자전거 펭귄" />
+    </div>
+  </div>
+
+</body>
+</html>

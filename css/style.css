@@ -2041,16 +2041,7 @@ body.splash-active .sp-ice {
   transform: translateX(3px);
 }
 
-/* 줌인 — bg-img가 핸드폰 화면 쪽으로 빨려 들어감 */
-#portfolio-section .bg-img {
-  transform-origin: 57% 48%;
-  transition: transform 0.75s cubic-bezier(0.4, 0, 0.8, 1),
-              opacity  0.4s ease 0.35s;
-}
-#portfolio-section.zooming .bg-img {
-  transform: scale(10) !important;
-  opacity: 0 !important;
-}
+
 
 
 /* 종이/나무 바닥선 */
@@ -2513,9 +2504,16 @@ body.splash-active .sp-ice {
    ══════════════════════════════════════ */
 /* ══ WORKS 섹션 (Studio X-Lab 스타일) ══ */
 #portfolio-section {
+  position: relative;
+  z-index: 5;
+  isolation: isolate;
+  background: #000;
+}
+
+/* WORKS 카드 전용 hero 영역 */
+#pf-hero {
   height: 100vh;
   position: relative;
-  background: #000;
   overflow: hidden;
 }
 
@@ -2645,7 +2643,7 @@ body.splash-active .sp-ice {
 
 /* ── WORKS 반응형 ── */
 @media (max-width: 599px) {
-  #portfolio-section { height: 100svh; }
+  #pf-hero { height: 100svh; }
   #pf-works-title { font-size: clamp(52px, 14vw, 78px); }
   #pf-track { gap: 14px; padding: 0 20vw; }
   .pf-xcard { width: 62vw; height: 62svh; }
