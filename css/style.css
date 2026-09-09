@@ -2828,3 +2828,74 @@ body.splash-active .sp-ice {
 .ab-hist-item {
   color: rgba(255,255,255,0.65);
 }
+
+/* ══ Story 전환 섹션 ══ */
+#story-bridge {
+  position: relative;
+  height: 100vh;
+  background: radial-gradient(ellipse at 60% 50%, #0a0e2a 0%, #000 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#story-bridge-inner {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 24px;
+}
+.sb-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.sb-title {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+.sb-title em {
+  font-style: italic;
+  color: rgba(100,160,255,0.9);
+}
+.sb-desc {
+  font-size: clamp(14px, 1.4vw, 17px);
+  color: rgba(255,255,255,0.5);
+  line-height: 1.8;
+  margin-bottom: 44px;
+}
+.sb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 36px;
+  background: #fff;
+  color: #000;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: transform 0.2s, opacity 0.2s;
+  letter-spacing: -0.3px;
+}
+.sb-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+.sb-btn span { font-size: 18px; transition: transform 0.2s; }
+.sb-btn:hover span { transform: translateX(4px); }
+.sb-penguin {
+  position: absolute;
+  bottom: 0;
+  right: 8%;
+  height: 55vh;
+  object-fit: contain;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 1;
+}
