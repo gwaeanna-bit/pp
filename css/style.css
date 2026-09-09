@@ -1310,7 +1310,7 @@ body.splash-active .sp-ice {
 #vi-sticky {
   position: sticky; top: 0; height: 100vh;
   overflow: hidden;
-  background: #2B4AFF;
+  background: #000;
   display: grid; grid-template-columns: 1fr 1fr;
 }
 /* 하단 전환 — 블루에서 심해 네이비로 자연스럽게 */
@@ -1335,7 +1335,7 @@ body.splash-active .sp-ice {
 #vi-image-panel {
   order: -1;                          /* 그리드에서 왼쪽으로 이동 */
   position: relative; z-index: 3;
-  background: #F0E6C8;                /* 따뜻한 크림/옐로우 */
+  background: #000;
   display: flex; align-items: center; justify-content: center;
   padding: 48px 40px;
 }
@@ -2555,7 +2555,7 @@ body.splash-active .sp-ice {
   align-items: center;
   height: 100%;
   gap: 24px;
-  padding: 0 32vw;
+  padding: 0 calc(50% - clamp(105px, 9vw, 132px));
   width: max-content;
 }
 
@@ -2645,7 +2645,7 @@ body.splash-active .sp-ice {
 @media (max-width: 599px) {
   #pf-hero { height: 100svh; }
   #pf-works-title { font-size: clamp(52px, 14vw, 78px); }
-  #pf-track { gap: 14px; padding: 0 20vw; }
+  #pf-track { gap: 14px; padding: 0 calc(50% - clamp(105px, 9vw, 132px)); }
   .pf-xcard { width: 62vw; height: 62svh; }
   #pf-see-all { right: 20px; bottom: 22px; font-size: 11px; }
   #pf-drag-hint { bottom: 56px; }
@@ -2676,4 +2676,155 @@ body.splash-active .sp-ice {
 @keyframes companion-bob {
   0%, 100% { transform: translateY(0px)   rotate(-6deg); }
   50%       { transform: translateY(-14px) rotate(6deg);  }
+}
+
+
+/* ══ ② 히어로 텍스트 패널 ══ */
+.vi-hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 0 56px;
+  color: #fff;
+}
+.vi-hero-role {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 12px;
+}
+.vi-hero-name {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 20px;
+}
+.vi-hero-desc {
+  font-size: clamp(14px, 1.4vw, 17px);
+  line-height: 1.75;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 36px;
+}
+.vi-hero-cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.vi-btn-primary {
+  display: inline-block;
+  padding: 13px 28px;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.vi-btn-primary:hover { opacity: 0.85; }
+.vi-btn-secondary {
+  display: inline-block;
+  padding: 13px 28px;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50px;
+  border: 1px solid rgba(255,255,255,0.35);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.vi-btn-secondary:hover { border-color: #fff; }
+.vi-hero-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vi-hero-tags span {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.5px;
+}
+
+/* ══ ③ 가치관 3열 가로 배치 ══ */
+#ab-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 860px;
+  margin-bottom: 48px;
+}
+.ab-feat {
+  padding: 28px 24px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+}
+.ab-feat-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.ab-feat-body {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.55);
+}
+
+/* ══ ④ 프로젝트 카드 문제 한 줄 ══ */
+.pf-xcard-problem {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+  padding: 8px 20px 0;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+/* ══ ⑤ About 자기소개 + 이력 ══ */
+#ab-bio {
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 36px;
+}
+.ab-bio-text {
+  font-size: clamp(14px, 1.3vw, 16px);
+  line-height: 1.85;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 28px;
+}
+.ab-history {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ab-history li {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 13px;
+}
+.ab-hist-year {
+  color: rgba(255,255,255,0.35);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.ab-hist-item {
+  color: rgba(255,255,255,0.65);
 }
