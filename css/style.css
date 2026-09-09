@@ -2553,9 +2553,11 @@ body.splash-active .sp-ice {
 #pf-track {
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 100%;
   gap: 24px;
-  padding: 0 calc(50% - clamp(105px, 9vw, 132px));
+  padding: 0 48px;
+  min-width: 100%;
   width: max-content;
 }
 
@@ -2645,7 +2647,7 @@ body.splash-active .sp-ice {
 @media (max-width: 599px) {
   #pf-hero { height: 100svh; }
   #pf-works-title { font-size: clamp(52px, 14vw, 78px); }
-  #pf-track { gap: 14px; padding: 0 calc(50% - clamp(105px, 9vw, 132px)); }
+  #pf-track { gap: 14px; padding: 0 24px; justify-content: center; }
   .pf-xcard { width: 62vw; height: 62svh; }
   #pf-see-all { right: 20px; bottom: 22px; font-size: 11px; }
   #pf-drag-hint { bottom: 56px; }
